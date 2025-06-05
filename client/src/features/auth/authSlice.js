@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { checkUser, createUser, signOut, checkToken } from './authAPI'
-// import { updateUser } from '../user/userAPI'
+import { deleteProfileImage, updateProfile, updateProfileImage } from '../profile/profileAPI'
 
 const initialState = {
     loggedInUser: null,
@@ -33,11 +33,28 @@ export const checkTokenAsync = createAsyncThunk(
         return response.data;
     })
 
-export const updateUserAsync = createAsyncThunk(
-    'user/updateUser',
+export const updateProfileAsync = createAsyncThunk(
+    'user/updateProfile',
     async (update) => {
-        const response = await updateUser(update);
+        const response = await updateProfile(update);
         // The value we return becomes the `fulfilled` action payload
+        return response.data;
+    }
+);
+
+export const updateProfileImageAsync = createAsyncThunk(
+    'user/updateProfileImage',
+    async ({ formData, id }) => {
+        const response = await updateProfileImage(formData, id);
+        // The value we return becomes the `fulfilled` action payload
+        return response.data;
+    }
+);
+
+export const deleteProfileImageAsync = createAsyncThunk(
+    'user/deleteProfileImage',
+    async (id) => {
+        const response = await deleteProfileImage(id);
         return response.data;
     }
 );
@@ -86,13 +103,27 @@ export const authSlice = createSlice({
                 // console.log(action)
                 state.error = action.error;
             })
-            .addCase(updateUserAsync.pending, (state) => {
+            .addCase(updateProfileAsync.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(updateUserAsync.fulfilled, (state, action) => {
+            .addCase(updateProfileAsync.fulfilled, (state, action) => {
                 state.status = 'idle';
                 state.loggedInUser = action.payload;
             })
+            .addCase(updateProfileImageAsync.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(updateProfileImageAsync.fulfilled, (state, action) => {
+                state.status = 'idle';
+                state.loggedInUser = action.payload;
+            })
+            // .addCase(deleteProfileImageAsync.pending, (state) => {
+            //     state.status = 'loading';
+            // })
+            // .addCase(deleteProfileImageAsync.fulfilled, (state, action) => {
+            //     state.status = 'idle';
+            //     state.loggedInUser = action.payload;
+            // })
             .addCase(signOutAsync.pending, (state) => {
                 state.status = 'loading';
             })

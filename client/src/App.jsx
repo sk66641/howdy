@@ -7,6 +7,7 @@ import Protected from "./features/auth/components/Protected"
 import ChatPage from "./pages/ChatPage"
 import ProfilePage from "./pages/ProfilePage"
 import AuthPage from "./pages/AuthPage"
+import ChatHtml from "./features/chat/ChatHtml"
 // shadcn is a rapper over radix-ui
 
 function App() {
@@ -17,11 +18,15 @@ function App() {
     },
     {
       path: '/',
-      element: <Protected><ChatPage/></Protected>,
+      element: <Protected><ChatPage /></Protected>,
     },
     {
       path: '/profile',
-      element: <ProfilePage />,
+      element: <Protected> <ProfilePage /></Protected>,
+    },
+    {
+      path: '/testing',
+      element: <ChatHtml/>
     },
     {
       path: '*',

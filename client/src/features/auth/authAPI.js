@@ -14,7 +14,7 @@ export function createUser(userData) {
         )
         const data = await response.json();
         // console.log("createUser", data)
-        resolve({ data })
+        resolve({ data });
     })
 }
 

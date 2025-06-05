@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { checkUserAsync } from '../authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
 
@@ -17,9 +18,11 @@ const Login = () => {
     }
 
     const dispatch = useDispatch();
-    const handleSubmit = async (e) => {
+    const navigate = useNavigate();
+    const handleSubmit = (e) => {
         e.preventDefault();
         dispatch(checkUserAsync(inputValue));
+        navigate('/');
     }
 
     return (

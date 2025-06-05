@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { createUserAsync } from '../authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
 
@@ -23,6 +24,7 @@ const Register = () => {
   }
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,9 +33,8 @@ const Register = () => {
       alert("Passwords do not match");
       return;
     }
-
     dispatch(createUserAsync(inputValue));
-    
+    navigate('/profile');
   }
 
   return (
@@ -55,7 +56,7 @@ const Register = () => {
       <p className="text-center text-gray-500 mt-4">
         Already have an account?
         <span
-          
+
           className="text-blue-500 cursor-pointer hover:underline"
         >
           Login here

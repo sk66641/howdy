@@ -6,9 +6,9 @@ const UserSchema = new mongoose.Schema({
     lastName: { type: String, required: [true, "Last name is required"] },
     email: { type: String, required: [true, "Email is required"], unique: true },
     password: { type: String, required: [true, "Email is required"]},
-    image: { type: String, default: 'https://www.gravatar.com/avatar/'},
+    profileImage: { type: String, default: null },
     color: { type: Number, default: 0 },
-    profieSetup: { type: Boolean, default: false }, 
+    profileSetup: { type: Boolean, default: false }, 
 })
 
 UserSchema.pre('save', function (next) {
