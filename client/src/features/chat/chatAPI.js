@@ -1,3 +1,7 @@
+// import axios from 'axios';
+// import { setFileUploadProgress } from './chatSlice';
+// import { useDispatch } from 'react-redux';
+
 export function searchContacts(searchQuery) {
     return new Promise(async (resolve) => {
         //TODO: we will not hard-code server URL here
@@ -117,4 +121,68 @@ export function signOut() {
             reject(error);
         }
     })
+}
+
+export function getMessages(senderId, receiverId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/messages?senderId=${senderId}&receiverId=${receiverId}`, {
+                method: 'GET',
+                credentials: 'include',
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+export function getDmContactList(userId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/chat/getdmcontacts?userId=${userId}`, {
+                method: 'GET',
+                credentials: 'include',
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+export function uploadFile(formData) {
+    // const dispatch = useDispatch();
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(
+                `${import.meta.env.VITE_HOST}/messages/uploadFile`,
+                {
+                    method: 'POST',
+                    credentials: true,
+                    body: formData,
+
+                }
+            );
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error.response?.data || error.message);
+        }
+    });
 }

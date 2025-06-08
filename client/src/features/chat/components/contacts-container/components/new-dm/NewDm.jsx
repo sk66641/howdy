@@ -7,7 +7,7 @@ import { colors } from '../../../../../../lib/utils'
 import { ScrollArea } from "@/components/ui/scroll-area"
 // import { searchedQuery } from '../../../../chatAPI'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { searchContactsAsync, selectContacts, setContactsNull, setSelectedContact } from '../../../../chatSlice'
+import { searchContactsAsync, selectContacts, setContactsNull, setSelectedContact, setSelectedChatType } from '../../../../chatSlice'
 // import { set } from 'mongoose'
 
 const NewDm = () => {
@@ -28,6 +28,7 @@ const NewDm = () => {
         }
     }
     const handleSelectContact = (contact) => {
+        dispatch(setSelectedChatType('contact'));
         setOpenNewContactModal(false);
         setSearchQuery('');
         dispatch(setContactsNull());

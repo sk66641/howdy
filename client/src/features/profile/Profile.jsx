@@ -17,7 +17,7 @@ const Profile = () => {
 
   const user = useSelector(selectLoggedInUser);
   const [selectedColor, setSelectedColor] = useState(user.color);
-  console.log("selectedColor", selectedColor);
+  // console.log("selectedColor", selectedColor);
   const [hovered, setHovered] = useState(false);
   // const [formData, setFormData] = useState();
   // console.log(user);
@@ -53,7 +53,7 @@ const Profile = () => {
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    console.log(file);
+    // console.log(file);
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {

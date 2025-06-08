@@ -24,6 +24,7 @@ export function updateProfileImage(formData, id) {
         const response = await fetch(`${import.meta.env.VITE_HOST}/profile/image/` + id,
             {
                 method: 'POST',
+                credentials: 'include',
                 body: formData
             }
         )

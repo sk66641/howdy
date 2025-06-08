@@ -22,16 +22,15 @@ exports.updateProfile = async (req, res) => {
 }
 
 exports.updateProfileImage = async (req, res) => {
-    // console.log(req)
-    if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-    }
-    const { id } = req.params;
-    const fileName = "uploads/profileImages/" + Date.now() + '_' + req.file.originalname;
-    fs.renameSync(req.file.path, fileName);
-    console.log(req.file)
-    console.log(req.file.path)
     try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+        const { id } = req.params;
+        const fileName = "uploads/profileImages/" + Date.now() + '_' + req.file.originalname;
+        fs.renameSync(req.file.path, fileName);
+        // console.log(req.file)
+        // console.log(req.file.path)
         const updatedUser = await User.findByIdAndUpdate(
             id,
             { profileImage: fileName },
@@ -57,6 +56,6 @@ exports.deleteProfileImage = async (req, res) => {
         res.status(200).json({ message: "Profile image deleted successfully" });
     } catch (error) {
         console.error("Error deleting profile image:", error);
-        return res.status(500).json({ message: "Internal server error" }); 
+        return res.status(500).json({ message: "Internal server error" });
     }
 }

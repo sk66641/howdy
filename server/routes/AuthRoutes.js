@@ -20,7 +20,6 @@ router.post('/register', register).post('/login', login).get('/logout', logout).
             console.error("Error fetching user:", error);
             throw error;
         }
-
     } catch (error) {
         console.error("Error verifying token:", error);
         res.status(401).json({ message: "Unauthorized" });

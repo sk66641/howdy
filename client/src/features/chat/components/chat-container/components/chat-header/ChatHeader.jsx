@@ -1,7 +1,7 @@
 import React from 'react'
 import { RiCloseFill } from 'react-icons/ri'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectSelectedContact, setSelectedContact } from '../../../../chatSlice';
+import { selectSelectedContact, setSelectedChatType, setSelectedContact } from '../../../../chatSlice';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../../../../../lib/utils';
 
@@ -34,7 +34,10 @@ const ChatHeader = () => {
                     </div>
                 </div>
                 <div className="flex items-center justify-center gap-5">
-                    <button className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all hover:text-neutral-300" onClick={() => dispatch(setSelectedContact(null))}>
+                    <button className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all hover:text-neutral-300" onClick={() => {
+                        dispatch(setSelectedContact(null));
+                        dispatch(setSelectedChatType(null))
+                    }}>
                         <RiCloseFill className="text-3xl cursor-pointer" />
                     </button>
                 </div>
