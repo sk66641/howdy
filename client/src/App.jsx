@@ -8,6 +8,7 @@ import ChatPage from "./pages/ChatPage"
 import ProfilePage from "./pages/ProfilePage"
 import AuthPage from "./pages/AuthPage"
 import ChatHtml from "./features/chat/ChatHtml"
+import { getChannelsAsync } from "./features/chat/chatSlice"
 // shadcn is a rapper over radix-ui
 
 function App() {

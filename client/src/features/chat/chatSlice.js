@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { getDmContactList, getMessages, searchContacts, uploadFile } from './chatAPI'
+import { createChannel, downloadFile, getChannelMessages, getChannels, getDmContactList, getMessages, searchContacts, uploadFile } from './chatAPI'
 // import { set } from 'mongoose';
 // import { act } from 'react';
 // import usestate
@@ -7,6 +7,7 @@ import { getDmContactList, getMessages, searchContacts, uploadFile } from './cha
 
 const initialState = {
     contacts: null,
+    isSearchingContacts: false,
     status: 'idle',
     error: null,
     selectedChatType: null,
@@ -18,6 +19,8 @@ const initialState = {
     isUploading: false,
     fileUploadProgress: 0,
     fileDownloadProgress: 0,
+    channelList: [],
+    // channelMessages:[],
 }
 
 export const searchContactsAsync = createAsyncThunk(
@@ -47,11 +50,49 @@ export const getDmContactListAsync = createAsyncThunk(
 
 export const uploadFileAsync = createAsyncThunk(
     'chat/uploadFile',
-    async (formData) => {
-        const response = await uploadFile(formData);
+    async (formData, { dispatch }) => {
+        // console.log("uploadFileAsync", formData)
+        const response = await uploadFile(formData, dispatch);
         // console.log("uploadFileAsync", response)
         return response.data.filePath;
     })
+
+export const downloadFileAsync = createAsyncThunk(
+    'chat/downloadFile',
+    async (filePath, { dispatch }) => {
+        // console.log("downloadFileAsync", filePath)
+        const response = await downloadFile(filePath, dispatch);
+        // console.log("downloadFileAsync", response)
+        return response.data;
+    }
+)
+
+export const createChannelAsync = createAsyncThunk(
+    'chat/createChannel',
+    async ({ name, members, userId }) => {
+        // console.log("createChannelAsync", name, members, userId)
+        const response = await createChannel(name, members, userId);
+        // console.log("createChannelAsync response", response)
+        return response.data.channel;
+    }
+)
+
+export const getChannelsAsync = createAsyncThunk(
+    'chat/getChannels',
+    async (userId) => {
+        // console.log("getChannelsAsync", userId)
+        const response = await getChannels(userId);
+        // console.log("getChannelsAsync response", response)
+        return response.data.channels;
+    }
+)
+
+export const getChannelMessagesAsync = createAsyncThunk(
+    'chat/getChannelMessages', async ({channelId}) => {
+        const response = await getChannelMessages(channelId);
+        return response.data.channelMessages.messages;
+    }
+)
 
 export const chatSlice = createSlice({
     name: 'chat',
@@ -81,12 +122,6 @@ export const chatSlice = createSlice({
             console.log(action.payload, "setSelectedChatType")
             state.selectedChatType = action.payload;
         },
-        setIsDownloading: (state, action) => {
-            state.isDownloading = action.payload;
-        },
-        setIsUploading: (state, action) => {
-            state.isUploading = action.payload;
-        },
         setFileUploadProgress: (state, action) => {
             state.fileUploadProgress = action.payload;
         },
@@ -106,14 +141,16 @@ export const chatSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(searchContactsAsync.pending, (state) => {
-                state.status = 'loading';
+                state.isSearchingContacts = true;
+
             })
             .addCase(searchContactsAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
+                state.isSearchingContacts = false;
                 state.contacts = action.payload;
             })
             .addCase(searchContactsAsync.rejected, (state, action) => {
-                state.status = 'error';
+                state.isSearchingContacts = false;
+
                 state.error = action.error.message;
             })
             .addCase(getMessagesAsync.pending, (state) => {
@@ -139,15 +176,66 @@ export const chatSlice = createSlice({
                 state.error = action.error.message;
             })
             .addCase(uploadFileAsync.pending, (state) => {
-                state.status = 'loading';
+                state.isUploading = true;
             })
             .addCase(uploadFileAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
+                state.isUploading = false;
                 state.filePath = action.payload;
             })
             .addCase(uploadFileAsync.rejected, (state, action) => {
+                state.isUploading = false;
+                state.error = action.error.message;
+            })
+            .addCase(downloadFileAsync.pending, (state) => {
+                state.isDownloading = true;
+            })
+            .addCase(downloadFileAsync.fulfilled, (state, action) => {
+                state.isDownloading = false;
+                // state.filePath = action.payload;
+            })
+            .addCase(downloadFileAsync.rejected, (state, action) => {
+                state.isDownloading = false;
+                state.error = action.error.message;
+            })
+            .addCase(createChannelAsync.pending, (state) => {
+                state.status = 'loading';
+            }
+            )
+            .addCase(createChannelAsync.fulfilled, (state, action) => {
+                state.status = 'idle';
+                // console.log("createChannelAsync.fulfilled", action.payload)
+                state.channelList = action.payload;
+            }
+            )
+            .addCase(createChannelAsync.rejected, (state, action) => {
                 state.status = 'error';
                 state.error = action.error.message;
+            }
+            )
+            .addCase(getChannelsAsync.pending, (state) => {
+                state.status = 'loading';
+            }
+            )
+            .addCase(getChannelsAsync.fulfilled, (state, action) => {
+                state.status = 'idle';
+                // console.log("getChannelsAsync.fulfilled", action.payload)
+                state.channelList = action.payload;
+            }
+            )
+            .addCase(getChannelsAsync.rejected, (state, action) => {
+                state.status = 'error';
+                state.error = action.error.message;
+            }
+            )
+            .addCase(getChannelMessagesAsync.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(getChannelMessagesAsync.fulfilled, (state, action) => {
+                state.status = 'idle';
+                state.selectedChatMessages = action.payload;
+            })
+            .addCase(getChannelMessagesAsync.rejected, (state) => {
+                state.status = 'error';
             })
         // .addCase(checkUserAsync.pending, (state) => {
         //     state.status = 'loading';
@@ -167,7 +255,9 @@ export const selectIsDownloading = (state) => state.chat.isDownloading;
 export const selectIsUploading = (state) => state.chat.isUploading;
 export const selectFileUploadProgress = (state) => state.chat.fileUploadProgress;
 export const selectFileDownloadProgress = (state) => state.chat.fileDownloadProgress;
+export const selectIsSearchingContacts = (state) => state.chat.isSearchingContacts;
+export const selectChannelList = (state) => state.chat.channelList;
 // export const { increment, decrement, incrementByAmount } = counterSlice.actions
 
-export const { setSelectedContact, setContactsNull, setSelectedChatMessages, setSelectedChatType, EmptySelectedChatMessages, setIsDownloading, setIsUploading, setFileDownloadProgress, setFileUploadProgress } = chatSlice.actions;
+export const { setSelectedContact, setContactsNull, setSelectedChatMessages, setSelectedChatType, EmptySelectedChatMessages, setFileDownloadProgress, setFileUploadProgress } = chatSlice.actions;
 export default chatSlice.reducer

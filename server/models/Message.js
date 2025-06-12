@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const messageSchema = new mongoose.Schema({
     sender: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Users',
         required: true
     },
     receiver: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'Users',
+        // required: true
     },
     messageType: {
         type: String,
@@ -38,6 +38,6 @@ const messageSchema = new mongoose.Schema({
     }
 });
 
-exports.Message = mongoose.model('Message', messageSchema);
+exports.Message = mongoose.model('Messages', messageSchema);
 
 // to do: try replacing the function with an arrow function

@@ -33,6 +33,7 @@ server.use('/auth', require('./routes/AuthRoutes'));
 server.use('/profile', require('./routes/ProfileRoutes'));
 server.use('/chat', require('./routes/ContactsRoutes'));
 server.use('/messages', require('./routes/MessageRoutes'));
+server.use('/channels', require('./routes/ChannelRoutes'));
 
 const httpServer = server.listen(process.env.PORT || 5000, () => {
     console.log(`Server is running on port ${process.env.PORT || 5000}`);

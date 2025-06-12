@@ -1,6 +1,6 @@
-// import axios from 'axios';
-// import { setFileUploadProgress } from './chatSlice';
-// import { useDispatch } from 'react-redux';
+import axios from 'axios';
+import { setFileUploadProgress } from './chatSlice';
+import { useDispatch } from 'react-redux';
 
 export function searchContacts(searchQuery) {
     return new Promise(async (resolve) => {
@@ -161,20 +161,85 @@ export function getDmContactList(userId) {
     })
 }
 
-export function uploadFile(formData) {
+export function uploadFile(formData, dispatch) {
     // const dispatch = useDispatch();
+    // console.log("uploadFile called", formData);
 
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await fetch(
-                `${import.meta.env.VITE_HOST}/messages/uploadFile`,
+            const response = await axios.post(
+                `${import.meta.env.VITE_HOST}/messages/uploadFile`, formData,
                 {
-                    method: 'POST',
-                    credentials: true,
-                    body: formData,
-
+                    withCredentials: true,
+                    onUploadProgress: (progressEvent) => {
+                        const { loaded, total } = progressEvent;
+                        const percentCompleted = Math.round((loaded * 100) / total);
+                        dispatch(setFileUploadProgress(percentCompleted));
+                    }
                 }
             );
+            resolve({ data: response.data });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+
+// import axios from 'axios';
+// import { setFileDownloadProgress, setIsDownloading } from './chatSlice';
+
+export function downloadFile(filePath, dispatch) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            //   dispatch(setIsDownloading(true));
+
+            const response = await axios.get(`${import.meta.env.VITE_HOST}/${filePath}`, {
+                responseType: 'blob',
+                withCredentials: true,
+                onDownloadProgress: (progressEvent) => {
+                    const { loaded, total } = progressEvent;
+                    if (total) {
+                        const percentCompleted = Math.round((loaded * 100) / total);
+                        dispatch(setFileUploadProgress(percentCompleted));
+                    }
+                }
+            });
+
+            const blob = response.data;
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filePath.split('/').pop(); // Get the filename
+            document.body.appendChild(link);
+            link.click();
+
+            // Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            //   dispatch(setIsDownloading(false));
+            resolve({ data: { message: "success" } }); // Resolve the Promise on success
+        } catch (error) {
+            //   dispatch(setIsDownloading(false));
+            console.error('File download failed:', error);
+            reject(error); // Reject on error
+        }
+    });
+}
+
+
+export function createChannel(name, members, userId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({ name, members, userId })
+            });
             if (!response.ok) {
                 const err = await response.json();
                 throw err;
@@ -182,7 +247,45 @@ export function uploadFile(formData) {
             const data = await response.json();
             resolve({ data });
         } catch (error) {
-            reject(error.response?.data || error.message);
+            reject(error);
         }
     });
+}
+
+export const getChannels = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/${userId}`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+export const getChannelMessages = (channelId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/messages/${channelId}`, {
+                method: "GET",
+                credentials: 'include',
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
 }

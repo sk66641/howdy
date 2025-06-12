@@ -38,6 +38,7 @@ export const SocketProvider = ({ children }) => {
 
     useEffect(() => {
         if (user) {
+            // console.log(user)
             socket.current = io(import.meta.env.VITE_HOST, {
                 withCredentials: true,
                 query: {
@@ -52,12 +53,20 @@ export const SocketProvider = ({ children }) => {
 
 
             socket.current.on('receiveMessage', (message) => {
+                // console.log("receivecontactmessage", message)
                 if (selectedContactRef.current && (selectedContactRef.current._id === message.sender._id || selectedContactRef.current._id === message.receiver._id)) {
                     console.log("Received message for selected contact:", message);
                     // console.log("seelctetyp",selectedChatType)
                     { selectedChatTypeRef.current === "contact" && dispatch(setSelectedChatMessages(message)); }
                 }
             });
+
+            socket.current.on("receive-channel-message", (message) => {
+                if (selectedContactRef.current && selectedContactRef.current._id === message.channelId) {
+                    { selectedChatTypeRef.current === "channel" && dispatch(setSelectedChatMessages(message)); }
+                    console.log("receiving channel message: ", message); 
+                }
+            })
 
         }
         return () => {

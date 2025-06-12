@@ -46,7 +46,17 @@ exports.getDmContactList = async (req, res) => {
         userId = new mongoose.Types.ObjectId(userId);
         const contacts = await Message.aggregate([
             {
-                $match: { $or: [{ sender: userId }, { receiver: userId }] }
+                $match: {
+                    $and: [
+                        { receiver: { $ne: null } },
+                        {
+                            $or: [
+                                { sender: userId },
+                                { receiver: userId }
+                            ]
+                        }
+                    ]
+                }
             },
             {
                 $sort: { timestamp: -1 } // latest on the top
@@ -57,7 +67,13 @@ exports.getDmContactList = async (req, res) => {
                         $cond: {
                             if: { $eq: ["$sender", userId] },
                             then: "$receiver",
-                            else: "$sender"
+                            else: {
+                                $cond: {
+                                    if: { $eq: ["$receiver", userId] },
+                                    then: "$sender",
+                                    else: null
+                                }
+                            }
                         },
                     },
                     lastMessage: { $first: "$timestamp" },
@@ -88,8 +104,9 @@ exports.getDmContactList = async (req, res) => {
                 }
             },
             {
-                $sort: { lastMessage: 1 }
-            }]
+                $sort: { lastMessage: -1 }
+            }
+        ]
         );
 
         res.status(200).json({ contacts });

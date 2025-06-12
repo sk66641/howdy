@@ -49,8 +49,18 @@ const MessageBar = () => {
                 content: message,
                 messageType: 'text',
             });
-            setMessage('');
         }
+        if (selectedChatType === "channel") {
+            socket.emit('send-channel-message', {
+                sender: user._id,
+                content: message,
+                messageType: 'text',
+                receiver: null,
+                channelId: selectedContact._id,
+                fileURL: undefined,
+            })
+        }
+        setMessage('');
     }
 
     const handleAttachmentClick = () => {
@@ -66,20 +76,33 @@ const MessageBar = () => {
         }
         const formData = new FormData();
         formData.append('file', file);
-
+        // dispatch(setIsUploading(true));
         dispatch(uploadFileAsync(formData));
 
     }
 
     useEffect(() => {
-        if (selectedChatType === 'contact' && filePath) {
+        if (filePath) {
             console.log("File uploaded successfully:", filePath);
-            socket.emit('sendMessage', {
-                sender: user._id,
-                receiver: selectedContact._id,
-                messageType: 'file',
-                fileURL: filePath,
-            });
+            if (selectedChatType === 'contact') {
+                socket.emit('sendMessage', {
+                    sender: user._id,
+                    receiver: selectedContact._id,
+                    messageType: 'file',
+                    fileURL: filePath,
+                });
+            }
+            else if( selectedChatType === 'channel') {
+                socket.emit('send-channel-message', {
+                    sender: user._id,
+                    channelId: selectedContact._id,
+                    receiver: null,
+                    messageType: 'file',
+                    fileURL: filePath,
+                    content: undefined,
+                });
+            }
+            // dispatch(setIsUploading(false));
             // console.log("File uploaded successfully:", filePath);
         }
     }, [filePath])

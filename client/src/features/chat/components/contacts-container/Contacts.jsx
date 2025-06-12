@@ -4,8 +4,9 @@ import NewDm from './components/new-dm/NewDm'
 import { FiMessageCircle, FiMessageSquare } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoggedInUser } from '../../../auth/authSlice'
-import { getDmContactListAsync, selectDmContactList } from '../../chatSlice'
+import { getChannelsAsync, getDmContactListAsync, selectDmContactList } from '../../chatSlice'
 import DmList from './components/dm-list/DmList'
+import CreateChannel from './components/create-channel/CreateChannel'
 
 const Contacts = () => {
 
@@ -17,6 +18,7 @@ const Contacts = () => {
 
     useEffect(() => {
         dispatch(getDmContactListAsync(user._id));
+        dispatch(getChannelsAsync(user._id));
     }, [user]);
 
     return (
@@ -39,6 +41,10 @@ const Contacts = () => {
             <div className="my-5">
                 <div className="flex items-center justify-between pr-10">
                     <Title text="Channels" />
+                    <CreateChannel />
+                </div>
+                <div className="max-h-[38vw] overflow-y-auto scrollbar-hidden">
+                    <DmList isChannel={true} />
                 </div>
             </div>
             <ProfileInfo />
