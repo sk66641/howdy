@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 const Register = () => {
 
   const [inputValue, setInputValue] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -34,7 +34,6 @@ const Register = () => {
       return;
     }
     dispatch(createUserAsync(inputValue));
-    navigate('/profile');
   }
 
   return (
@@ -43,8 +42,8 @@ const Register = () => {
         <h3 className="text-lg font-semibold mb-2">Register</h3>
         <form onSubmit={handleSubmit}>
           <div className="flex space-x-2">
-            <input onChange={handleInputChange} value={inputValue.firstName} name='firstName' type="text" placeholder="First Name" className="w-full p-2 mb-2 border rounded" required />
-            <input onChange={handleInputChange} value={inputValue.lastName} name='lastName' type="text" placeholder="Last Name" className="w-full p-2 mb-2 border rounded" required />
+            <input onChange={handleInputChange} value={inputValue.fullName} name='fullName' type="text" placeholder="Full Name" className="w-full p-2 mb-2 border rounded" required />
+            <input onChange={handleInputChange} value={inputValue.username} name='username' type="text" placeholder="Username" className="w-full p-2 mb-2 border rounded" required />
           </div>
           <input onChange={handleInputChange} value={inputValue.email} name='email' type="email" placeholder="Email" className="w-full p-2 mb-2 border rounded" required />
           <input onChange={handleInputChange} value={inputValue.password} name='password' type="password" placeholder="Password" className="w-full p-2 mb-4 border rounded" required />

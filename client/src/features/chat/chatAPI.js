@@ -1,12 +1,10 @@
 import axios from 'axios';
 import { setFileUploadProgress } from './chatSlice';
-import { useDispatch } from 'react-redux';
 
 export function searchContacts(searchQuery) {
     return new Promise(async (resolve) => {
-        //TODO: we will not hard-code server URL here
-        // console.log(searchQuery)
-        const response = await fetch(`${import.meta.env.VITE_HOST}/chat/contacts`,
+
+        const response = await fetch(`${import.meta.env.VITE_HOST}/contacts/search`,
             {
                 method: 'POST',
                 credentials: 'include',
@@ -17,109 +15,8 @@ export function searchContacts(searchQuery) {
             }
         )
         const data = await response.json();
-        // console.log("createUser", data)
+
         resolve({ data });
-    })
-}
-
-export function checkUser(loginInfo) {
-    return new Promise(async (resolve, reject) => {
-        // const email = loginInfo.email;
-        // const password = loginInfo.password;
-        //TODO: we will not hard-code server URL here
-        // console.log(userData)
-
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_HOST}/auth/login`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify(loginInfo)
-            })
-            if (!response.ok) {
-                const err = await response.json();
-                throw err;
-            }
-            const data = await response.json();
-            resolve({ data });
-        } catch (error) {
-            reject(error);
-        }
-        // if (data.length) {
-        //     if (password === data[0].password) {
-        //         resolve({ data: data[0] })
-        //     }
-        //     else {
-        //         reject({ message: 'invalid credentials' })
-        //     }
-        // }
-        // else {
-        //     reject({ message: 'user not found' })
-        // }
-        // console.log("createUser", data)
-        // resolve({ data })
-    })
-}
-
-export function checkToken() {
-    return new Promise(async (resolve, reject) => {
-        // const email = loginInfo.email;
-        // const password = loginInfo.password;
-        //TODO: we will not hard-code server URL here
-        // console.log(userData)
-
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_HOST}/auth`, {
-                method: 'GET',
-                credentials: 'include',
-            })
-            if (!response.ok) {
-                const err = await response.json();
-                throw err;
-            }
-            const data = await response.json();
-            // console.log("client here", data);
-            resolve({ data });
-        } catch (error) {
-            reject(error);
-        }
-        // if (data.length) {
-        //     if (password === data[0].password) {
-        //         resolve({ data: data[0] })
-        //     }
-        //     else {
-        //         reject({ message: 'invalid credentials' })
-        //     }
-        // }
-        // else {
-        //     reject({ message: 'user not found' })
-        // }
-        // console.log("createUser", data)
-        // resolve({ data })
-    })
-}
-
-export function signOut() {
-    return new Promise(async (resolve) => {
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_HOST}/auth/logout`, {
-                method: 'GET',
-                credentials: 'include',
-            })
-            if (!response.ok) {
-                const err = await response.json();
-                throw err;
-            }
-            const data = await response.json();
-            resolve({ data });
-        } catch (error) {
-            reject(error);
-        }
     })
 }
 
@@ -142,10 +39,10 @@ export function getMessages(senderId, receiverId) {
     })
 }
 
-export function getDmContactList(userId) {
+export function getDmContactList() {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_HOST}/chat/getdmcontacts?userId=${userId}`, {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/contacts/getdmcontacts`, {
                 method: 'GET',
                 credentials: 'include',
             })
@@ -162,9 +59,6 @@ export function getDmContactList(userId) {
 }
 
 export function uploadFile(formData, dispatch) {
-    // const dispatch = useDispatch();
-    // console.log("uploadFile called", formData);
-
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.post(
@@ -185,15 +79,9 @@ export function uploadFile(formData, dispatch) {
     });
 }
 
-
-// import axios from 'axios';
-// import { setFileDownloadProgress, setIsDownloading } from './chatSlice';
-
 export function downloadFile(filePath, dispatch) {
     return new Promise(async (resolve, reject) => {
         try {
-            //   dispatch(setIsDownloading(true));
-
             const response = await axios.get(`${import.meta.env.VITE_HOST}/${filePath}`, {
                 responseType: 'blob',
                 withCredentials: true,
@@ -218,27 +106,25 @@ export function downloadFile(filePath, dispatch) {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
 
-            //   dispatch(setIsDownloading(false));
-            resolve({ data: { message: "success" } }); // Resolve the Promise on success
+            resolve({ data: { message: "success" } });
         } catch (error) {
-            //   dispatch(setIsDownloading(false));
             console.error('File download failed:', error);
-            reject(error); // Reject on error
+            reject(error);
         }
     });
 }
 
 
-export function createChannel(name, members, userId) {
+export function createChannel(name, members) {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_HOST}/channels`, {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/create`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
                     'content-type': 'application/json',
                 },
-                body: JSON.stringify({ name, members, userId })
+                body: JSON.stringify({ name, members })
             });
             if (!response.ok) {
                 const err = await response.json();
@@ -252,10 +138,10 @@ export function createChannel(name, members, userId) {
     });
 }
 
-export const getChannels = (userId) => {
+export const getChannels = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/${userId}`, {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels`, {
                 method: 'GET',
                 credentials: 'include',
             });
@@ -277,6 +163,71 @@ export const getChannelMessages = (channelId) => {
             const response = await fetch(`${import.meta.env.VITE_HOST}/channels/messages/${channelId}`, {
                 method: "GET",
                 credentials: 'include',
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+export const getChannelMembers = (channelId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/members/${channelId}`, {
+                method: "GET",
+                credentials: 'include',
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+export const removeMember = (channelId, memberId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/remove-member`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({ channelId, memberId })
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+export const addMembers = (channelId, members) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/add-members`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({ channelId, members })
             })
             if (!response.ok) {
                 const err = await response.json();

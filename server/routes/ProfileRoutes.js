@@ -6,6 +6,6 @@ const multer = require('multer');
 
 const uploads = multer({ dest: 'uploads/profileImages' });
 
-router.patch('/:id', updateProfile).post('/image/:id', uploads.single('profileImage'), updateProfileImage).delete('/image/:id', deleteProfileImage);
+router.patch('/', updateProfile).post('/image', uploads.single('profileImage'), updateProfileImage).delete('/image', deleteProfileImage);
 
 module.exports = router; 

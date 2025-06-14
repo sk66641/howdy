@@ -24,7 +24,6 @@ const AuthPage = () => {
 
   const location = useLocation();
   const from = location.state?.from?.pathname || null;
-  // console.log("from", from);
 
   return (
     <>

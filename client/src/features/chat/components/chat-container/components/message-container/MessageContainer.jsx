@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoggedInUser } from '../../../../../auth/authSlice'
-import { downloadFileAsync, getChannelMessagesAsync, getMessagesAsync, selectFileDownloadProgress, selectFileUploadProgress, selectIsDownloading, selectIsUploading, selectSelectedChatMessages, selectSelectedChatType, selectSelectedContact, setFileDownloadProgress } from '../../../../chatSlice';
+import { downloadFileAsync, getChannelMessagesAsync, getMessagesAsync, selectFileDownloadProgress, selectFileUploadProgress, selectIsDownloading, selectIsUploading, selectChatMessages, selectChatType, selectCurrentChat, setFileDownloadProgress } from '../../../../chatSlice';
 import moment from 'moment';
 import { IoMdArrowRoundDown } from 'react-icons/io';
 import { GrDocumentZip, GrUpload } from 'react-icons/gr';
@@ -12,9 +12,9 @@ import axios from 'axios';
 const MessageContainer = () => {
   const scrollRef = useRef();
   const user = useSelector(selectLoggedInUser);
-  const selectedContact = useSelector(selectSelectedContact);
-  const selectedChatMessages = useSelector(selectSelectedChatMessages);
-  const selectedChatType = useSelector(selectSelectedChatType);
+  const currentChat = useSelector(selectCurrentChat);
+  const chatMessages = useSelector(selectChatMessages);
+  const chatType = useSelector(selectChatType);
   const dispatch = useDispatch();
   const [showImage, setShowImage] = useState(false);
   const [filePath, setFilePath] = useState(null);
@@ -22,19 +22,19 @@ const MessageContainer = () => {
   const isUploading = useSelector(selectIsUploading);
   const FileUploadProgress = useSelector(selectFileUploadProgress);
   const FileDownloadProgress = useSelector(selectFileDownloadProgress);
-  // console.log("selecteda;lsdjf;aklsdjfadskljaf;", selectedChatMessages);
+
   useEffect(() => {
-    // console.log("Fetching messages for user:", user._id, "and contact:", selectedContact._id);
-    if (selectedChatType == "contact") {
-    dispatch(getMessagesAsync({
-      senderId: user._id,
-      receiverId: selectedContact._id,
-    }));
+
+    if (chatType == "contact") {
+      dispatch(getMessagesAsync({
+        senderId: user._id,
+        receiverId: currentChat._id,
+      }));
     }
-    else if (selectedChatType == "channel") {
-      dispatch(getChannelMessagesAsync({ channelId: selectedContact._id }))
+    else if (chatType == "channel") {
+      dispatch(getChannelMessagesAsync({ channelId: currentChat._id }))
     }
-  }, [selectedChatType, selectedContact]);
+  }, [chatType, currentChat]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -42,51 +42,13 @@ const MessageContainer = () => {
         behavior: 'smooth',
       });
     }
-  }, [selectedChatMessages]);
+  }, [chatMessages]);
 
 
   const checkIfImage = (filePath) => {
     const imageRegex = /\.(jpg|jpeg|png|gif|bmp|tiff|tif|webp|svg|ico|heic|heif)$/i;
     return imageRegex.test(filePath);
   };
-
-  // const downloadFile = async (filePath) => {
-  //   try {
-  //     dispatch(setIsDownloading(true));
-
-  //     const response = await axios.get(`${import.meta.env.VITE_HOST}/${filePath}`, {
-  //       responseType: 'blob', // This is important
-  //       withCredentials: true, // 'credentials' is fetch-specific; use this for Axios
-  //       onDownloadProgress: (progressEvent) => {
-  //         const { loaded, total } = progressEvent;
-  //         if (total) {
-  //           const percentCompleted = Math.round((loaded * 100) / total);
-  //           dispatch(setFileDownloadProgress(percentCompleted));
-  //         }
-  //       }
-  //     });
-
-  //     const blob = response.data;
-  //     const url = window.URL.createObjectURL(blob);
-  //     const link = document.createElement('a');
-
-  //     link.href = url;
-  //     link.download = filePath.split('/').pop(); // Extract the file name
-  //     document.body.appendChild(link);
-  //     link.click();
-
-  //     // Cleanup
-  //     document.body.removeChild(link);
-  //     window.URL.revokeObjectURL(url);
-
-  //     dispatch(setIsDownloading(false));
-  //   } catch (err) {
-  //     dispatch(setIsDownloading(false));
-  //     console.error('File download failed:', err);
-  //   }
-  // };
-
-
 
   const handleImageClick = (filePath) => {
     setShowImage(true);
@@ -95,10 +57,10 @@ const MessageContainer = () => {
 
   const renderMessages = () => {
     let lastDate = null;
-    console.log(selectedChatMessages)
+    // console.log(chatMessages)
 
     return (
-      selectedChatMessages.map((message, index) => {
+      chatMessages.map((message, index) => {
         const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
         const showDate = messageDate !== lastDate;
         lastDate = messageDate;
@@ -110,16 +72,14 @@ const MessageContainer = () => {
                 {moment(message.timestamp).format("LL")}
               </div>
             )}
-            {selectedChatType === "contact" && renderDMMessages(message)}
-            {selectedChatType === "channel" && renderChannelMessages(message)}
+            {chatType === "contact" && renderDMMessages(message)}
+            {chatType === "channel" && renderChannelMessages(message)}
           </div>
         );
       }));
   };
 
-
   const renderDMMessages = (message) => {
-    // console.log(message?.filePath)
     return (
 
       <div
@@ -139,7 +99,7 @@ const MessageContainer = () => {
         )}
         {message.messageType === "file" && (
           <div
-            className={`${message.sender === selectedContact._id
+            className={`${message.sender === currentChat._id
               ? "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
               : "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
               } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
@@ -192,7 +152,7 @@ const MessageContainer = () => {
         )}
         {message.messageType === "file" && (
           <div
-            className={`${user._id === selectedContact._id
+            className={`${user._id === currentChat._id
               ? "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
               : "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
               } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
@@ -226,7 +186,7 @@ const MessageContainer = () => {
   }
 
   return (
-    <div className='flex-1 overflow-y-auto p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full'>
+    <div className='flex-1 overflow-y-auto p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full scrollbar-hidden'>
       {renderMessages()}
       {
         showImage && (

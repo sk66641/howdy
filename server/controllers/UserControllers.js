@@ -1,20 +1,12 @@
 const { User } = require('../models/User');
 
 exports.fetchLoggedInUser = async (req, res) => {
-    // console.log("updateProfile called")
-    const { id } = req.params;
-    // console.log(id)
+    const { userId } = req;
     try {
-        const updatedUser = await User.findByIdAndUpdate(
-            id,
-            req.body,
-            { new: true }
-        );
-
-        res.status(200).json(updatedUser);
-
+        const user = await User.findById(userId).select('-password');
+        res.json(user);
     } catch (error) {
-        console.error("Error updating profile:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Error fetching user:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 }

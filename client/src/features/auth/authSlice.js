@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { checkUser, createUser, signOut, checkToken } from './authAPI'
+import { checkUser, createUser, signOut, getLoggedInUser } from './authAPI'
 import { deleteProfileImage, updateProfile, updateProfileImage } from '../profile/profileAPI'
 
 const initialState = {
-    loggedInUser: null,
     status: 'idle',
+    loggedInUser: null,
     error: null,
 }
 
@@ -12,7 +12,6 @@ export const createUserAsync = createAsyncThunk(
     'user/createUser',
     async (userData) => {
         const response = await createUser(userData);
-        // console.log("createAsyncThunk", response)
         return response.data;
     })
 
@@ -20,16 +19,13 @@ export const checkUserAsync = createAsyncThunk(
     'user/checkUser',
     async (loginInfo) => {
         const response = await checkUser(loginInfo);
-        // console.log("createAsyncThunk", response)
         return response.data;
     })
 
-export const checkTokenAsync = createAsyncThunk(
-    'user/checkToken',
+export const getLoggedInUserAsync = createAsyncThunk(
+    'user/getLoggedInUser',
     async () => {
-        const response = await checkToken();
-        // console.log(response, "again")
-        // console.log("createAsyncThunk", response)
+        const response = await getLoggedInUser();
         return response.data;
     })
 
@@ -37,24 +33,22 @@ export const updateProfileAsync = createAsyncThunk(
     'user/updateProfile',
     async (update) => {
         const response = await updateProfile(update);
-        // The value we return becomes the `fulfilled` action payload
         return response.data;
     }
 );
 
 export const updateProfileImageAsync = createAsyncThunk(
     'user/updateProfileImage',
-    async ({ formData, id }) => {
-        const response = await updateProfileImage(formData, id);
-        // The value we return becomes the `fulfilled` action payload
+    async (formData) => {
+        const response = await updateProfileImage(formData);
         return response.data;
     }
 );
 
 export const deleteProfileImageAsync = createAsyncThunk(
     'user/deleteProfileImage',
-    async (id) => {
-        const response = await deleteProfileImage(id);
+    async () => {
+        const response = await deleteProfileImage();
         return response.data;
     }
 );
@@ -72,63 +66,30 @@ export const authSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
-            .addCase(createUserAsync.pending, (state) => {
-                state.status = 'loading';
-            })
             .addCase(createUserAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
                 state.loggedInUser = action.payload;
-            })
-            .addCase(checkUserAsync.pending, (state) => {
-                state.status = 'loading';
             })
             .addCase(checkUserAsync.fulfilled, (state, action) => {
+                state.loggedInUser = action.payload;
+            })
+            .addCase(getLoggedInUserAsync.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(getLoggedInUserAsync.fulfilled, (state, action) => {
                 state.status = 'idle';
                 state.loggedInUser = action.payload;
             })
-            .addCase(checkUserAsync.rejected, (state, action) => {
+            .addCase(getLoggedInUserAsync.rejected, (state, action) => {
                 state.status = 'error';
-                // console.log(action)
                 state.error = action.error;
-            })
-            .addCase(checkTokenAsync.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(checkTokenAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
-                state.loggedInUser = action.payload;
-            })
-            .addCase(checkTokenAsync.rejected, (state, action) => {
-                state.status = 'error';
-                // console.log(action)
-                state.error = action.error;
-            })
-            .addCase(updateProfileAsync.pending, (state) => {
-                state.status = 'loading';
             })
             .addCase(updateProfileAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
                 state.loggedInUser = action.payload;
-            })
-            .addCase(updateProfileImageAsync.pending, (state) => {
-                state.status = 'loading';
             })
             .addCase(updateProfileImageAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
                 state.loggedInUser = action.payload;
             })
-            // .addCase(deleteProfileImageAsync.pending, (state) => {
-            //     state.status = 'loading';
-            // })
-            // .addCase(deleteProfileImageAsync.fulfilled, (state, action) => {
-            //     state.status = 'idle';
-            //     state.loggedInUser = action.payload;
-            // })
-            .addCase(signOutAsync.pending, (state) => {
-                state.status = 'loading';
-            })
             .addCase(signOutAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
                 state.loggedInUser = null;
             })
     }
@@ -137,6 +98,5 @@ export const authSlice = createSlice({
 export const selectLoggedInUser = (state) => state.auth.loggedInUser;
 export const selectError = (state) => state.auth.error;
 export const selectStatus = (state) => state.auth.status;
-// export const { increment, decrement, incrementByAmount } = counterSlice.actions
 
 export default authSlice.reducer

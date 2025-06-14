@@ -1,5 +1,5 @@
 import React from 'react'
-import Chat from '../features/chat/components/Chat'
+import Chat from '../features/chat/Chat'
 
 const ChatPage = () => {
     return (

@@ -3,12 +3,10 @@ const multer = require('multer')
 const fs = require('fs')
 
 exports.updateProfile = async (req, res) => {
-    // console.log("updateProfile called")
-    const { id } = req.params;
-    // console.log(id)
     try {
+        const { userId } = req;
         const updatedUser = await User.findByIdAndUpdate(
-            id,
+            userId,
             req.body,
             { new: true, select: '-password' },
         );
@@ -26,16 +24,17 @@ exports.updateProfileImage = async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ message: "No file uploaded" });
         }
-        const { id } = req.params;
+        const { userId } = req;
+
         const fileName = "uploads/profileImages/" + Date.now() + '_' + req.file.originalname;
         fs.renameSync(req.file.path, fileName);
         // console.log(req.file)
-        // console.log(req.file.path)
         const updatedUser = await User.findByIdAndUpdate(
-            id,
+            userId,
             { profileImage: fileName },
-            { new: true, select: '-password' }
+            { new: true, select: '-password -email' }
         );
+
         res.status(200).json(updatedUser);
     } catch (error) {
         console.error("Error updating profile image:", error);
@@ -44,9 +43,9 @@ exports.updateProfileImage = async (req, res) => {
 }
 
 exports.deleteProfileImage = async (req, res) => {
-    const { id } = req.params;
+    const { userId } = req;
     try {
-        const user = await User.findById(id);
+        const user = await User.findById(userId);
         if (!user || !user.profileImage) {
             return res.status(404).json({ message: "User or profile image not found" });
         }

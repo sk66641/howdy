@@ -1,5 +1,4 @@
 import React from 'react'
-import { RiCloseFill } from 'react-icons/ri'
 import { GrAttachment } from 'react-icons/gr'
 import { RiEmojiStickerLine } from 'react-icons/ri'
 import { IoSend } from 'react-icons/io5'
@@ -7,9 +6,10 @@ import EmojiPicker from 'emoji-picker-react'
 import { useState } from 'react'
 import { useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectFilePath, selectSelectedChatType, selectSelectedContact, uploadFileAsync } from '../../../../chatSlice'
+import { selectFilePath, selectChatType, selectCurrentChat, uploadFileAsync, selectDmContactList, updateDmContactList, selectChannelList, updateChannelList } from '../../../../chatSlice'
 import { useSocket } from '../../../../../../context/SocketContext'
 import { selectLoggedInUser } from '../../../../../auth/authSlice'
+import DmList from '../../../contacts-container/components/dm-list/DmList'
 
 const MessageBar = () => {
     const socket = useSocket();
@@ -17,9 +17,11 @@ const MessageBar = () => {
     const dispatch = useDispatch();
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
     const [message, setMessage] = useState('');
-    const selectedContact = useSelector(selectSelectedContact);
-    const selectedChatType = useSelector(selectSelectedChatType);
+    const currentChat = useSelector(selectCurrentChat);
+    const chatType = useSelector(selectChatType);
     const filePath = useSelector(selectFilePath);
+    const DmContactList = useSelector(selectDmContactList);
+    const channelList = useSelector(selectChannelList);
     const user = useSelector(selectLoggedInUser);
     const handleEmojiClick = (emojiObject) => {
         setMessage(message + emojiObject.emoji);
@@ -31,7 +33,6 @@ const MessageBar = () => {
                 setEmojiPickerOpen(false);
             }
         }
-        // console.log("hi")
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -42,25 +43,35 @@ const MessageBar = () => {
         e.preventDefault();
         console.log("Sending message:", message);
 
-        if (selectedChatType === 'contact') {
-            socket.emit('sendMessage', {
+        if (chatType === 'contact') {
+            socket.emit('send-direct-message', {
                 sender: user._id,
-                receiver: selectedContact._id,
+                receiver: currentChat._id,
                 content: message,
                 messageType: 'text',
             });
+            const index = DmContactList.findIndex(contact => contact._id === currentChat._id);
+            if (index !== -1 && index !== 0) {
+                dispatch(updateDmContactList({ index }));
+            }
         }
-        if (selectedChatType === "channel") {
+        if (chatType === "channel") {
             socket.emit('send-channel-message', {
                 sender: user._id,
                 content: message,
                 messageType: 'text',
                 receiver: null,
-                channelId: selectedContact._id,
+                channelId: currentChat._id,
                 fileURL: undefined,
             })
+            const index = channelList.findIndex(channel => channel._id === currentChat._id);
+            if (index !== -1 && index !== 0) {
+                dispatch(updateChannelList(index));
+            }
         }
         setMessage('');
+
+
     }
 
     const handleAttachmentClick = () => {
@@ -76,7 +87,6 @@ const MessageBar = () => {
         }
         const formData = new FormData();
         formData.append('file', file);
-        // dispatch(setIsUploading(true));
         dispatch(uploadFileAsync(formData));
 
     }
@@ -84,26 +94,24 @@ const MessageBar = () => {
     useEffect(() => {
         if (filePath) {
             console.log("File uploaded successfully:", filePath);
-            if (selectedChatType === 'contact') {
-                socket.emit('sendMessage', {
+            if (chatType === 'contact') {
+                socket.emit('send-direct-message', {
                     sender: user._id,
-                    receiver: selectedContact._id,
+                    receiver: currentChat._id,
                     messageType: 'file',
                     fileURL: filePath,
                 });
             }
-            else if( selectedChatType === 'channel') {
+            else if (chatType === 'channel') {
                 socket.emit('send-channel-message', {
                     sender: user._id,
-                    channelId: selectedContact._id,
+                    channelId: currentChat._id,
                     receiver: null,
                     messageType: 'file',
                     fileURL: filePath,
                     content: undefined,
                 });
             }
-            // dispatch(setIsUploading(false));
-            // console.log("File uploaded successfully:", filePath);
         }
     }, [filePath])
 
@@ -133,7 +141,6 @@ const MessageBar = () => {
                             autoFocusSearch={false}
                             theme="dark"
                             open={emojiPickerOpen}
-
                         />
                     </div>
                 </div>

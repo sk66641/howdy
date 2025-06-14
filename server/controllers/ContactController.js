@@ -1,11 +1,11 @@
 const { default: mongoose } = require("mongoose");
 const { User } = require("../models/User");
-const { Message } = require("../models/Message");
+const { DirectMessage } = require("../models/DirectMessage");
 
 exports.searchContacts = async (req, res) => {
 
-    const { searchTerm } = req.body;
     try {
+        const { searchTerm } = req.body;
         if (searchTerm === undefined || searchTerm === null) {
             return res.status(400).send("searchTerm is required.");
         }
@@ -16,19 +16,20 @@ exports.searchContacts = async (req, res) => {
         );
 
         const regex = new RegExp(sanitizedSearchTerm, "i");
+        // i flag for case-insensitive search
 
         const contacts = await User.find({
             $and: [
                 { _id: { $ne: req.userId } },
                 {
                     $or: [
-                        { firstName: regex },
-                        { lastName: regex },
-                        { email: regex }
+                        { username: regex },
+                        { fullName: regex },
+                        // { lastName: regex },
                     ]
                 }
             ]
-        }).select("-password");
+        }).select("-password -email");
 
         res.status(200).json({ contacts });
 
@@ -42,21 +43,27 @@ exports.searchContacts = async (req, res) => {
 
 exports.getDmContactList = async (req, res) => {
     try {
-        let { userId } = req.query;
+        let { userId } = req;
         userId = new mongoose.Types.ObjectId(userId);
-        const contacts = await Message.aggregate([
+        const contacts = await DirectMessage.aggregate([
             {
                 $match: {
-                    $and: [
-                        { receiver: { $ne: null } },
-                        {
-                            $or: [
-                                { sender: userId },
-                                { receiver: userId }
-                            ]
-                        }
+                    $or: [
+                        { sender: userId },
+                        { receiver: userId }
                     ]
                 }
+                // $match: {
+                //     $and: [
+                //         { receiver: { $ne: null } },
+                //         {
+                //             $or: [
+                //                 { sender: userId },
+                //                 { receiver: userId }
+                //             ]
+                //         }
+                //     ]
+                // }
             },
             {
                 $sort: { timestamp: -1 } // latest on the top
@@ -67,13 +74,7 @@ exports.getDmContactList = async (req, res) => {
                         $cond: {
                             if: { $eq: ["$sender", userId] },
                             then: "$receiver",
-                            else: {
-                                $cond: {
-                                    if: { $eq: ["$receiver", userId] },
-                                    then: "$sender",
-                                    else: null
-                                }
-                            }
+                            else: "$sender",
                         },
                     },
                     lastMessage: { $first: "$timestamp" },
@@ -95,12 +96,11 @@ exports.getDmContactList = async (req, res) => {
                 $project: {
                     _id: 1,
                     lastMessage: 1,
-                    email: "$contactInfo.email",
-                    firstName: "$contactInfo.firstName",
-                    lastName: "$contactInfo.lastName",
+                    username: "$contactInfo.username",
+                    fullName: "$contactInfo.fullName",
                     color: "$contactInfo.color",
                     profileImage: "$contactInfo.profileImage",
-                    profileSetup: "$contactInfo.profileSetup"
+                    bio: "$contactInfo.bio",
                 }
             },
             {

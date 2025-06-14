@@ -3,8 +3,8 @@ import { FaPlus } from 'react-icons/fa'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { useDispatch } from 'react-redux'
-import { setContactsNull } from '../../../../chatSlice'
-import InlineUserSelector from '../../../../../../components/ui/multipleselect'
+import { setContactsEmpty } from '../../../../chatSlice'
+import InlineUserSelector from './components/MultipleSelect'
 
 const CreateChannel = () => {
     const [openNewContactModal, setOpenNewContactModal] = useState(false);
@@ -14,7 +14,7 @@ const CreateChannel = () => {
 
     const handleNewContact = () => {
         setOpenNewContactModal(false);
-        dispatch(setContactsNull());
+        dispatch(setContactsEmpty());
     };
 
     return (
@@ -29,7 +29,7 @@ const CreateChannel = () => {
                     />
                 </TooltipTrigger>
                 <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
-                    Select New Contact
+                    Create New Channel
                 </TooltipContent>
             </Tooltip>
 
@@ -37,7 +37,7 @@ const CreateChannel = () => {
                 <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
                     <DialogHeader>
                         <DialogTitle>Select contacts to create a channel</DialogTitle>
-                        <DialogDescription>select at leaast one contact</DialogDescription>
+                        <DialogDescription>select at least one contact</DialogDescription>
                     </DialogHeader>
                     <div className='space-y-3'>
                         <div className='flex gap-3'>
@@ -49,8 +49,7 @@ const CreateChannel = () => {
                             />
                             <button type='button' onClick={()=>componentRef.current?.handleSubmit()} className='w-1/4 bg-[#8417ff] hover:bg-[#741bda] cursor-pointer hover: rounded-xl'>Create</button>
                         </div>
-                        <InlineUserSelector channelName={channelName} ref={componentRef} />
-
+                        <InlineUserSelector channelName={channelName} setOpenNewContactModal={setOpenNewContactModal} ref={componentRef} />
                     </div>
 
                 </DialogContent>

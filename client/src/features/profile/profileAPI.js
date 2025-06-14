@@ -1,27 +1,24 @@
 export function updateProfile(update) {
     return new Promise(async (resolve) => {
-        //TODO: we will not hard-code server URL here
-        // console.log(update)
-        // console.log(update,update.id)
-        const response = await fetch(`${import.meta.env.VITE_HOST}/profile/` + update._id,
+        const response = await fetch(`${import.meta.env.VITE_HOST}/profile`,
             {
                 method: 'PATCH',
                 headers: {
                     'content-type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(update)
             }
         )
         const data = await response.json();
-        // console.log(data)
-        // console.log("createUser", data)
+        // console.log("udpateProfile", data)
         resolve({ data })
     })
 }
 
-export function updateProfileImage(formData, id) {
+export function updateProfileImage(formData) {
     return new Promise(async (resolve) => {
-        const response = await fetch(`${import.meta.env.VITE_HOST}/profile/image/` + id,
+        const response = await fetch(`${import.meta.env.VITE_HOST}/profile/image`,
             {
                 method: 'POST',
                 credentials: 'include',
@@ -29,22 +26,68 @@ export function updateProfileImage(formData, id) {
             }
         )
         const data = await response.json();
-        // console.log(data)
-        // console.log("createUser", data)
+        // console.log("updateProfileImage", data)
         resolve({ data })
     })
 }
 
-export function deleteProfileImage(id) {
+export function deleteProfileImage() {
     return new Promise(async (resolve) => {
-        const response = await fetch(`${import.meta.env.VITE_HOST}/profile/image/` + id,
+        const response = await fetch(`${import.meta.env.VITE_HOST}/profile/image`,
             {
                 method: 'DELETE',
+                credentials: 'include',
             }
         )
         const data = await response.json();
-        // console.log(data)
-        // console.log("createUser", data)
+        // console.log("deleteProfileImage", data)
+        resolve({ data })
+    })
+}
+
+export function updateChannelProfile(update) {
+    return new Promise(async (resolve) => {
+        const response = await fetch(`${import.meta.env.VITE_HOST}/channels/channel-profile/${update.channelId}`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(update)
+            }
+        )
+        const data = await response.json();
+        // console.log("udpateProfile", data)
+        resolve({ data })
+    })
+}
+
+export function updateChannelProfileImage(formData, channelId) {
+    return new Promise(async (resolve) => {
+        const response = await fetch(`${import.meta.env.VITE_HOST}/channels/channel-image/${channelId}`,
+            {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            }
+        )
+        const data = await response.json();
+        // console.log("updateProfileImage", data)
+        resolve({ data })
+    })
+}
+
+export function deleteChannelProfileImage(channelId) {
+    return new Promise(async (resolve) => {
+        const response = await fetch(`${import.meta.env.VITE_HOST}/channels/channel-image/${channelId}`,
+            {
+                method: 'DELETE',
+                credentials: 'include',
+            }
+        )
+        const data = await response.json();
+        // console.log("deleteProfileImage", data)
         resolve({ data })
     })
 }

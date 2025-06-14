@@ -22,7 +22,6 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         dispatch(checkUserAsync(inputValue));
-        navigate('/');
     }
 
     return (

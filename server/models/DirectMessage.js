@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const messageSchema = new mongoose.Schema({
+const DirectMessageSchema = new mongoose.Schema({
     sender: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
@@ -9,7 +9,7 @@ const messageSchema = new mongoose.Schema({
     receiver: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
-        // required: true
+        required: true
     },
     messageType: {
         type: String,
@@ -38,6 +38,6 @@ const messageSchema = new mongoose.Schema({
     }
 });
 
-exports.Message = mongoose.model('Messages', messageSchema);
+exports.DirectMessage = mongoose.model('DirectMessages', DirectMessageSchema);
 
 // to do: try replacing the function with an arrow function

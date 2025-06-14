@@ -3,21 +3,27 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 exports.register = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
-
+    
     try {
+        const { fullName, username, email, password } = req.body;
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         }
 
+        const existingUsername = await User.findOne({ username });
+        if (existingUsername) {
+            return res.status(400).json({ message: "Username already exists" });
+        }
+
         const user = new User({
-            firstName,
-            lastName,
+            fullName,
+            username,
             email,
             password
         });
-        console.log(user);
+        // console.log(user);
         await user.save();
 
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '12h' });
@@ -29,12 +35,10 @@ exports.register = async (req, res) => {
         });
 
         res.status(201).json({
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
+            username: user.username,
+            fullName: user.fullName,
             color: user.color,
             profileImage: user.profileImage,
-            profileSetup: user.profileSetup,
             _id: user._id
         });
 
@@ -45,18 +49,18 @@ exports.register = async (req, res) => {
 }
 
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
-
+    
     try {
-        console.log(email + "hi" + password);
+        const { email, password } = req.body;
+
         const user = await User.findOne({ email });
-        console.log(user);
+        // console.log(user);
         if (!user) {
             return res.status(400).json({ message: "Invalid email or password" });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        console.log(isPasswordValid);
+        // console.log(isPasswordValid);
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Invalid email or password" });
         }
@@ -69,15 +73,12 @@ exports.login = async (req, res) => {
             sameSite: 'None',
         });
         res.status(200).json({
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
+            username: user.username,
+            fullName: user.fullName,
             color: user.color,
             profileImage: user.profileImage,
-            profileSetup: user.profileSetup,
             _id: user._id
         });
-        // res.redirect('/profile');
     }
     catch (error) {
         console.error("Error during login:", error);

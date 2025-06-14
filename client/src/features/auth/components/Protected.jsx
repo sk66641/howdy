@@ -5,7 +5,6 @@ import { Navigate, useLocation } from "react-router-dom";
 const Protected = ({ children }) => {
     const user = useSelector(selectLoggedInUser); 
     const location = useLocation();
-    // console.log("preotected", user)
     if (!user) {
         return <Navigate to="/auth" state={{ from: location }} replace/>;
     }

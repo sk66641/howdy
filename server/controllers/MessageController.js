@@ -1,15 +1,15 @@
-const { Message } = require('../models/Message');
+const { DirectMessage } = require('../models/DirectMessage');
 const fs = require('fs');
 
-exports.getMessages = async (req, res) => {
+exports.getDirectMessages = async (req, res) => {
     try {
         const { senderId, receiverId } = req.query;
-        console.log('Fetching messages for:', { senderId, receiverId });
+        // console.log('Fetching messages for:', { senderId, receiverId });
         if (!senderId || !receiverId) {
             return res.status(400).json({ error: 'Sender and receiver IDs are required' });
         }
 
-        const messages = await Message.find({
+        const messages = await DirectMessage.find({
             $or: [
                 { sender: senderId, receiver: receiverId },
                 { sender: receiverId, receiver: senderId }
@@ -30,7 +30,7 @@ exports.uploadFile = async (req, res) => {
         }
         const fileName = "uploads/files/" + Date.now() + '_' + req.file.originalname;
         fs.renameSync(req.file.path, fileName);
-        console.log(req.file)
+        // console.log(req.file)
 
         res.status(200).json({filePath: fileName});
     } catch (error) {
