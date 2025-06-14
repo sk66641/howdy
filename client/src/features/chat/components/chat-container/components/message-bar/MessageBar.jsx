@@ -117,7 +117,7 @@ const MessageBar = () => {
 
 
     return (
-        <form onSubmit={handleSendMessage} className="h-[10vh] bg-[#1c1d25] flex justify-center items-center px-8 mb-6 gap-6">
+        <form onSubmit={handleSendMessage} className="h-[10vh] bg-[#1c1d25] flex justify-center items-center px-8 mb-3 gap-6">
             <div className="flex-1 flex bg-[#2a2b33] rounded-md items-center gap-5 pr-5">
                 <input
                     type="text"
@@ -127,7 +127,7 @@ const MessageBar = () => {
                     onChange={(e) => setMessage(e.target.value)}
                 />
 
-                <button onClick={handleAttachmentClick} type='button' className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all">
+                <button onClick={handleAttachmentClick} type='button' className="text-neutral-500 focus:border-none focus:outline-none duration-300 transition-all hover:text-neutral-300 cursor-pointer">
                     <GrAttachment className="text-2xl" />
                 </button>
                 <input type='file' className='hidden' ref={fileInputRef} onChange={handleAttachmentChange} />

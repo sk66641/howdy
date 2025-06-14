@@ -33,9 +33,9 @@ const DmList = ({ isChannel }) => {
             {!isChannel && contacts.length > 0 && contacts.map((contact) => (
                 <div
                     key={contact._id}
-                    className={`pl-10 py-2 transition-all duration-300 cursor-pointer ${currentChat && currentChat._id === contact._id
-                        ? "bg-[#8417ff] hover:bg-[#8417ff]"
-                        : "hover:bg-[#f1f1f1]"
+                    className={`pl-10 m-2 py-2 rounded-md transition-all duration-300 cursor-pointer ${currentChat && currentChat._id === contact._id
+                        ? "bg-gray-700"
+                        : "hover:bg-gray-700"
                         }`}
                     onClick={() => handleClick(contact)}
                 >
@@ -54,7 +54,7 @@ const DmList = ({ isChannel }) => {
                                 {contact.fullName}
                             </span>
                             <span className='text-xs'>
-                                {contact.username}
+                                @{contact.username}
                             </span>
                         </div>
 
@@ -64,9 +64,9 @@ const DmList = ({ isChannel }) => {
             {isChannel && channelsList.length > 0 && channelsList.map((channel) => (
                 <div
                     key={channel._id}
-                    className={`pl-10 py-2 transition-all duration-300 cursor-pointer ${chatType === "channel" && currentChat && currentChat._id === channel._id
-                        ? "bg-[#8417ff] hover:bg-[#8417ff]"
-                        : "hover:bg-[#f1f1f1]"
+                    className={`pl-10 mx-2 rounded-md py-2 transition-all duration-300 cursor-pointer ${chatType === "channel" && currentChat && currentChat._id === channel._id
+                        ? "bg-gray-700"
+                        : "hover:bg-gray-700"
                         }`}
                     onClick={() => {
                         dispatch(setChatType("channel"));
@@ -84,13 +84,13 @@ const DmList = ({ isChannel }) => {
                             }
                         </Avatar>
 
-                        <div className='flex gap-6'>
+                        <div className='flex flex-col'>
                             <span>
                                 {channel.name}
                             </span>
-                            {/* <span>
-                                {channelMembers.length + 1}
-                            </span> */}
+                            <span className='text-xs'>
+                                @{channel.handle}
+                            </span>
                         </div>
 
                     </div>

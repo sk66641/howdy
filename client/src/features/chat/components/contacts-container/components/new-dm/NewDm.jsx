@@ -75,11 +75,10 @@ const NewDm = () => {
                                     </Avatar>
                                     <div className='flex flex-col'>
                                         <span>
-
                                             {contact.fullName}
                                         </span>
                                         <span className='text-xs'>
-                                            {contact.username}
+                                            @{contact.username}
                                         </span>
                                     </div>
                                 </div>))}

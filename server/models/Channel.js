@@ -10,7 +10,7 @@ const channelSchema = new mongoose.Schema({
   admin: { type: mongoose.Schema.ObjectId, ref: "Users", required: true },
   messages: [{ type: mongoose.Schema.ObjectId, ref: "channelMessages", required: false }],
   bio: { type: String, default: "bio" },
-  handle: { type: String, default: "fixing soon" },
+  handle: { type: String, default: "xtuv" },
   profileImage: { type: String, default: null },
   color: { type: Number, default: 0 },
   createdAt: {

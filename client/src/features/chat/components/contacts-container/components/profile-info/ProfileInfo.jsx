@@ -30,11 +30,17 @@ const ProfileInfo = () => {
                     </Avatar>
                 </div>
                 <div className='flex flex-col'>
-                    <span>
-                        {user.fullName}
-                    </span>
+                    <div className='flex gap-1 items-center'>
+                        <span>
+                            {user.fullName}
+                        </span>
+                        <span className='text-xs'>
+                            @{user.username}
+                        </span>
+                    </div>
+
                     <span className='text-xs'>
-                        {user.username}
+                        {user.bio}
                     </span>
                 </div>
                 <div className='flex gap-5 items-center justify-center'>
