@@ -1,7 +1,7 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
-import { createChannelAsync, searchContactsAsync, selectContacts, selectIsSearchingContacts, setContactsEmpty, setChatType, selectCurrentChat, addMembersAsync } from '../../../../chatSlice';
+import { createChannelAsync, searchContactsAsync, selectContacts, selectIsSearchingContacts, setContactsEmpty, setChatType, selectCurrentChat, addMembersAsync, selectChannelMembers } from '../../../../chatSlice';
 import '../../../../../../App.css'
 import { colors } from '../../../../../../lib/utils';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
@@ -16,6 +16,7 @@ const InlineUserSelector = ({ setAddMembersMode }) => {
     const dispatch = useDispatch();
     const inputRef = useRef();
     const currentChat = useSelector(selectCurrentChat);
+    const channelMembers = useSelector(selectChannelMembers);
 
     const handleInputChange = (e) => {
         if (searchQuery === '' && e.target.value.trim() === '') return;
@@ -111,26 +112,29 @@ const InlineUserSelector = ({ setAddMembersMode }) => {
 
             <ScrollArea className="mt-3 h-[175px]">
                 <div className='flex flex-col justify-center'>
-                    {contacts.length > 0 && contacts.map((contact) => (
-                        <div className='flex gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-gray-700 p-1' key={contact._id} onClick={() => handleUserSelect(contact)}>
-                            <Avatar className="h-8 w-8 rounded-full overflow-hidden">
-                                {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
-                                    :
-                                    <div className={`uppercase h-8 w-8 text-sm border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
-                                        {contact.fullName.split('')[0]}
-                                    </div>
-                                }
-                            </Avatar>
-                            <div className='flex flex-col'>
-                                <span className='text-sm'>
+                    {contacts.length > 0 && contacts
+                        .filter(contact => !channelMembers.some(member => member._id === contact._id))
+                        .filter(contact => !selectedUsers.some(user => user._id === contact._id))
+                        .map((contact) => (
+                            <div className='flex gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-gray-700 p-1' key={contact._id} onClick={() => handleUserSelect(contact)}>
+                                <Avatar className="h-8 w-8 rounded-full overflow-hidden">
+                                    {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
+                                        :
+                                        <div className={`uppercase h-8 w-8 text-sm border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
+                                            {contact.fullName.split('')[0]}
+                                        </div>
+                                    }
+                                </Avatar>
+                                <div className='flex flex-col'>
+                                    <span className='text-sm'>
 
-                                    {contact.fullName}
-                                </span>
-                                <span className='text-xs'>
-                                    {contact.username}
-                                </span>
-                            </div>
-                        </div>))}
+                                        {contact.fullName}
+                                    </span>
+                                    <span className='text-xs'>
+                                        @{contact.username}
+                                    </span>
+                                </div>
+                            </div>))}
                 </div>
             </ScrollArea>
         </div>

@@ -71,7 +71,7 @@ exports.getChannelMessages = async (req, res) => {
             .select('messages')
             .populate({
                 path: 'messages',
-                populate: { path: 'sender', select: 'username, fullName, profileImage, color' }
+                populate: { path: 'sender', select: '-email -password' }
             });
         // console.log(channelMessages);  
         res.status(200).json({ channelMessages });

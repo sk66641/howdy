@@ -5,10 +5,11 @@ import { IoMdArrowBack } from 'react-icons/io'
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../lib/utils';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FaTrash, FaPlus } from 'react-icons/fa';
 import { updateProfileAsync } from '../auth/authSlice';
 
-const Profile = () => {
+const Profile = ({ openProfileModal, setOpenProfileModal }) => {
 
   const user = useSelector(selectLoggedInUser);
   const [selectedColor, setSelectedColor] = useState(user.color);
@@ -37,7 +38,8 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(updateProfileAsync({ username: userInfo.username, fullName: userInfo.fullName, color: selectedColor, bio: userInfo.bio }));
-    navigate('/');
+    setOpenProfileModal(false);
+    // navigate('/');
   }
 
   const handleFileInputClick = () => {
@@ -91,21 +93,20 @@ const Profile = () => {
 
   return (
     <>
-      <section id="profile-editor" className="min-h-screen bg-slate-800 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="mb-8">
-            <IoMdArrowBack className='text-white text-3xl cursor-pointer hover:text-slate-300 transition-all' onClick={() => navigate('/')} />
-          </div>
-
-
+      <Dialog open={openProfileModal} onOpenChange={() => setOpenProfileModal(false)}>
+        <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Select contacts to create a channel</DialogTitle>
+            <DialogDescription>select at least one contact</DialogDescription>
+          </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex justify-center mb-8">
               <div className="relative " onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-                <Avatar className="h-28 w-28 rounded-full overflow-hidden">
+                <Avatar className="h-18 w-18 rounded-full overflow-hidden">
                   {userInfo.profileImage || userInfo.previewImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={userInfo.previewImage || `${import.meta.env.VITE_HOST}/${userInfo.profileImage}`} alt="profile" />
                     :
                     // <input type="file" />
-                    <div className={`uppercase h-28 w-28 text-4xl border-[1px] flex items-center justify-center ${colors[selectedColor]} rounded-full`}>
+                    <div className={`uppercase h-18 w-18 text-3xl border-[1px] flex items-center justify-center ${colors[selectedColor]} rounded-full`}>
                       {userInfo.fullName.split('')[0]}
                     </div>
                   }
@@ -113,9 +114,9 @@ const Profile = () => {
                 {hovered && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 ring-fuchsia-500 rounded-full">
                     {userInfo.previewImage || userInfo.profileImage ? (
-                      <FaTrash onClick={handleImageDelete} className="text-white text-3xl cursor-pointer" />
+                      <FaTrash onClick={handleImageDelete} className="text-white text-2xl cursor-pointer" />
                     ) : (
-                      <FaPlus onClick={handleFileInputClick} className="text-white text-3xl cursor-pointer" />
+                      <FaPlus onClick={handleFileInputClick} className="text-white text-2xl cursor-pointer" />
                     )}
                   </div>
                 )}
@@ -124,25 +125,25 @@ const Profile = () => {
             </div>
             <div></div>
             <div className='flex gap-3'>
-              <input type="text" name='username' onChange={handleChange} value={userInfo.username} placeholder='Username'
-                className="w-full px-4 py-3 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200"
-                required />
-              <input type="text" name='fullName' placeholder="Full Name" onChange={handleChange} value={userInfo.fullName}
-                className="w-full px-4 py-3 bg-slate-700 text-white placeholder-slate-500 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200" required />
-            </div>
-            <div>
-              <input type="email" name='email' value={user.email}
-                className="w-full px-4 py-3 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200"
+              <input type="text" name='username' onChange={handleChange} value={`@${userInfo.username}`} placeholder='Username'
+                className="w-full px-4 py-2 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200"
                 disabled />
+              <input type="text" name='name' placeholder="Full Name" onChange={handleChange} value={userInfo.fullName}
+                className="w-full px-4 py-2 bg-slate-700 text-white placeholder-slate-500 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200" required />
             </div>
+            {/* <div>
+                                                  <input type="email" name='email' value={user.email}
+                                                      className="w-full px-4 py-3 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200"
+                                                      disabled />
+                                              </div> */}
             <div>
-              <input type="textArea" name='bio' onChange={handleChange} value={userInfo.bio} placeholder='Bio'
-                className="w-full px-4 py-3 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200" />
+              <input type="textarea" name='bio' onChange={handleChange} value={userInfo.bio} placeholder='Bio'
+                className="w-full px-4 py-2 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200" />
             </div>
 
 
 
-            <div className="flex justify-center space-x-4 py-4">
+            <div className="flex justify-center space-x-4 py-2">
               {colors.map((color, index) => (
                 <div
                   className={`${color} h-8 w-8 rounded-full cursor-pointer transition-all duration-300 ${selectedColor === index
@@ -156,12 +157,13 @@ const Profile = () => {
             </div>
 
             <button type='submit'
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
               Save Changes
             </button>
           </form>
-        </div>
-      </section>
+
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

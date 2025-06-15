@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoggedInUser, signOutAsync } from '../../../../../auth/authSlice'
@@ -11,11 +11,14 @@ import {
 import { FiEdit2 } from 'react-icons/fi'
 import { IoPower } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom'
+import Profile from '../../../../../profile/Profile'
 
 const ProfileInfo = () => {
     const user = useSelector(selectLoggedInUser);
     const navigate = useNavigate();
+    const [openProfileModal, setOpenProfileModal] = useState(false);
     const dispatch = useDispatch();
+
     return (
         <div className="absolute bottom-0 h-16 flex items-center justify-between px-10 w-full bg-[#2a2b33]">
             <div className='flex gap-5 items-center justify-center'>
@@ -46,7 +49,7 @@ const ProfileInfo = () => {
                 <div className='flex gap-5 items-center justify-center'>
                     <Tooltip>
                         <TooltipTrigger className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all cursor-pointer hover:text-neutral-300">
-                            <FiEdit2 onClick={() => navigate('/profile')} className="text-2xl" />
+                            <FiEdit2 onClick={() => setOpenProfileModal(true)} className="text-2xl" />
                         </TooltipTrigger>
                         <TooltipContent>
                             Edit
@@ -60,6 +63,7 @@ const ProfileInfo = () => {
                             Logout
                         </TooltipContent>
                     </Tooltip>
+                    <Profile openProfileModal={openProfileModal} setOpenProfileModal={setOpenProfileModal} />
                 </div>
             </div>
         </div>

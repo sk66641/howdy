@@ -6,7 +6,8 @@ import moment from 'moment';
 import { IoMdArrowRoundDown } from 'react-icons/io';
 import { GrDocumentZip, GrUpload } from 'react-icons/gr';
 import { IoCloseSharp } from 'react-icons/io5';
-import axios from 'axios';
+import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import { colors } from '../../../../../../lib/utils';
 // import { getChannelMessages } from '../../../../../../../../server/controllers/ChannelController';
 
 const MessageContainer = () => {
@@ -80,111 +81,172 @@ const MessageContainer = () => {
   };
 
   const renderDMMessages = (message) => {
+    const isCurrentUser = message.sender === user._id;
+
     return (
+      <div className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} mb-4`}>
+        <div className={`max-w-[70%] ${isCurrentUser ? "text-right" : "text-left"}`}>
+          {/* Text Messages */}
+          {message.messageType === "text" && (
+            <div
+              className={`inline-block p-3 rounded-lg my-1 break-words ${isCurrentUser
+                ? "bg-[#8417ff] text-white rounded-tr-none"
+                : "bg-[#2a2b33] text-white rounded-tl-none"
+                }`}
+              style={{ wordBreak: 'break-word' }}
+            >
+              {message.content}
+            </div>
+          )}
 
-      <div
-        className={`${message.sender !== user._id ? "text-left" : "text-right"
+          {/* File Messages */}
+          {message.messageType === "file" && (
+            <div
+              className={`inline-block p-2 rounded-lg my-1 ${isCurrentUser
+                ? "bg-[#8417ff]/10 border border-[#8417ff]/20 rounded-tr-none"
+                : "bg-[#2a2b33]/10 border border-[#2a2b33]/20 rounded-tl-none"
+                }`}
+            >
+              {checkIfImage(message.fileURL) ? (
+                <div onClick={() => handleImageClick(message.fileURL)} className='cursor-pointer'>
+                  <img
+                    className="max-h-64 rounded-md"
+                    src={`${import.meta.env.VITE_HOST}/${message.fileURL}`}
+                    alt="img"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center flex-wrap justify-between gap-4 p-2">
+                  <div className="flex items-center gap-3">
+                    <GrDocumentZip color={isCurrentUser ? "#8417ff" : "grey"} size={24} />
+                    <span className={isCurrentUser ? "text-[#8417ff]" : "text-gray-200"}>
+                      {message.fileURL.split("/").pop()}
+                    </span>
+                  </div>
+                  {!isDownloading ? (
+                    <button
+                      onClick={() => dispatch(downloadFileAsync(message.fileURL))}
+                      className="bg-black/20 p-2 rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+                    >
+                      <IoMdArrowRoundDown color={isCurrentUser ? "#8417ff" : "grey"} />
+                    </button>
+                  ) : (
+                    <span className={`text-sm ${isCurrentUser ? "text-[#8417ff]/80" : "text-gray-400"}`}>
+                      {FileDownloadProgress}%
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
-          }`}
-      >
-        {message.messageType === "text" && (
-          <div
-            className={`${message.sender !== user._id
-              ? "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-              : "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-              } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
-          >
-            {message.content}
+          {/* Timestamp and Read Receipts */}
+          <div className={`text-xs mt-1 ${isCurrentUser ? "text-gray-400" : "text-gray-500"}`}>
+            {moment(message.timestamp).format("hh:mm A")}
+            {message.isRead && isCurrentUser && (
+              <span className="ml-1 text-blue-400">✓✓</span>
+            )}
           </div>
-        )}
-        {message.messageType === "file" && (
-          <div
-            className={`${message.sender === currentChat._id
-              ? "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-              : "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-              } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
-          >
-            {checkIfImage(message.fileURL) ?
-              <div onClick={() => handleImageClick(message.fileURL)} className='cursor-pointer'>
-                <img height={300} width={300} src={`${import.meta.env.VITE_HOST}/${message.fileURL}`} alt="img" />
-              </div> :
-              <div className="flex items-center flex-wrap justify-center gap-4">
-                {/* <span className="text-white/80 text-3xl bg-black/20 rounded-full p-3"> */}
-                <GrDocumentZip color='grey' size={24} />
-                {/* </span> */}
-                <span className='text-center'>{message.fileURL.split("/").pop()}</span>
-                {
-                  !isDownloading ? <span onClick={() => dispatch(downloadFileAsync(message.fileURL))} className="bg-black/20 p-3 text-xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
-                  >
-                    <IoMdArrowRoundDown />
-                  </span> : <span>{FileDownloadProgress}%</span>
-                }
-
-
-              </div>
-
-            }
-          </div>
-        )}
-        <div className="text-xs text-gray-600">
-          {moment(message.timestamp).format("LT")}
         </div>
       </div>
-    )
+    );
   };
 
   const renderChannelMessages = (message) => {
     return (
       <div
-        className={`${user._id === message.sender._id ? "text-right" : "text-left"
-
-          }`}
+        className={`flex ${user._id === message.sender._id ? "justify-end" : "justify-start"} mb-4`}
       >
-        {message.messageType === "text" && (
-          <div
-            className={`${user._id === message.sender._id
-              ? "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-              : "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-              } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
-          >
-            {message.content}
+        {user._id !== message.sender._id && (
+          <div className="flex-shrink-0 mr-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+              {message.sender.profileImage ? (
+                <img
+                  src={`${import.meta.env.VITE_HOST}/${message.sender.profileImage}`}
+                  alt={message.sender.username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                // <div>hi</div>
+                <Avatar className="h-10 w-10 rounded-full overflow-hidden">
+                  {message.sender.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${message.sender.profileImage}`} alt="profile" />
+                    :
+                    <div className={`uppercase h-10 w-10 text-xl border-[1px] flex items-center justify-center ${colors[message.sender.color]} rounded-full`}>
+                      {message.sender.fullName.split('')[0]}
+                    </div>
+                  }
+                </Avatar>
+              )}
+            </div>
           </div>
         )}
-        {message.messageType === "file" && (
-          <div
-            className={`${user._id === currentChat._id
-              ? "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-              : "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-              } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
-          >
-            {checkIfImage(message.fileURL) ?
-              <div onClick={() => handleImageClick(message.fileURL)} className='cursor-pointer'>
-                <img height={300} width={300} src={`${import.meta.env.VITE_HOST}/${message.fileURL}`} alt="img" />
-              </div> :
-              <div className="flex items-center flex-wrap justify-center gap-4">
-                {/* <span className="text-white/80 text-3xl bg-black/20 rounded-full p-3"> */}
-                <GrDocumentZip color='grey' size={24} />
-                {/* </span> */}
-                <span className='text-center'>{message.fileURL.split("/").pop()}</span>
-                {
-                  !isDownloading ? <span onClick={() => dispatch(downloadFileAsync(message.fileURL))} className="bg-black/20 p-3 text-xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
-                  >
-                    <IoMdArrowRoundDown />
-                  </span> : <span>{FileDownloadProgress}%</span>
-                }
 
+        <div className={`max-w-[70%] ${user._id === message.sender._id ? "text-right" : "text-left"}`}>
+          {user._id !== message.sender._id && (
+            <div className="text-sm font-medium mb-1">
+              <span className="text-gray-200">{message.sender.fullName}</span>
+              <span className="text-gray-400 ml-2">@{message.sender.username}</span>
+            </div>
+          )}
 
-              </div>
+          {message.messageType === "text" && (
+            <div
+              className={`inline-block p-3 rounded-lg my-1 break-words ${user._id === message.sender._id
+                ? "bg-[#8417ff] text-white rounded-tr-none"
+                : "bg-[#2a2b33] text-white rounded-tl-none"
+                }`}
+              style={{ wordBreak: 'break-word' }}
+            >
+              {message.content}
+            </div>
+          )}
 
-            }
+          {message.messageType === "file" && (
+            <div
+              className={`inline-block p-2 rounded-lg my-1 ${user._id === message.sender._id
+                ? "bg-[#8417ff]/10 border border-[#8417ff]/20 rounded-tr-none"
+                : "bg-[#2a2b33]/10 border border-[#2a2b33]/20 rounded-tl-none"
+                }`}
+            >
+              {checkIfImage(message.fileURL) ? (
+                <div onClick={() => handleImageClick(message.fileURL)} className='cursor-pointer'>
+                  <img
+                    className="max-h-64 rounded-md"
+                    src={`${import.meta.env.VITE_HOST}/${message.fileURL}`}
+                    alt="img"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center flex-wrap justify-between gap-4 p-2">
+                  <div className="flex items-center gap-3">
+                    <GrDocumentZip color={user._id === message.sender._id ? "#8417ff" : "grey"} size={24} />
+                    <span className='text-gray-200'>{message.fileURL.split("/").pop()}</span>
+                  </div>
+                  {!isDownloading ? (
+                    <button
+                      onClick={() => dispatch(downloadFileAsync(message.fileURL))}
+                      className="bg-black/20 p-2 rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+                    >
+                      <IoMdArrowRoundDown color={user._id === message.sender._id ? "#8417ff" : "grey"} />
+                    </button>
+                  ) : (
+                    <span className="text-sm text-gray-400">{FileDownloadProgress}%</span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className={`text-xs mt-1 ${user._id === message.sender._id ? "text-gray-400" : "text-gray-500"}`}>
+            {moment(message.timestamp).format("hh:mm A")}
+            {message.isRead && user._id === message.sender._id && (
+              <span className="ml-1 text-blue-400">✓✓</span>
+            )}
           </div>
-        )}
-        <div className="text-xs text-gray-600">
-          {moment(message.timestamp).format("LT")}
         </div>
-      </div>)
-  }
-
+      </div>
+    );
+  };
   return (
     <div className='flex-1 overflow-y-auto p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full scrollbar-hidden'>
       {renderMessages()}

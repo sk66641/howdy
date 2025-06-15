@@ -69,6 +69,7 @@ const DmList = ({ isChannel }) => {
                         : "hover:bg-gray-700"
                         }`}
                     onClick={() => {
+                        dispatch(setChatMessagesEmpty());
                         dispatch(setChatType("channel"));
                         dispatch(setCurrentChat(channel));
                         dispatch(getChannelMembersAsync({ channelId: channel._id }));

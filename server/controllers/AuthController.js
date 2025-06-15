@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 exports.register = async (req, res) => {
-    
+
     try {
         const { fullName, username, email, password } = req.body;
 
@@ -39,6 +39,7 @@ exports.register = async (req, res) => {
             fullName: user.fullName,
             color: user.color,
             profileImage: user.profileImage,
+            bio: user.bio,
             _id: user._id
         });
 
@@ -49,7 +50,7 @@ exports.register = async (req, res) => {
 }
 
 exports.login = async (req, res) => {
-    
+
     try {
         const { email, password } = req.body;
 
@@ -77,6 +78,7 @@ exports.login = async (req, res) => {
             fullName: user.fullName,
             color: user.color,
             profileImage: user.profileImage,
+            bio: user.bio,
             _id: user._id
         });
     }

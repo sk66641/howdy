@@ -22,14 +22,14 @@ function App() {
       path: '/',
       element: <Protected><ChatPage /></Protected>,
     },
-    {
-      path: '/profile',
-      element: <Protected> <ProfilePage /></Protected>,
-    },
-    {
-      path: '/channel-profile',
-      element: <Protected> <ChannelProfile /></Protected>,
-    },
+    // {
+    //   path: '/profile',
+    //   element: <Protected> <ProfilePage /></Protected>,
+    // },
+    // {
+    //   path: '/channel-profile',
+    //   element: <Protected> <ChannelProfile /></Protected>,
+    // },
     {
       path: '*',
       element: <Navigate to={'/auth'} replace />
