@@ -1,6 +1,7 @@
 const { Channel } = require("../models/Channel");
 const { User } = require("../models/User");
 const fs = require('fs')
+const { ChannelMessage } = require('../models/ChannelMessage');
 
 exports.createChannel = async (req, res) => {
     try {
@@ -66,20 +67,36 @@ exports.getChannelMessages = async (req, res) => {
         const { channelId } = req.params;
         if (!channelId) return res.status(400).json({ message: "channelId not found" });
 
-        // console.log(channelId)
-        const channelMessages = await Channel.findById(channelId)
+        const channelData = await Channel.findById(channelId)
             .select('messages')
             .populate({
                 path: 'messages',
-                populate: { path: 'sender', select: '-email -password' }
+                populate: {
+                    path: 'sender',
+                    select: '-email -password'
+                }
             });
-        // console.log(channelMessages);  
-        res.status(200).json({ channelMessages });
+
+        // Sanitize messages if deleted
+        const sanitizedMessages = channelData.messages.map(msg => {
+            if (msg.isDeleted) {
+                return {
+                    _id: msg._id,
+                    isDeleted: true,
+                    timestamp: msg.timestamp,
+                    sender: msg.sender,
+                };
+            }
+            return msg;
+        });
+
+        res.status(200).json({ channelMessages: sanitizedMessages });
     } catch (error) {
         console.log(error);
         return res.status(500).send("Internal Server Error");
     }
-}
+};
+
 
 exports.removeMember = async (req, res) => {
     try {
@@ -119,10 +136,6 @@ exports.addMembers = async (req, res) => {
     }
 }
 
-// const { User } = require('../models/User');
-// const multer = require('multer')
-
-
 exports.updateChannelProfile = async (req, res) => {
     try {
         const { channelId } = req.params;
@@ -150,7 +163,7 @@ exports.updateChannelProfileImage = async (req, res) => {
         const fileName = "uploads/channelProfileImages/" + Date.now() + '_' + req.file.originalname;
         fs.renameSync(req.file.path, fileName);
         // console.log(req.file)
-        const updatedChannel = await Channel.findByIdAndUpdate( 
+        const updatedChannel = await Channel.findByIdAndUpdate(
             channelId,
             { profileImage: fileName },
             { new: true, select: '-members -messages' }
@@ -173,9 +186,35 @@ exports.deleteChannelProfileImage = async (req, res) => {
         fs.unlinkSync(channel.profileImage);
         channel.profileImage = null;
         await channel.save();
-        res.status(200).json({channelId});
+        res.status(200).json({ channelId });
     } catch (error) {
         console.error("Error deleting profile image:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
-} 
+}
+
+exports.deleteChannelMessage = async (req, res) => {
+    try {
+        const { channelMessageId } = req.params;
+        if (!channelMessageId) return res.status(400).json({ message: "channelMessageId not found" });
+
+        await ChannelMessage.findByIdAndDelete(channelMessageId);
+        return res.status(200).json({ channelMessageId });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+exports.deleteChannelMessageByAdmin = async (req, res) => {
+    try {
+        const { channelMessageId } = req.params;
+        if (!channelMessageId) return res.status(400).json({ message: "channelMessageId not found" });
+
+        const deletedChannelMessage = await ChannelMessage.findByIdAndUpdate(channelMessageId, { isDeleted: true }, { new: true }).select('-content -fileURL -messageType').populate('sender');
+        return res.status(200).json(deletedChannelMessage);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal Server Error");
+    }
+}

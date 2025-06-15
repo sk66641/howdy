@@ -120,20 +120,6 @@ const ChatHeader = () => {
                                 View Channel
                             </TooltipContent>
                         </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <RiEditLine
-                                    className="text-neutral-400 font-light text-opacity-90 text-start hover:text-neutral-100 cursor-pointer transition-all duration-300"
-                                    onClick={() => {
-                                        setOpenChannelProfileModal(true);
-                                    }}
-                                />
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
-                                Edit Channel
-                            </TooltipContent>
-                        </Tooltip>
-
                         <Dialog open={openNewContactModal} onOpenChange={handleOpenChange}>
                             <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
                                 <DialogHeader>
@@ -154,17 +140,24 @@ const ChatHeader = () => {
                                 {addMembersMode ? <InlineUserSelector setAddMembersMode={setAddMembersMode} /> :
                                     <>
                                         <div className='flex gap-3 items-center'>
-                                            <div className='w-3/4 flex items-center justify-around bg-gray-600 gap-3 py-3 rounded-md'>
+                                            <div className='w-full flex items-center justify-around bg-gray-600 gap-3 py-3 rounded-md'>
                                                 <span>
                                                     {channelMembers.length}{channelMembers.length === 1 || channelMembers.length === 0 ? " member" : " members"}
                                                 </span>
                                                 <FaSearch />
                                             </div>
-                                            <button type='button' className="w-1/4 bg-[#8417ff] rounded-md flex items-center justify-center px-5 py-3 focus:border-none hover:bg-[#741bda] focus:bg-[#741bda] focus:outline-none focus:text-white duration-300 transition-all cursor-pointer" onClick={handleAddMembers} >+ Add</button>
+                                            {currentChat.admin._id === user._id &&
+                                                <button type='button' className="min-w-1/4 bg-[#8417ff] rounded-md flex items-center justify-center px-5 py-3 focus:border-none hover:bg-[#741bda] focus:bg-[#741bda] focus:outline-none focus:text-white duration-300 transition-all cursor-pointer" onClick={handleAddMembers} >+ Add</button>}
                                         </div>
                                         <ScrollArea className="mt-3 h-[200px]">
                                             <div className='flex flex-col justify-center'>
-                                                <div className='flex gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-gray-700 p-2'>
+                                                <div className={`flex gap-3 items-center justify-start ${currentChat.admin._id === user._id ? "cursor-not-allowed": "cursor-pointer"} rounded-lg hover:bg-gray-700 p-2`} onClick={() => {
+                                                    if (currentChat.admin._id === user._id) return;
+                                                    dispatch(setCurrentChat(currentChat.admin));
+                                                    dispatch(setChatType("contact"));
+                                                    dispatch(setChannelMembersEmpty());
+                                                    setOpenNewContactModal(false);
+                                                }} >
                                                     <Avatar className="h-12 w-12 rounded-full overflow-hidden">
                                                         {currentChat.admin.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${currentChat.admin.profileImage}`} alt="profile" />
                                                             :
@@ -185,10 +178,21 @@ const ChatHeader = () => {
                                                     <span className='text-white rounded-md bg-green-700 px-2'>
                                                         admin
                                                     </span>
+                                                    {currentChat.admin._id === user._id &&
+                                                        <span>
+                                                            you
+                                                        </span>
+                                                    }
                                                 </div>
                                                 {channelMembers.map((contact) => (
                                                     <div className='flex items-center justify-between'>
-                                                        <div className='w-full flex gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-gray-700 p-2' key={contact._id}>
+                                                        <div className={`w-full flex gap-3 items-center justify-start ${contact._id === user._id ? "cursor-not-allowed" : "cursor-pointer"} rounded-lg hover:bg-gray-700 p-2`} onClick={() => {
+                                                            if (contact._id === user._id) return;
+                                                            dispatch(setCurrentChat(contact));
+                                                            dispatch(setChatType("contact"));
+                                                            dispatch(setChannelMembersEmpty());
+                                                            setOpenNewContactModal(false);
+                                                        }} key={contact._id}>
                                                             <Avatar className="h-12 w-12 rounded-full overflow-hidden">
                                                                 {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
                                                                     :
@@ -208,17 +212,35 @@ const ChatHeader = () => {
                                                             <span className='text-white rounded-md bg-yellow-700 px-2'>
                                                                 member
                                                             </span>
+                                                            {contact._id === user._id &&
+                                                                <span>
+                                                                    you
+                                                                </span>
+                                                            }
                                                         </div>
-                                                        {/* <div className='flex justify-center items-center'> */}
-                                                        <FiDelete color='red' size='20' className='cursor-pointer ml-[24px]' onClick={() => handleRemoveMember(currentChat._id, contact._id)} />
-                                                        {/* </div> */}
+                                                        {currentChat.admin._id === user._id &&
+                                                            <FiDelete color='red' size='20' className='cursor-pointer ml-[24px]' onClick={() => handleRemoveMember(currentChat._id, contact._id)} />}
                                                     </div>))}
                                             </div>
                                         </ScrollArea>
                                     </>}
                             </DialogContent>
                         </Dialog>
-
+                        {currentChat.admin._id === user._id &&
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <RiEditLine
+                                        className="text-neutral-400 font-light text-opacity-90 text-start hover:text-neutral-100 cursor-pointer transition-all duration-300"
+                                        onClick={() => {
+                                            setOpenChannelProfileModal(true);
+                                        }}
+                                    />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
+                                    Edit Channel
+                                </TooltipContent>
+                            </Tooltip>
+                        }
                         <ChannelProfile openChannelProfileModal={openChannelProfileModal} setOpenChannelProfileModal={setOpenChannelProfileModal} />
 
                     </div>}

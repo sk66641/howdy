@@ -64,7 +64,7 @@ const DmList = ({ isChannel }) => {
             {isChannel && channelsList.length > 0 && channelsList.map((channel) => (
                 <div
                     key={channel._id}
-                    className={`pl-10 mx-2 rounded-md py-2 transition-all duration-300 cursor-pointer ${chatType === "channel" && currentChat && currentChat._id === channel._id
+                    className={`pl-10 mx-2 rounded-md py-2 m-2 transition-all duration-300 cursor-pointer ${chatType === "channel" && currentChat && currentChat._id === channel._id
                         ? "bg-gray-700"
                         : "hover:bg-gray-700"
                         }`}

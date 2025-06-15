@@ -60,8 +60,8 @@ export const SocketProvider = ({ children }) => {
 
             socket.current.on("receive-channel-message", (message) => {
                 if (selectedContactRef.current && selectedContactRef.current._id === message.channelId) {
-                    { selectedChatTypeRef.current === "channel" && dispatch(setChatMessages(message)); }
                     console.log("receiving channel message: ", message); 
+                    { selectedChatTypeRef.current === "channel" && dispatch(setChatMessages(message)); }
                 }
             })
 

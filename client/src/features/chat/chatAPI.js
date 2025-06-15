@@ -240,3 +240,60 @@ export const addMembers = (channelId, members) => {
         }
     })
 }
+
+export const deleteDirectMessage = (messageId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/messages/${messageId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+export const deleteChannelMessage = (channelMessageId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/message/delete/${channelMessageId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+export const deleteChannelMessageByAdmin = (channelMessageId)=>{
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/admin-delete-message/${channelMessageId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}

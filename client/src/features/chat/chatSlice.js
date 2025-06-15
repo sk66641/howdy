@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { addMembers, createChannel, downloadFile, getChannelMembers, getChannelMessages, getChannels, getDmContactList, getMessages, removeMember, searchContacts, uploadFile } from './chatAPI'
+import { addMembers, createChannel, deleteChannelMessage, deleteChannelMessageByAdmin, deleteDirectMessage, downloadFile, getChannelMembers, getChannelMessages, getChannels, getDmContactList, getMessages, removeMember, searchContacts, uploadFile } from './chatAPI'
 import { deleteChannelProfileImage, updateChannelProfile, updateChannelProfileImage } from '../profile/profileAPI';
 
 const initialState = {
@@ -76,7 +76,7 @@ export const getChannelsAsync = createAsyncThunk(
 export const getChannelMessagesAsync = createAsyncThunk(
     'chat/getChannelMessages', async ({ channelId }) => {
         const response = await getChannelMessages(channelId);
-        return response.data.channelMessages.messages;
+        return response.data.channelMessages;
     }
 )
 
@@ -117,6 +117,30 @@ export const updateChannelProfileImageAsync = createAsyncThunk(
 export const deleteChannelProfileImageAsync = createAsyncThunk(
     'chat/deleteChannelProfileImage', async (channelId) => {
         const response = await deleteChannelProfileImage(channelId);
+        return response.data;
+    }
+)
+
+export const deleteDirectMessageAsync = createAsyncThunk(
+    'chat/deleteDirectMessage',
+    async (messageId) => {
+        const response = await deleteDirectMessage(messageId);
+        return response.data;
+    }
+)
+
+export const deleteChannelMessageAsync = createAsyncThunk(
+    'chat/deleteChannelMessage',
+    async (channelMessageId) => {
+        const response = await deleteChannelMessage(channelMessageId);
+        return response.data;
+    }
+)
+
+export const deleteChannelMessageByAdminAsync = createAsyncThunk(
+    'chat/deleteChannelMessageByAdmin',
+    async (channelMessageId) => {
+        const response = await deleteChannelMessageByAdmin(channelMessageId);
         return response.data;
     }
 )
@@ -291,6 +315,21 @@ export const chatSlice = createSlice({
                     state.channelList[index].profileImage = null;
                 }
                 state.currentChat.profileImage = null;
+            })
+            .addCase(deleteDirectMessageAsync.fulfilled, (state, action) => {
+                const { messageId } = action.payload;
+                state.chatMessages = state.chatMessages.filter(message => message._id !== messageId);
+            })
+            .addCase(deleteChannelMessageAsync.fulfilled, (state, action) => {
+                const { channelMessageId } = action.payload;
+                state.chatMessages = state.chatMessages.filter(message => message._id !== channelMessageId);
+            })
+            .addCase(deleteChannelMessageByAdminAsync.fulfilled, (state, action) => {
+                const channelMessageId = action.payload._id;
+                const index = state.chatMessages.findIndex(message => message._id === channelMessageId);
+                if (index !== -1) {
+                    state.chatMessages[index] = action.payload;
+                }
             })
     }
 })

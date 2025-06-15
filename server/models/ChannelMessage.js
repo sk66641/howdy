@@ -27,12 +27,12 @@ const channelMessageSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    isRead: {
+    isDeleted: {
         type: Boolean,
         default: false
     }
 });
 
-exports.channelMessage = mongoose.model('channelMessages', channelMessageSchema);
+exports.ChannelMessage = mongoose.model('channelMessages', channelMessageSchema);
 
 // to do: try replacing the function with an arrow function

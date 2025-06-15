@@ -32,9 +32,24 @@ exports.uploadFile = async (req, res) => {
         fs.renameSync(req.file.path, fileName);
         // console.log(req.file)
 
-        res.status(200).json({filePath: fileName});
+        res.status(200).json({ filePath: fileName });
     } catch (error) {
         console.error("Error updating profile image:", error);
         return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+exports.deleteDirectMessage = async (req, res) => {
+    try {
+        const { messageId } = req.params;
+        if (!messageId) {
+            return res.status(400).json({ error: 'Message ID is required' });
+        }
+
+        await DirectMessage.findByIdAndDelete(messageId);
+        res.status(200).json({ messageId });
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 }

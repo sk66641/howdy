@@ -1,7 +1,8 @@
 const { Server } = require('socket.io');
 const { Channel } = require('./models/Channel');
-const { channelMessage } = require('./models/ChannelMessage');
+const { ChannelMessage } = require('./models/ChannelMessage');
 const { DirectMessage } = require('./models/DirectMessage');
+const { deleteDirectMessage } = require('./controllers/MessageController');
 
 const setUpSocket = (server) => {
     const io = new Server(server, {
@@ -48,11 +49,11 @@ const setUpSocket = (server) => {
         // const senderSocketId = userSocketMap.get(message.sender);
         // const channelId = message.channelId;
 
-        const newMessage = new channelMessage({ sender, messageType, content, fileURL });
+        const newMessage = new ChannelMessage({ sender, messageType, content, fileURL });
 
         const createMessage = await newMessage.save();
         // console.log('Channel message saved:', createMessage);
-        const messageData = await channelMessage.findById(createMessage._id)
+        const messageData = await ChannelMessage.findById(createMessage._id)
             .populate('sender', 'username fullName color profileImage');
 
         const channel = await Channel.findByIdAndUpdate(channelId, { $push: { messages: createMessage._id } }, { new: true }).populate('members').exec();
@@ -77,6 +78,8 @@ const setUpSocket = (server) => {
         }
     }
 
+    // const delete
+
     io.on('connection', (socket) => {
 
         const userId = socket.handshake.query.userId;
@@ -92,6 +95,7 @@ const setUpSocket = (server) => {
 
         socket.on('send-direct-message', sendDirectMessage);
         socket.on('send-channel-message', sendChannelMessage);
+        socket.on('delete-direct-message', deleteDirectMessage);
         socket.on('disconnect', () => {
 
             for (const [userId, socketId] of userSocketMap.entries()) {

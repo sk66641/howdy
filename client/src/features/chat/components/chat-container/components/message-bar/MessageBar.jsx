@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectFilePath, selectChatType, selectCurrentChat, uploadFileAsync, selectDmContactList, updateDmContactList, selectChannelList, updateChannelList } from '../../../../chatSlice'
 import { useSocket } from '../../../../../../context/SocketContext'
 import { selectLoggedInUser } from '../../../../../auth/authSlice'
-import DmList from '../../../contacts-container/components/dm-list/DmList'
 
 const MessageBar = () => {
     const socket = useSocket();
@@ -127,7 +126,7 @@ const MessageBar = () => {
                     onChange={(e) => setMessage(e.target.value)}
                 />
 
-                <button onClick={handleAttachmentClick} type='button' className="text-neutral-500 focus:border-none focus:outline-none duration-300 transition-all hover:text-neutral-300 cursor-pointer">
+                <button onClick={handleAttachmentClick} type='button' className="text-neutral-500 focus:border-none focus:outline-none duration-300 transition-all hover:text-neutral-300 focus:text-white cursor-pointer">
                     <GrAttachment className="text-2xl" />
                 </button>
                 <input type='file' className='hidden' ref={fileInputRef} onChange={handleAttachmentChange} />
@@ -141,6 +140,7 @@ const MessageBar = () => {
                             autoFocusSearch={false}
                             theme="dark"
                             open={emojiPickerOpen}
+                            className='scrollbar-hidden'
                         />
                     </div>
                 </div>
