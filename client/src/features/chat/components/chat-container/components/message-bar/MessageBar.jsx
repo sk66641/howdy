@@ -116,11 +116,11 @@ const MessageBar = () => {
 
 
     return (
-        <form onSubmit={handleSendMessage} className="h-[10vh] bg-[#1c1d25] flex justify-center items-center px-8 mb-3 gap-6">
-            <div className="flex-1 flex bg-[#2a2b33] rounded-md items-center gap-5 pr-5">
+        <form onSubmit={handleSendMessage} className="h-[7vh] md:h-[9vh] bg-[#1c1d25] flex justify-center items-center md:px-8 px-4 mb-3 gap-3 md:gap-6">
+            <div className="flex-1 flex bg-[#2a2b33] rounded-md items-center gap-3 md:gap-6 md:pr-6 pr-3">
                 <input
                     type="text"
-                    className="flex-1 p-5 bg-transparent rounded-md focus:border-none focus:outline-none"
+                    className="flex-1 p-5 bg-transparent w-full md:w-[10vw] rounded-md focus:border-none focus:outline-none"
                     placeholder="Enter Message"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}

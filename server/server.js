@@ -7,6 +7,7 @@ const { User } = require('./models/User')
 const cookieParser = require('cookie-parser');
 const { setUpSocket } = require('./socket');
 const { authMiddleware } = require('./middlewares/AuthMiddleware');
+const path = require('path')
 
 const server = express();
 dotEnv.config();
@@ -26,9 +27,11 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-server.get('/', (req, res)=>{
-    res.send("server is running");
-})
+
+server.get("/", (req, res) => {
+    res.send("API is Running Successfully");
+});
+
 server.use('/uploads/channelProfileImages', authMiddleware, express.static('uploads/channelProfileImages'));
 server.use('/uploads/profileImages', authMiddleware, express.static('uploads/profileImages'));
 server.use('/uploads/files', authMiddleware, express.static('uploads/files'));
