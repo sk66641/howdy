@@ -31,9 +31,11 @@ const Contacts = () => {
 
     return (
         <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">
-            <div className="pt-3 flex items-center px-5 gap-3">
-                <FiMessageSquare color='yellow' />
-                <span>HOWDY</span>
+            <div className="pt-5 px-6 flex items-center gap-3">
+                <FiMessageSquare className="text-yellow-400 text-xl" />
+                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-amber-500">
+                    HOWDY
+                </span>
             </div>
 
             <div className="my-5">
@@ -65,7 +67,7 @@ export default Contacts
 
 const Title = ({ text }) => {
     return (
-        <h2 className="text-gray-400 text-lg font-semibold pl-5">
+        <h2 className="text-white text-md font-medium pl-5 tracking-wide uppercase drop-shadow-sm">
             {text}
         </h2>
     )

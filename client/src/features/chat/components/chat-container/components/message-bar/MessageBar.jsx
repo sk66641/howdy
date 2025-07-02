@@ -116,39 +116,66 @@ const MessageBar = () => {
 
 
     return (
-        <form onSubmit={handleSendMessage} className="h-[7vh] md:h-[9vh] bg-[#1c1d25] flex justify-center items-center md:px-8 px-4 mb-3 gap-3 md:gap-6">
-            <div className="flex-1 flex bg-[#2a2b33] rounded-md items-center gap-3 md:gap-6 md:pr-6 pr-3">
+        <form onSubmit={handleSendMessage} className="h-16 bg-gray-800/80 backdrop-blur-lg border-t border-gray-700/50 flex items-center px-4 md:px-6 gap-3">
+            {/* Input Container */}
+            <div className="flex-1 flex bg-gray-700/60 rounded-xl items-center gap-2 pr-2 border border-gray-600/50 focus-within:ring-2 focus-within:ring-purple-500/30 transition-all duration-300">
+                {/* Message Input */}
                 <input
                     type="text"
-                    className="flex-1 p-5 bg-transparent w-full md:w-[10vw] rounded-md focus:border-none focus:outline-none"
-                    placeholder="Enter Message"
+                    className="flex-1 py-4 px-4 bg-transparent w-full rounded-xl focus:outline-none text-gray-200 placeholder-gray-400"
+                    placeholder="Type your message..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                 />
 
-                <button onClick={handleAttachmentClick} type='button' className="text-neutral-500 focus:border-none focus:outline-none duration-300 transition-all hover:text-neutral-300 focus:text-white cursor-pointer">
-                    <GrAttachment className="text-2xl" />
+                {/* Attachment Button */}
+                <button 
+                    onClick={handleAttachmentClick} 
+                    type='button' 
+                    className="p-2 text-gray-400 hover:text-purple-400 transition-colors duration-300 rounded-full hover:bg-gray-600/50"
+                    title="Attach file"
+                >
+                    <GrAttachment className="text-xl" />
                 </button>
                 <input type='file' className='hidden' ref={fileInputRef} onChange={handleAttachmentChange} />
+
+                {/* Emoji Picker */}
                 <div className="relative">
-                    <button type='button' className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all cursor-pointer hover:text-neutral-300" onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}>
-                        <RiEmojiStickerLine className="text-2xl" />
+                    <button 
+                        type='button' 
+                        className="p-2 text-gray-400 hover:text-yellow-400 transition-colors duration-300 rounded-full hover:bg-gray-600/50"
+                        onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
+                        title="Add emoji"
+                    >
+                        <RiEmojiStickerLine className="text-xl" />
                     </button>
-                    <div ref={emojiRef} className="absolute bottom-16 right-0">
-                        <EmojiPicker
-                            onEmojiClick={handleEmojiClick}
-                            autoFocusSearch={false}
-                            theme="dark"
-                            open={emojiPickerOpen}
-                            className='scrollbar-hidden'
-                        />
-                    </div>
+                    {emojiPickerOpen && (
+                        <div ref={emojiRef} className="absolute bottom-14 right-0 z-50">
+                            <EmojiPicker
+                                onEmojiClick={handleEmojiClick}
+                                autoFocusSearch={false}
+                                theme="dark"
+                                width={300}
+                                height={400}
+                                previewConfig={{ showPreview: false }}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <button type='submit' disabled={message.trim() === ""} className={`bg-[#8417ff] rounded-md flex items-center justify-center p-5 focus:border-none hover:bg-[#741bda] focus:bg-[#741bda] focus:outline-none focus:text-white duration-300 transition-all ${message.trim() === "" ? "cursor-not-allowed" : "cursor-pointer"}`}
+            {/* Send Button */}
+            <button 
+                type='submit' 
+                disabled={message.trim() === ""} 
+                className={`p-4 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                    message.trim() === "" 
+                        ? "bg-gray-600 cursor-not-allowed text-gray-500" 
+                        : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg transform hover:scale-105"
+                }`}
+                title="Send message"
             >
-                <IoSend className="text-2xl" />
+                <IoSend className="text-xl" />
             </button>
         </form>
 

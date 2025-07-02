@@ -129,25 +129,41 @@ const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, 
                         .filter(contact => !selectedUsers.some(user => user._id === contact._id))
                         .map((contact) => (
 
-                            <div className='flex gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-gray-700 p-1' key={contact._id} onClick={() => handleUserSelect(contact)}>
-                                <Avatar className="h-8 w-8 rounded-full overflow-hidden">
+                            <div className='flex border-b gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-gray-700 p-2' key={contact._id} onClick={() => handleUserSelect(contact)}>
+                                <Avatar className="h-10 w-10 rounded-full">
                                     {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
                                         :
-                                        <div className={`uppercase h-8 w-8 text-sm border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
+                                        <div className={`uppercase h-10 w-10 text-sm border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
                                             {contact.fullName.split('')[0]}
                                         </div>
                                     }
                                 </Avatar>
                                 <div className='flex flex-col'>
-                                    <span className='text-sm'>
+                                        <span className="font-semibold text-white">{contact.fullName}</span>
+                                        <span className='text-xs text-[#bdbdbd]'>@{contact.username}</span>
+                                    </div>
+                            </div>
 
-                                        {contact.fullName}
-                                    </span>
-                                    <span className='text-xs'>
-                                        {contact.username}
-                                    </span>
-                                </div>
-                            </div>))}
+
+// 
+
+// {/* <div className='flex border-b gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-[#2d2d4d] p-2 transition-all' key={contact._id} onClick={() => handleSelectContact(contact)}>
+//                                     <Avatar className="h-10 w-10 rounded-full">
+//                                         {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
+//                                             :
+//                                             <div className={`uppercase h-10 w-10 text-lg border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
+//                                                 {contact.fullName.split('')[0]}
+//                                             </div>
+//                                         }
+//                                     </Avatar>
+//                                     <div className='flex flex-col'>
+//                                         <span className="font-semibold text-white">{contact.fullName}</span>
+//                                         <span className='text-xs text-[#bdbdbd]'>@{contact.username}</span>
+//                                     </div>
+//                                 </div> */}
+
+                            // 
+                        ))}
                 </div>
             </ScrollArea>
         </div>

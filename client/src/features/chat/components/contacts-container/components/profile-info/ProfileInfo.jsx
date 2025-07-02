@@ -20,10 +20,10 @@ const ProfileInfo = () => {
     const dispatch = useDispatch();
 
     return (
-        <div className="absolute bottom-0 h-16 flex items-center justify-between px-10 w-full bg-[#2a2b33]">
+        <div className="absolute bottom-0 h-16 flex rounded-t-lg items-center justify-between px-10 w-full bg-[#272a3d]">
             <div className='flex gap-5 items-center justify-center'>
                 <div >
-                    <Avatar className="h-12 w-12 rounded-full overflow-hidden">
+                    <Avatar className="h-12 w-12 border-2 border-indigo-400 rounded-full overflow-hidden">
                         {user.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${user.profileImage}`} alt="profile" />
                             :
                             <div className={`uppercase h-12 w-12 text-xl border-[1px] flex items-center justify-center ${colors[user.color]} rounded-full`}>
@@ -33,18 +33,11 @@ const ProfileInfo = () => {
                     </Avatar>
                 </div>
                 <div className='flex flex-col'>
-                    <div className='flex gap-1 items-center'>
-                        <span>
-                            {user.fullName}
-                        </span>
-                        <span className='text-xs'>
-                            @{user.username}
-                        </span>
+                    <div className='flex gap-2 items-center'>
+                        <span className="font-semibold text-lg text-white">{user.fullName}</span>
+                        <span className='text-xs text-[#bdbdbd] bg-[#38384d] px-2 py-0.5 rounded-full'>@{user.username}</span>
                     </div>
-
-                    <span className='text-xs'>
-                        {user.bio}
-                    </span>
+                    <span className='text-xs text-[#bdbdbd] mt-1 italic'>{user.bio}</span>
                 </div>
                 <div className='flex gap-5 items-center justify-center'>
                     <Tooltip>

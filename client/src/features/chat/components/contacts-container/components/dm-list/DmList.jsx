@@ -1,10 +1,19 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { selectCurrentChat, selectChatType, selectDmContactList, selectChatMessages, setChatType, setChatMessages, setCurrentChat, setChatMessagesEmpty, selectChannelList, getChannelMembersAsync, selectChannelMembers, setChannelMembersEmpty } from '../../../../chatSlice'
+import {
+    selectCurrentChat,
+    selectChatType,
+    selectDmContactList,
+    selectChannelList,
+    selectChannelMembers,
+    setChatType,
+    setChatMessagesEmpty,
+    setCurrentChat,
+    setChannelMembersEmpty,
+    getChannelMembersAsync
+} from '../../../../chatSlice'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../../../../../lib/utils'
-import { getChannelMembers } from '../../../../chatAPI'
-
 
 const DmList = ({ isChannel }) => {
     const dispatch = useDispatch();
@@ -28,45 +37,56 @@ const DmList = ({ isChannel }) => {
         }
         if (channelMembers.length !== 0) dispatch(setChannelMembersEmpty());
     }
+
     return (
-        <div className="mt-5">
+        <div className="mt-5 space-y-3">
             {!isChannel && contacts.length > 0 && contacts.map((contact) => (
                 <div
                     key={contact._id}
-                    className={`pl-10 m-2 py-2 rounded-md transition-all duration-300 cursor-pointer ${currentChat && currentChat._id === contact._id
-                        ? "bg-gray-700"
-                        : "hover:bg-gray-700"
+                    className={`group relative pl-8 pr-4 py-3 m-2 rounded-xl shadow-lg bg-gradient-to-r transition-all duration-300 cursor-pointer border border-transparent
+                        ${currentChat && currentChat._id === contact._id
+                            ? "from-indigo-700 to-indigo-900 border-indigo-400"
+                            : "from-gray-800 to-gray-900 hover:from-indigo-800 hover:to-indigo-900 hover:border-indigo-400"
                         }`}
                     onClick={() => handleClick(contact)}
                 >
-                    <div className="flex gap-5 items-center justify-start text-neutral-300">
-                        <Avatar className="h-10 w-10 rounded-full overflow-hidden">
-                            {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
-                                :
-                                <div className={`uppercase h-10 w-10 text-xl border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
+                    <div className="flex gap-4 items-center text-neutral-100">
+                        <Avatar className="h-12 w-12 rounded-full shadow-md border-2 border-indigo-400 group-hover:scale-110 transition-transform duration-200">
+                            {contact.profileImage ? (
+                                <AvatarImage
+                                    className="object-cover w-full h-full bg-black"
+                                    src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`}
+                                    alt="profile"
+                                />
+                            ) : (
+                                <div className={`uppercase h-12 w-12 text-2xl font-bold flex items-center justify-center ${colors[contact.color]} rounded-full`}>
                                     {contact.fullName.split('')[0]}
                                 </div>
-                            }
+                            )}
                         </Avatar>
-
                         <div className='flex flex-col'>
-                            <span>
+                            <span className="font-semibold text-lg tracking-wide group-hover:text-indigo-300 transition-colors duration-200">
                                 {contact.fullName}
                             </span>
-                            <span className='text-xs'>
+                            <span className='text-xs text-indigo-200 opacity-80 group-hover:text-indigo-100'>
                                 @{contact.username}
                             </span>
                         </div>
-
+                    </div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <svg width="20" height="20" fill="none" className="text-indigo-300">
+                            <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
                     </div>
                 </div>
             ))}
             {isChannel && channelsList.length > 0 && channelsList.map((channel) => (
                 <div
                     key={channel._id}
-                    className={`pl-10 mx-2 rounded-md py-2 m-2 transition-all duration-300 cursor-pointer ${chatType === "channel" && currentChat && currentChat._id === channel._id
-                        ? "bg-gray-700"
-                        : "hover:bg-gray-700"
+                    className={`group relative pl-8 pr-4 py-3 m-2 rounded-xl shadow-lg bg-gradient-to-r transition-all duration-300 cursor-pointer border border-transparent
+                        ${chatType === "channel" && currentChat && currentChat._id === channel._id
+                            ? "from-pink-700 to-pink-900 border-pink-400"
+                            : "from-gray-800 to-gray-900 hover:from-pink-800 hover:to-pink-900 hover:border-pink-400"
                         }`}
                     onClick={() => {
                         dispatch(setChatMessagesEmpty());
@@ -75,32 +95,38 @@ const DmList = ({ isChannel }) => {
                         dispatch(getChannelMembersAsync({ channelId: channel._id }));
                     }}
                 >
-                    <div className="flex gap-5 items-center justify-start text-neutral-300">
-                        <Avatar className="h-10 w-10 rounded-full overflow-hidden">
-                            {channel.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${channel.profileImage}`} alt="profile" />
-                                :
-                                <div className={`uppercase h-10 w-10 text-xl border-[1px] flex items-center justify-center ${colors[channel.color]} rounded-full`}>
+                    <div className="flex gap-4 items-center text-neutral-100">
+                        <Avatar className="h-12 w-12 rounded-full shadow-md border-2 border-pink-400 group-hover:scale-110 transition-transform duration-200">
+                            {channel.profileImage ? (
+                                <AvatarImage
+                                    className="object-cover w-full h-full bg-black"
+                                    src={`${import.meta.env.VITE_HOST}/${channel.profileImage}`}
+                                    alt="profile"
+                                />
+                            ) : (
+                                <div className={`uppercase h-12 w-12 text-2xl font-bold flex items-center justify-center ${colors[channel.color]} rounded-full`}>
                                     {channel.name.split('')[0]}
                                 </div>
-                            }
+                            )}
                         </Avatar>
-
                         <div className='flex flex-col'>
-                            <span>
+                            <span className="font-semibold text-lg tracking-wide group-hover:text-pink-300 transition-colors duration-200">
                                 {channel.name}
                             </span>
-                            <span className='text-xs'>
+                            <span className='text-xs text-pink-200 opacity-80 group-hover:text-pink-100'>
                                 @{channel.handle}
                             </span>
                         </div>
-
+                    </div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <svg width="20" height="20" fill="none" className="text-pink-300">
+                            <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
                     </div>
                 </div>
-            ))
-            }
-        </div >
+            ))}
+        </div>
     );
-
 }
 
 export default DmList

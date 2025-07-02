@@ -2,21 +2,18 @@ import React, { useState } from 'react'
 import { RiChatDeleteFill, RiCloseFill, RiEditLine } from 'react-icons/ri'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteChannelAsync, leaveChannelAsync, removeMemberAsync, selectChannelMembers, selectChatType, selectContacts, selectCurrentChat, setChannelMembersEmpty, setChatType, setCurrentChat } from '../../../../chatSlice';
-import { FaEdit, FaPlus, FaRemoveFormat, FaSearch } from 'react-icons/fa'
+import { FaSearch } from 'react-icons/fa'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { colors } from '../../../../../../lib/utils';
 import { selectLoggedInUser } from '../../../../../auth/authSlice';
-import { current } from '@reduxjs/toolkit';
 import InlineUserSelector from './MultipleSelect';
 import ChannelProfile from '../../../../../profile/ChannelProfile';
-import { FiDelete, FiEdit } from 'react-icons/fi';
-import { IoMdExit } from 'react-icons/io';
-import { GrView } from 'react-icons/gr';
+import { FiDelete } from 'react-icons/fi';
 import { IoRemove } from 'react-icons/io5';
-
+import { GrView } from 'react-icons/gr';
 
 const ChatHeader = () => {
     const dispatch = useDispatch();
@@ -35,7 +32,6 @@ const ChatHeader = () => {
             return;
         }
         setOpenNewContactModal(false);
-        // setSearchQuery('');
     }
 
     const handleRemoveMember = (channelId, memberId) => {
@@ -44,240 +40,204 @@ const ChatHeader = () => {
 
     const handleAddMembers = () => {
         setAddMembersMode(true);
-        // Logic to add members to the channel
-        // This could involve opening a modal or redirecting to a contact selection page
-        console.log("Add members logic goes here");
     }
 
     return (
-        <div className="h-[10vh] border-b-2 border-[#2f303b] flex items-center justify-between px-5">
-            <div className="flex gap-5 items-center">
+        <div className="h-18 border-b border-[#2f303b] flex items-center justify-between md:px-8 px-4 bg-gradient-to-r from-[#1a1a2e] via-[#23234b] to-[#1a1a2e] shadow-lg">
+            <div className="flex gap-6 items-center w-full">
                 {chatType === "contact" &&
-                    <div className="flex gap-3 items-center justify-center">
-                        <div >
-                            <Avatar className="h-12 w-12 rounded-full overflow-hidden">
-                                {currentChat.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${currentChat.profileImage}`} alt="profile" />
-                                    :
-                                    <div className={`uppercase h-12 w-12 text-xl border-[1px] flex items-center justify-center ${colors[currentChat.color]} rounded-full`}>
-                                        {currentChat.fullName.split('')[0]}
-                                    </div>
-                                }
-                            </Avatar>
-                        </div>
+                    <div className="flex gap-4 items-center  rounded-xl py-3">
+                        <Avatar className="h-14 w-14 border-2 border-indigo-400 rounded-full shadow-lg">
+                            {currentChat.profileImage ? (
+                                <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${currentChat.profileImage}`} alt="profile" />
+                            ) : (
+                                <div className={`uppercase h-14 w-14 text-2xl border-[1px] flex items-center justify-center ${colors[currentChat.color]} rounded-full`}>
+                                    {currentChat.fullName.split('')[0]}
+                                </div>
+                            )}
+                        </Avatar>
                         <div className='flex flex-col'>
-                            <div className='flex gap-1 items-center'>
-                                <span>
-                                    {currentChat.fullName}
-                                </span>
-                                <span className='text-xs'>
-                                    @{currentChat.username}
-                                </span>
+                            <div className='flex gap-2 items-center'>
+                                <span className="font-semibold text-lg text-white">{currentChat.fullName}</span>
+                                <span className='text-xs text-[#bdbdbd] bg-[#2d2d4d] px-2 py-0.5 rounded-full'>@{currentChat.username}</span>
                             </div>
-
-                            <span className='text-xs'>
-                                {currentChat.bio}
-                            </span>
+                            <span className='text-xs text-[#bdbdbd] mt-1 italic'>{currentChat.bio}</span>
                         </div>
-                    </div>}
+                    </div>
+                }
                 {chatType === "channel" &&
-                    <div className="flex gap-3 items-center justify-center">
-                        <div >
-                            <Avatar className="h-12 w-12 rounded-full overflow-hidden">
-                                {currentChat.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${currentChat.profileImage}`} alt="profile" />
-                                    :
-                                    <div className={`uppercase h-12 w-12 text-xl border-[1px] flex items-center justify-center ${colors[currentChat.color]} rounded-full`}>
-                                        {currentChat.name.split('')[0]}
-                                    </div>
-                                }
-                            </Avatar>
-                        </div>
-
-                        <div className='flex flex-col'>
-                            <div className='flex gap-1 items-center'>
-                                <span>
-                                    {currentChat.name}
-                                </span>
-                                <span className='text-xs'>
-                                    @{currentChat.handle}
-                                </span>
+                    <div className="flex gap-4 items-center rounded-xl w-full">
+                        <Avatar className="h-14 w-14 rounded-full border-2 border-pink-400 shadow-lg">
+                            {currentChat.profileImage ? (
+                                <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${currentChat.profileImage}`} alt="profile" />
+                            ) : (
+                                <div className={`uppercase h-14 w-14 text-2xl border-[1px] flex items-center justify-center ${colors[currentChat.color]} rounded-full`}>
+                                    {currentChat.name.split('')[0]}
+                                </div>
+                            )}
+                        </Avatar>
+                        <div className='flex flex-col flex-1'>
+                            <div className='flex gap-2 items-center'>
+                                <span className="font-semibold text-lg text-white">{currentChat.name}</span>
+                                <span className='text-xs text-[#bdbdbd] bg-[#2d2d4d] px-2 py-0.5 rounded-full'>@{currentChat.handle}</span>
                             </div>
-
-                            <span className='text-xs'>
-                                {currentChat.bio}
-                            </span>
+                            <span className='text-xs text-[#bdbdbd] mt-1 italic'>{currentChat.bio}</span>
                         </div>
-
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <GrView
-                                    className="text-neutral-400 font-light text-opacity-90 text-start hover:text-neutral-100 cursor-pointer transition-all duration-300"
-                                    onClick={() => {
-                                        setOpenNewContactModal(true);
-                                    }}
-                                />
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
-                                View Channel
-                            </TooltipContent>
-                        </Tooltip>
-                        {currentChat.admin._id !== user._id &&
+                        <div className="flex gap-3 items-center ml-auto">
                             <Tooltip>
                                 <TooltipTrigger>
-                                    <IoRemove
-                                        className="text-neutral-400 font-light text-opacity-90 text-start hover:text-neutral-100 cursor-pointer transition-all duration-300"
-                                        onClick={() => {
-                                            dispatch(leaveChannelAsync({ channelId: currentChat._id, memberId: user._id }));
-                                        }}
+                                    <GrView
+                                        className="text-[#bdbdbd] hover:text-[#fff] text-xl cursor-pointer transition-all duration-300"
+                                        onClick={() => setOpenNewContactModal(true)}
                                     />
                                 </TooltipTrigger>
                                 <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
-                                    Leave Channel
+                                    View Channel
                                 </TooltipContent>
                             </Tooltip>
-                        }
-
-                        <Dialog open={openNewContactModal} onOpenChange={handleOpenChange}>
-                            <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
-                                <DialogHeader>
-                                    <DialogTitle>
-
-                                        <div className='flex gap-1 items-center'>
-                                            <span className='text-xl'>
-                                                {currentChat.name}
-                                            </span>
-                                            <span className='text-sm'>
-                                                @{currentChat.handle}
-                                            </span>
-                                        </div>
-
-                                    </DialogTitle>
-                                    <DialogDescription>{currentChat.bio}</DialogDescription>
-                                </DialogHeader>
-                                {addMembersMode ? <InlineUserSelector setAddMembersMode={setAddMembersMode} /> :
-                                    <>
-                                        <div className='flex gap-3 items-center'>
-                                            <div className='w-full flex items-center justify-around bg-gray-600 gap-3 py-3 rounded-md'>
-                                                <span>
-                                                    {channelMembers.length}{channelMembers.length === 1 || channelMembers.length === 0 ? " member" : " members"}
-                                                </span>
-                                                <FaSearch />
+                            {currentChat.admin._id !== user._id &&
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <IoRemove
+                                            className="text-[#bdbdbd] hover:text-[#ff4d4f] text-xl cursor-pointer transition-all duration-300"
+                                            onClick={() => {
+                                                dispatch(leaveChannelAsync({ channelId: currentChat._id, memberId: user._id }));
+                                            }}
+                                        />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
+                                        Leave Channel
+                                    </TooltipContent>
+                                </Tooltip>
+                            }
+                            <Dialog open={openNewContactModal} onOpenChange={handleOpenChange}>
+                                <DialogContent className="bg-[#181920] border-none text-white w-[420px] h-[440px] flex flex-col rounded-2xl shadow-2xl">
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            <div className='flex gap-2 items-center'>
+                                                <span className='text-2xl font-bold text-[#8417ff]'>{currentChat.name}</span>
+                                                <span className='text-sm text-[#bdbdbd] bg-[#2d2d4d] px-2 py-0.5 rounded-full'>@{currentChat.handle}</span>
                                             </div>
-                                            {currentChat.admin._id === user._id &&
-                                                <button type='button' className="min-w-1/4 bg-[#8417ff] rounded-md flex items-center justify-center px-5 py-3 focus:border-none hover:bg-[#741bda] focus:bg-[#741bda] focus:outline-none focus:text-white duration-300 transition-all cursor-pointer" onClick={handleAddMembers} >+ Add</button>}
-                                        </div>
-                                        <ScrollArea className="mt-3 h-[200px]">
-                                            <div className='flex flex-col justify-center'>
-                                                <div className={`flex gap-3 items-center justify-start ${currentChat.admin._id === user._id ? "cursor-not-allowed" : "cursor-pointer"} rounded-lg hover:bg-gray-700 p-2`} onClick={() => {
-                                                    if (currentChat.admin._id === user._id) return;
-                                                    dispatch(setCurrentChat(currentChat.admin));
-                                                    dispatch(setChatType("contact"));
-                                                    dispatch(setChannelMembersEmpty());
-                                                    setOpenNewContactModal(false);
-                                                }} >
-                                                    <Avatar className="h-12 w-12 rounded-full overflow-hidden">
-                                                        {currentChat.admin.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${currentChat.admin.profileImage}`} alt="profile" />
-                                                            :
-                                                            <div className={`uppercase h-12 w-12 text-xl border-[1px] flex items-center justify-center ${colors[currentChat.admin.color]} rounded-full`}>
-                                                                {currentChat.admin.fullName.split('')[0]}
-                                                            </div>
-                                                        }
-                                                    </Avatar>
-                                                    <div className='flex flex-col'>
-                                                        <span>
-
-                                                            {currentChat.admin.fullName}
-                                                        </span>
-                                                        <span className='text-xs'>
-                                                            @{currentChat.admin.username}
-                                                        </span>
-                                                    </div>
-                                                    <span className='text-white rounded-md bg-green-700 px-2'>
-                                                        admin
+                                        </DialogTitle>
+                                        <DialogDescription className="text-[#bdbdbd]">{currentChat.bio}</DialogDescription>
+                                    </DialogHeader>
+                                    {addMembersMode ? (
+                                        <InlineUserSelector setAddMembersMode={setAddMembersMode} />
+                                    ) : (
+                                        <>
+                                            <div className='flex gap-3 items-center mt-2'>
+                                                <div className='w-full flex items-center justify-around bg-[#23234b] gap-3 py-3 rounded-lg shadow'>
+                                                    <span className="text-[#fff] font-semibold">
+                                                        {channelMembers.length}{channelMembers.length === 1 || channelMembers.length === 0 ? " member" : " members"}
                                                     </span>
-                                                    {currentChat.admin._id === user._id &&
-                                                        <span>
-                                                            you
-                                                        </span>
-                                                    }
+                                                    <FaSearch className="text-[#bdbdbd]" />
                                                 </div>
-                                                {channelMembers.map((contact) => (
-                                                    <div className='flex items-center justify-between'>
-                                                        <div className={`w-full flex gap-3 items-center justify-start ${contact._id === user._id ? "cursor-not-allowed" : "cursor-pointer"} rounded-lg hover:bg-gray-700 p-2`} onClick={() => {
-                                                            if (contact._id === user._id) return;
-                                                            dispatch(setCurrentChat(contact));
-                                                            dispatch(setChatType("contact"));
-                                                            dispatch(setChannelMembersEmpty());
-                                                            setOpenNewContactModal(false);
-                                                        }} key={contact._id}>
-                                                            <Avatar className="h-12 w-12 rounded-full overflow-hidden">
-                                                                {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
-                                                                    :
-                                                                    <div className={`uppercase h-12 w-12 text-xl border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
-                                                                        {contact.fullName.split('')[0]}
-                                                                    </div>
-                                                                }
-                                                            </Avatar>
-                                                            <div className='flex flex-col'>
-                                                                <span>
-                                                                    {contact.fullName}
-                                                                </span>
-                                                                <span className='text-xs'>
-                                                                    @{contact.username}
-                                                                </span>
-                                                            </div>
-                                                            <span className='text-white rounded-md bg-yellow-700 px-2'>
-                                                                member
-                                                            </span>
-                                                            {contact._id === user._id &&
-                                                                <span>
-                                                                    you
-                                                                </span>
-                                                            }
-                                                        </div>
-                                                        {currentChat.admin._id === user._id &&
-                                                            <FiDelete color='red' size='20' className='cursor-pointer ml-[24px]' onClick={() => handleRemoveMember(currentChat._id, contact._id)} />}
-                                                    </div>))}
+                                                {currentChat.admin._id === user._id &&
+                                                    <button type='button' className="min-w-1/4 bg-gradient-to-r from-[#8417ff] to-[#5f17ff] rounded-lg flex items-center justify-center px-5 py-2 font-semibold text-white shadow hover:from-[#741bda] hover:to-[#4e13b3] transition-all" onClick={handleAddMembers} >+ Add</button>}
                                             </div>
-                                        </ScrollArea>
-                                    </>}
-                            </DialogContent>
-                        </Dialog>
-                        {currentChat.admin._id === user._id &&
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <RiEditLine
-                                        className="text-neutral-400 font-light text-opacity-90 text-start hover:text-neutral-100 cursor-pointer transition-all duration-300"
-                                        onClick={() => {
-                                            setOpenChannelProfileModal(true);
-                                        }}
-                                    />
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
-                                    Edit Channel
-                                </TooltipContent>
-                            </Tooltip>
-                        }
-                        <ChannelProfile openChannelProfileModal={openChannelProfileModal} setOpenChannelProfileModal={setOpenChannelProfileModal} />
-                        {currentChat.admin._id === user._id &&
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <RiChatDeleteFill
-                                        className="text-neutral-400 font-light text-opacity-90 text-start hover:text-neutral-100 cursor-pointer transition-all duration-300"
-                                        onClick={() => {
-                                            dispatch(deleteChannelAsync(currentChat._id));
-                                        }}
-                                    />
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
-                                    Delete Channel
-                                </TooltipContent>
-                            </Tooltip>
-                        }
-
-                    </div>}
-
-                <div className="flex items-center justify-center gap-5">
-                    <button className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all hover:text-neutral-300" onClick={() => {
+                                            <ScrollArea className="mt-4 h-[220px]">
+                                                <div className='flex flex-col justify-center gap-2'>
+                                                    <div className={`flex gap-3 items-center justify-start ${currentChat.admin._id === user._id ? "cursor-not-allowed" : "cursor-pointer"} rounded-lg hover:bg-[#2d2d4d] p-2 transition-all`} onClick={() => {
+                                                        if (currentChat.admin._id === user._id) return;
+                                                        dispatch(setCurrentChat(currentChat.admin));
+                                                        dispatch(setChatType("contact"));
+                                                        dispatch(setChannelMembersEmpty());
+                                                        setOpenNewContactModal(false);
+                                                    }} >
+                                                        <Avatar className="h-10 w-10 rounded-full">
+                                                            {currentChat.admin.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${currentChat.admin.profileImage}`} alt="profile" />
+                                                                :
+                                                                <div className={`uppercase h-10 w-10 text-lg border-[1px] flex items-center justify-center ${colors[currentChat.admin.color]} rounded-full`}>
+                                                                    {currentChat.admin.fullName.split('')[0]}
+                                                                </div>
+                                                            }
+                                                        </Avatar>
+                                                        <div className='flex flex-col'>
+                                                            <span className="font-semibold text-white">{currentChat.admin.fullName}</span>
+                                                            <span className='text-xs text-[#bdbdbd]'>@{currentChat.admin.username}</span>
+                                                        </div>
+                                                        <span className='text-white rounded-md bg-gradient-to-r from-green-600 to-green-700 px-2 ml-2 text-xs font-bold'>
+                                                            admin
+                                                        </span>
+                                                        {currentChat.admin._id === user._id &&
+                                                            <span className="ml-2 text-xs text-[#bdbdbd]">
+                                                                you
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    {channelMembers.map((contact) => (
+                                                        <div className='flex items-center justify-between' key={contact._id}>
+                                                            <div className={`w-full flex gap-3 items-center justify-start ${contact._id === user._id ? "cursor-not-allowed" : "cursor-pointer"} rounded-lg hover:bg-[#2d2d4d] p-2 transition-all`} onClick={() => {
+                                                                if (contact._id === user._id) return;
+                                                                dispatch(setCurrentChat(contact));
+                                                                dispatch(setChatType("contact"));
+                                                                dispatch(setChannelMembersEmpty());
+                                                                setOpenNewContactModal(false);
+                                                            }}>
+                                                                <Avatar className="h-10 w-10 rounded-full">
+                                                                    {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
+                                                                        :
+                                                                        <div className={`uppercase h-10 w-10 text-lg border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
+                                                                            {contact.fullName.split('')[0]}
+                                                                        </div>
+                                                                    }
+                                                                </Avatar>
+                                                                <div className='flex flex-col'>
+                                                                    <span className="font-semibold text-white">{contact.fullName}</span>
+                                                                    <span className='text-xs text-[#bdbdbd]'>@{contact.username}</span>
+                                                                </div>
+                                                                <span className='text-white rounded-md bg-gradient-to-r from-yellow-600 to-yellow-700 px-2 ml-2 text-xs font-bold'>
+                                                                    member
+                                                                </span>
+                                                                {contact._id === user._id &&
+                                                                    <span className="ml-2 text-xs text-[#bdbdbd]">
+                                                                        you
+                                                                    </span>
+                                                                }
+                                                            </div>
+                                                            {currentChat.admin._id === user._id &&
+                                                                <FiDelete color='#ff4d4f' size='20' className='cursor-pointer ml-[24px] hover:scale-110 transition-all' onClick={() => handleRemoveMember(currentChat._id, contact._id)} />}
+                                                        </div>))}
+                                                </div>
+                                            </ScrollArea>
+                                        </>
+                                    )}
+                                </DialogContent>
+                            </Dialog>
+                            {currentChat.admin._id === user._id &&
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <RiEditLine
+                                            className="text-[#bdbdbd] hover:text-[#8417ff] text-xl cursor-pointer transition-all duration-300"
+                                            onClick={() => setOpenChannelProfileModal(true)}
+                                        />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
+                                        Edit Channel
+                                    </TooltipContent>
+                                </Tooltip>
+                            }
+                            <ChannelProfile openChannelProfileModal={openChannelProfileModal} setOpenChannelProfileModal={setOpenChannelProfileModal} />
+                            {currentChat.admin._id === user._id &&
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <RiChatDeleteFill
+                                            className="text-[#bdbdbd] hover:text-[#ff4d4f] text-xl cursor-pointer transition-all duration-300"
+                                            onClick={() => {
+                                                dispatch(deleteChannelAsync(currentChat._id));
+                                            }}
+                                        />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
+                                        Delete Channel
+                                    </TooltipContent>
+                                </Tooltip>
+                            }
+                        </div>
+                    </div>
+                }
+                <div className="flex items-center justify-center gap-5 ml-auto">
+                    <button className="text-[#bdbdbd] hover:text-[#fff] bg-[#23234b] rounded-full p-2 shadow-md focus:outline-none transition-all" onClick={() => {
                         dispatch(setCurrentChat(null));
                         dispatch(setChatType(null));
                         if (channelMembers.length !== 0) {
@@ -289,7 +249,6 @@ const ChatHeader = () => {
                 </div>
             </div>
         </div>
-
     )
 }
 
