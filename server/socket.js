@@ -2,19 +2,20 @@ const { Server } = require('socket.io');
 const { Channel } = require('./models/Channel');
 const { ChannelMessage } = require('./models/ChannelMessage');
 const { DirectMessage } = require('./models/DirectMessage');
-const { deleteDirectMessage } = require('./controllers/MessageController');
+// const { deleteDirectMessage } = require('./controllers/MessageController');
 
 const setUpSocket = (server) => {
     const io = new Server(server, {
         cors: {
             origin: process.env.CLIENT_URL,
-            methods: ['GET', 'POST'],
+            methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
             credentials: true
         }
     });
 
 
     const userSocketMap = new Map();
+    io.userSocketMap = userSocketMap;
     // This map holds the relationship between user IDs and their corresponding socket IDs.
 
     const sendDirectMessage = async (message) => {
@@ -78,12 +79,93 @@ const setUpSocket = (server) => {
         }
     }
 
-    // const delete
+    const deleteDirectMessage = async (message) => {
+        // console.log('Deleting message with ID:', messageId);
+        const { messageId, senderId, receiverId } = message;
+        if (!messageId || !senderId || !receiverId) {
+            console.error('Message ID or senderId or receiverId not provided');
+            return;
+        }
+        const deleteDirectMessage = await DirectMessage.findByIdAndDelete(messageId);
+
+        if (!deleteDirectMessage) {
+            console.error('Message not found or already deleted');
+            return;
+        }
+        // console.log('Message deleted:', deletedMessage);
+        // Notify the sender and receiver about the deletion
+        const senderSocketId = userSocketMap.get(senderId.toString());
+        const receiverSocketId = userSocketMap.get(receiverId.toString());
+        if (senderSocketId) {
+            io.to(senderSocketId).emit('direct-message-deleted', { messageId });
+        }
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit('direct-message-deleted', { messageId });
+        }
+    }
+
+    const deleteChannelMessage = async (message) => {
+        const { channelMessageId, channelId } = message;
+        if (!channelMessageId || !channelId) {
+            console.error('Channel message ID or channel ID not provided');
+            return;
+        }
+        const deletedChannelMessage = await ChannelMessage.findByIdAndDelete(channelMessageId);
+        // console.log('Channel message deleted:', deletedChannelMessage);
+        // console.log('Channel message deleted:', deletedChannelMessage);
+        if (!deletedChannelMessage) {
+            console.error('Channel message not found or already deleted');
+            return;
+        }
+
+        await Channel.findByIdAndUpdate(channelId, { $pull: { messages: channelMessageId } }).exec();
+        // Notify all members of the channel about the deletion
+        const channel = await Channel.findById(channelId).populate('members').exec();
+        if (channel && channel.members) {
+            channel.members.forEach((member) => {
+                const memberSocketId = userSocketMap.get(member._id.toString());
+                if (memberSocketId) {
+                    io.to(memberSocketId).emit('channel-message-deleted', { channelMessageId });
+                }
+            });
+            const adminSockedId = userSocketMap.get(channel.admin._id.toString());
+            if (adminSockedId) {
+                // console.log('admin', adminSockedId)
+                io.to(adminSockedId).emit("channel-message-deleted", { channelMessageId });
+            }
+        }
+
+    }
+
+    const deleteChannelMessageByAdmin = async (message) => {
+        const { channelMessageId, channelId } = message;
+        if (!channelMessageId || !channelId) {
+            console.error('Channel message ID or channel ID not provided');
+            return;
+        }
+        const deletedChannelMessageByAdmin = await ChannelMessage.findByIdAndUpdate(channelMessageId, { isDeleted: true }, { new: true }).select('-content -fileURL -messageType').populate('sender');
+        console.log('Channel message deleted by admin:', deletedChannelMessageByAdmin);
+
+        // Notify all members of the channel about the deletion
+        const channel = await Channel.findById(channelId).populate('members').exec();
+        if (channel && channel.members) {
+            channel.members.forEach((member) => {
+                const memberSocketId = userSocketMap.get(member._id.toString());
+                if (memberSocketId) {
+                    io.to(memberSocketId).emit('channel-message-deleted-by-admin', deletedChannelMessageByAdmin);
+                }
+            });
+            const adminSockedId = userSocketMap.get(channel.admin._id.toString());
+            if (adminSockedId) {
+                // console.log('admin', adminSockedId)
+                io.to(adminSockedId).emit("channel-message-deleted-by-admin", deletedChannelMessageByAdmin);
+            }
+        }
+    }
 
     io.on('connection', (socket) => {
 
         const userId = socket.handshake.query.userId;
-
 
         if (userId) {
             userSocketMap.set(userId, socket.id);
@@ -96,6 +178,9 @@ const setUpSocket = (server) => {
         socket.on('send-direct-message', sendDirectMessage);
         socket.on('send-channel-message', sendChannelMessage);
         socket.on('delete-direct-message', deleteDirectMessage);
+        socket.on('delete-channel-message', deleteChannelMessage);
+        socket.on('delete-channel-message-by-admin', deleteChannelMessageByAdmin);
+
         socket.on('disconnect', () => {
 
             for (const [userId, socketId] of userSocketMap.entries()) {
@@ -107,6 +192,7 @@ const setUpSocket = (server) => {
             }
         });
     });
+    return io;
 
 }
 

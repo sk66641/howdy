@@ -1,11 +1,14 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useResetProjection } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { createChannelAsync, searchContactsAsync, selectContacts, selectIsSearchingContacts, setContactsEmpty, setChatType } from '../../../../../chatSlice';
 import '../../../../../../../App.css'
 import { colors } from '../../../../../../../lib/utils';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useSocket } from '../../../../../../../context/SocketContext';
+import { useRoutes } from 'react-router-dom';
+import { selectLoggedInUser } from '../../../../../../auth/authSlice';
 
 
 const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, ref) => {
@@ -15,6 +18,8 @@ const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, 
     const contacts = useSelector(selectContacts);
     const dispatch = useDispatch();
     const inputRef = useRef();
+    const socket = useSocket();
+    const user = useSelector(selectLoggedInUser);
 
 
     useImperativeHandle(ref, () => ({
@@ -22,6 +27,11 @@ const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, 
             // console.log("Selected Users:", selectedUsers);
             // console.log("Search Query:", searchQuery);
             // console.log("Channel Name:", channelName);
+            // socket.emit('createChannel', {
+            //     userId: user._id,
+            //     name: channelName,
+            //     members: selectedUsers.map(user => user._id),
+            // });
             dispatch(createChannelAsync({
                 name: channelName,
                 members: selectedUsers.map(user => user._id),

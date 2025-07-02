@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoggedInUser } from '../../../../../auth/authSlice'
-import { downloadFileAsync, getChannelMessagesAsync, getMessagesAsync, selectFileDownloadProgress, selectFileUploadProgress, selectIsDownloading, selectIsUploading, selectChatMessages, selectChatType, selectCurrentChat, setFileDownloadProgress, deleteDirectMessageAsync, deleteChannelMessageAsync, deleteChannelMessageByAdminAsync } from '../../../../chatSlice';
+import { downloadFileAsync, getChannelMessagesAsync, getMessagesAsync, selectFileDownloadProgress, selectFileUploadProgress, selectIsDownloading, selectIsUploading, selectChatMessages, selectChatType, selectCurrentChat, setFileDownloadProgress } from '../../../../chatSlice';
 import moment from 'moment';
 import { IoMdArrowRoundDown } from 'react-icons/io';
 import { GrDocumentZip, GrUpload } from 'react-icons/gr';
@@ -59,16 +59,26 @@ const MessageContainer = () => {
   }
 
   const handleDirectMessageDelete = (messageId) => {
-    socket.emit('delete-direct-message', messageId);
-    dispatch(deleteDirectMessageAsync(messageId));
+    socket.emit('delete-direct-message', {
+      senderId: user._id,
+      receiverId: currentChat._id,
+      messageId: messageId,
+    });
   }
 
-  const handleChannelMessageDelete = (channelMessageId, admin) => {
-    if (admin) {
-      dispatch(deleteChannelMessageByAdminAsync(channelMessageId));
+  const handleChannelMessageDelete = (channelMessageId, byAdmin) => {
+    console.log("handleChannelMessageDelete", byAdmin)
+    if (byAdmin) {
+      socket.emit('delete-channel-message-by-admin', {
+        channelId: currentChat._id,
+        channelMessageId: channelMessageId,
+      });
       return;
-    };
-    dispatch(deleteChannelMessageAsync(channelMessageId));
+    }
+    socket.emit('delete-channel-message', {
+      channelId: currentChat._id,
+      channelMessageId: channelMessageId,
+    });
   }
 
   const renderMessages = () => {
@@ -193,6 +203,7 @@ const MessageContainer = () => {
 
   const renderChannelMessages = (message) => {
     const isCurrentUser = user._id === message.sender._id;
+    const admin = user._id === currentChat.admin._id;
 
     return (
       <div className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} mb-4`}>
@@ -246,9 +257,10 @@ const MessageContainer = () => {
               style={{ wordBreak: 'break-word' }}
             >
               {/* Enhanced Delete Button */}
-              {(isCurrentUser || user._id === currentChat.admin._id) && (
+              {(isCurrentUser || admin) && (
                 <button
-                  onClick={() => handleChannelMessageDelete(message._id, user._id === currentChat.admin._id)}
+                  onClick={() =>
+                    handleChannelMessageDelete(message._id, (admin && !isCurrentUser))}
                   className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300
                           bg-red-500 hover:bg-red-600 p-1.5 rounded-full shadow-lg transform hover:scale-110"
                   title="Delete message"
@@ -271,9 +283,11 @@ const MessageContainer = () => {
                 }`}
             >
               {/* Enhanced Delete Button */}
-              {isCurrentUser || message.sender === currentChat.admin._id && (
+              {(isCurrentUser || isAdmin) && (
                 <button
-                  onClick={() => handleChannelMessageDelete(message._id)}
+                  onClick={() => {
+                    handleChannelMessageDelete(message._id, message.sender !== currentChat.admin._id);
+                  }}
                   className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300
                           bg-red-500 hover:bg-red-600 p-1.5 rounded-full shadow-lg transform hover:scale-110 z-10"
                   title="Delete message"

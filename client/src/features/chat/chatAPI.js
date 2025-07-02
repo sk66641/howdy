@@ -218,6 +218,29 @@ export const removeMember = (channelId, memberId) => {
     })
 }
 
+export const leaveChannel = (channelId, memberId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/leave-channel`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({ channelId, memberId })
+            })
+            if (!response.ok) {
+                const err = await response.json();
+                throw err;
+            }
+            const data = await response.json();
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
 export const addMembers = (channelId, members) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -241,51 +264,70 @@ export const addMembers = (channelId, members) => {
     })
 }
 
-export const deleteDirectMessage = (messageId) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_HOST}/messages/${messageId}`, {
-                method: 'DELETE',
-                credentials: 'include',
-            })
-            if (!response.ok) {
-                const err = await response.json();
-                throw err;
-            }
-            const data = await response.json();
-            resolve({ data });
-        } catch (error) {
-            reject(error);
-        }
-    })
-}
+// export const deleteDirectMessage = (messageId) => {
+//     return new Promise(async (resolve, reject) => {
+//         try {
+//             const response = await fetch(`${import.meta.env.VITE_HOST}/messages/${messageId}`, {
+//                 method: 'DELETE',
+//                 credentials: 'include',
+//             })
+//             if (!response.ok) {
+//                 const err = await response.json();
+//                 throw err;
+//             }
+//             const data = await response.json();
+//             resolve({ data });
+//         } catch (error) {
+//             reject(error);
+//         }
+//     })
+// }
 
-export const deleteChannelMessage = (channelMessageId) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/message/delete/${channelMessageId}`, {
-                method: 'DELETE',
-                credentials: 'include',
-            })
-            if (!response.ok) {
-                const err = await response.json();
-                throw err;
-            }
-            const data = await response.json();
-            resolve({ data });
-        } catch (error) {
-            reject(error);
-        }
-    })
-}
+// export const deleteChannelMessage = (channelMessageId) => {
+//     return new Promise(async (resolve, reject) => {
+//         try {
+//             const response = await fetch(`${import.meta.env.VITE_HOST}/channels/message/delete/${channelMessageId}`, {
+//                 method: 'DELETE',
+//                 credentials: 'include',
+//             })
+//             if (!response.ok) {
+//                 const err = await response.json();
+//                 throw err;
+//             }
+//             const data = await response.json();
+//             resolve({ data });
+//         } catch (error) {
+//             reject(error);
+//         }
+//     })
+// }
 
-export const deleteChannelMessageByAdmin = (channelMessageId)=>{
-    return new Promise(async (resolve, reject) => {
+// export const deleteChannelMessageByAdmin = (channelMessageId)=>{
+//     return new Promise(async (resolve, reject) => {
+//         try {
+//             const response = await fetch(`${import.meta.env.VITE_HOST}/channels/admin-delete-message/${channelMessageId}`, {
+//                 method: 'DELETE',
+//                 credentials: 'include',
+//             })
+//             if (!response.ok) {
+//                 const err = await response.json();
+//                 throw err;
+//             }
+//             const data = await response.json();
+//             resolve({ data });
+//         } catch (error) {
+//             reject(error);
+//         }
+//     })
+// }
+
+export function deleteChannel(channelId) {
+    return new Promise(async (resolve) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/admin-delete-message/${channelMessageId}`, {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/channels/delete/${channelId}`, {
                 method: 'DELETE',
                 credentials: 'include',
-            })
+            });
             if (!response.ok) {
                 const err = await response.json();
                 throw err;
@@ -295,5 +337,6 @@ export const deleteChannelMessageByAdmin = (channelMessageId)=>{
         } catch (error) {
             reject(error);
         }
+
     })
 }

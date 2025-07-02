@@ -26,7 +26,9 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-
+server.get('/', (req, res)=>{
+    res.send("server is running");
+})
 server.use('/uploads/channelProfileImages', authMiddleware, express.static('uploads/channelProfileImages'));
 server.use('/uploads/profileImages', authMiddleware, express.static('uploads/profileImages'));
 server.use('/uploads/files', authMiddleware, express.static('uploads/files'));
@@ -42,7 +44,8 @@ const httpServer = server.listen(process.env.PORT || 5000, () => {
     console.log(`Server is running on port ${process.env.PORT || 5000}`);
 }
 );
-setUpSocket(httpServer);
+const io = setUpSocket(httpServer);
+server.set('io', io);
 
 
 // TODO: Add verify token middleware to protect routes

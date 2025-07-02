@@ -39,17 +39,17 @@ exports.uploadFile = async (req, res) => {
     }
 }
 
-exports.deleteDirectMessage = async (req, res) => {
-    try {
-        const { messageId } = req.params;
-        if (!messageId) {
-            return res.status(400).json({ error: 'Message ID is required' });
-        }
+// exports.deleteDirectMessage = async (req, res) => {
+//     try {
+//         const { messageId } = req.params;
+//         if (!messageId) {
+//             return res.status(400).json({ error: 'Message ID is required' });
+//         }
 
-        await DirectMessage.findByIdAndDelete(messageId);
-        res.status(200).json({ messageId });
-    } catch (error) {
-        console.error('Error deleting message:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-}
+//         await DirectMessage.findByIdAndDelete(messageId);
+//         res.status(200).json({ messageId });
+//     } catch (error) {
+//         console.error('Error deleting message:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// }

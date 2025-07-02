@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { RiCloseFill, RiEditLine } from 'react-icons/ri'
+import { RiChatDeleteFill, RiCloseFill, RiEditLine } from 'react-icons/ri'
 import { useDispatch, useSelector } from 'react-redux'
-import { removeMemberAsync, selectChannelMembers, selectChatType, selectContacts, selectCurrentChat, setChannelMembersEmpty, setChatType, setCurrentChat } from '../../../../chatSlice';
+import { deleteChannelAsync, leaveChannelAsync, removeMemberAsync, selectChannelMembers, selectChatType, selectContacts, selectCurrentChat, setChannelMembersEmpty, setChatType, setCurrentChat } from '../../../../chatSlice';
 import { FaEdit, FaPlus, FaRemoveFormat, FaSearch } from 'react-icons/fa'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
@@ -35,7 +35,7 @@ const ChatHeader = () => {
             return;
         }
         setOpenNewContactModal(false);
-        setSearchQuery('');
+        // setSearchQuery('');
     }
 
     const handleRemoveMember = (channelId, memberId) => {
@@ -120,6 +120,22 @@ const ChatHeader = () => {
                                 View Channel
                             </TooltipContent>
                         </Tooltip>
+                        {currentChat.admin._id !== user._id &&
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <IoRemove
+                                        className="text-neutral-400 font-light text-opacity-90 text-start hover:text-neutral-100 cursor-pointer transition-all duration-300"
+                                        onClick={() => {
+                                            dispatch(leaveChannelAsync({ channelId: currentChat._id, memberId: user._id }));
+                                        }}
+                                    />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
+                                    Leave Channel
+                                </TooltipContent>
+                            </Tooltip>
+                        }
+
                         <Dialog open={openNewContactModal} onOpenChange={handleOpenChange}>
                             <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
                                 <DialogHeader>
@@ -151,7 +167,7 @@ const ChatHeader = () => {
                                         </div>
                                         <ScrollArea className="mt-3 h-[200px]">
                                             <div className='flex flex-col justify-center'>
-                                                <div className={`flex gap-3 items-center justify-start ${currentChat.admin._id === user._id ? "cursor-not-allowed": "cursor-pointer"} rounded-lg hover:bg-gray-700 p-2`} onClick={() => {
+                                                <div className={`flex gap-3 items-center justify-start ${currentChat.admin._id === user._id ? "cursor-not-allowed" : "cursor-pointer"} rounded-lg hover:bg-gray-700 p-2`} onClick={() => {
                                                     if (currentChat.admin._id === user._id) return;
                                                     dispatch(setCurrentChat(currentChat.admin));
                                                     dispatch(setChatType("contact"));
@@ -242,6 +258,21 @@ const ChatHeader = () => {
                             </Tooltip>
                         }
                         <ChannelProfile openChannelProfileModal={openChannelProfileModal} setOpenChannelProfileModal={setOpenChannelProfileModal} />
+                        {currentChat.admin._id === user._id &&
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <RiChatDeleteFill
+                                        className="text-neutral-400 font-light text-opacity-90 text-start hover:text-neutral-100 cursor-pointer transition-all duration-300"
+                                        onClick={() => {
+                                            dispatch(deleteChannelAsync(currentChat._id));
+                                        }}
+                                    />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
+                                    Delete Channel
+                                </TooltipContent>
+                            </Tooltip>
+                        }
 
                     </div>}
 

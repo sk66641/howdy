@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLoggedInUser } from "../features/auth/authSlice";
 import { io } from "socket.io-client";
-import { selectContacts, selectCurrentChat, setChatMessages, selectChatType } from "../features/chat/chatSlice";
+import { selectContacts, selectCurrentChat, setChatMessages, selectChatType, setDeleteDirectMessage, setDeleteChannelMessageByAdmin, setDeleteChannelMessage, getDmContactListAsync, getChannelsAsync, setChatType, setCurrentChat, getChannelMembersAsync } from "../features/chat/chatSlice";
 
 const SocketContext = createContext();
 
@@ -23,15 +23,15 @@ export const SocketProvider = ({ children }) => {
     const currentChat = useSelector(selectCurrentChat);
     const chatType = useSelector(selectChatType);
 
-    const selectedContactRef = useRef();
-    const selectedChatTypeRef = useRef();
+    const currentChatRef = useRef();
+    const chatTypeRef = useRef();
     // Why This Happens (stale state issue)?
     // -> The useEffect hook runs after the component mounts, and it sets up the Socket.IO connection and event listeners.
     // -> If the currentChat state is updated in the Redux store after the useEffect runs, the event listener for receiveMessage captures the initial value of currentChat (likely null or undefined).
     // -> Since event listeners are set up only once in the useEffect, they won't automatically update to reflect changes to currentChat unless you explicitly handle this.
     useEffect(() => {
-        selectedContactRef.current = currentChat;
-        selectedChatTypeRef.current = chatType;
+        currentChatRef.current = currentChat;
+        chatTypeRef.current = chatType;
     }, [currentChat]);
 
 
@@ -52,19 +52,74 @@ export const SocketProvider = ({ children }) => {
 
 
             socket.current.on('receiveMessage', (message) => {
-                if (selectedContactRef.current && (selectedContactRef.current._id === message.sender._id || selectedContactRef.current._id === message.receiver._id)) {
+                if (currentChatRef.current && (currentChatRef.current._id === message.sender._id || currentChatRef.current._id === message.receiver._id)) {
                     console.log("Received message for selected contact:", message);
-                    { selectedChatTypeRef.current === "contact" && dispatch(setChatMessages(message)); }
+                    { chatTypeRef.current === "contact" && dispatch(setChatMessages(message)); }
+                    // dispatch(setChatMessages(message));
+                }
+                if (chatTypeRef.current === null) {
+                    dispatch(getDmContactListAsync());
                 }
             });
 
             socket.current.on("receive-channel-message", (message) => {
-                if (selectedContactRef.current && selectedContactRef.current._id === message.channelId) {
-                    console.log("receiving channel message: ", message); 
-                    { selectedChatTypeRef.current === "channel" && dispatch(setChatMessages(message)); }
+                if (currentChatRef.current && currentChatRef.current._id === message.channelId) {
+                    console.log("receiving channel message: ", message);
+                    { chatTypeRef.current === "channel" && dispatch(setChatMessages(message)); }
                 }
             })
 
+            socket.current.on('direct-message-deleted', ({ messageId }) => {
+                dispatch(setDeleteDirectMessage({ messageId }));
+            });
+
+            socket.current.on('channel-message-deleted', ({ channelMessageId }) => {
+                dispatch(setDeleteChannelMessage({ channelMessageId }));
+            });
+
+            socket.current.on('channel-message-deleted-by-admin', (deletedChannelMessageByAdmin) => {
+                dispatch(setDeleteChannelMessageByAdmin(deletedChannelMessageByAdmin));
+            });
+
+            socket.current.on('channel-created', (channel) => {
+                console.log("Channel created:", channel);
+                dispatch(getChannelsAsync());
+            });
+
+            socket.current.on('member-removed', (channelId) => {
+                dispatch(getChannelsAsync());
+                if (chatTypeRef.current === "channel" && currentChatRef.current?._id === channelId) {
+                    dispatch(setCurrentChat(null));
+                    dispatch(setChatType(null));
+                }
+            })
+
+            socket.current.on('member-added', (channelId) => {
+                dispatch(getChannelsAsync());
+            });
+
+
+            socket.current.on('channel-updated', (channel) => {
+                dispatch(getChannelsAsync());
+                if (chatTypeRef.current === "channel" && currentChatRef.current?._id === channel._id) {
+                    dispatch(setCurrentChat(channel));
+                }
+            })
+
+            socket.current.on('channel-deleted', (channelId) => {
+                dispatch(getChannelsAsync());
+                if (chatTypeRef.current === "channel" && currentChatRef.current?._id === channelId) {
+                    dispatch(setCurrentChat(null));
+                    dispatch(setChatType(null));
+                }
+            })
+
+            socket.current.on('leave-channel', (channelId) => {
+                console.log("we are here lave-channel")
+                if (chatTypeRef.current === "channel" && currentChatRef.current?._id === channelId) {
+                    dispatch(getChannelMembersAsync({ channelId }));
+                }
+            })
         }
         return () => {
             if (socket.current) {

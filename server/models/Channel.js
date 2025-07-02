@@ -38,3 +38,12 @@ channelSchema.pre("findOneAndUpdate", function (next) {
 // Create and export the Channel model
 exports.Channel = mongoose.model("Channels", channelSchema);
 // export default Channel;
+
+
+
+// findByIdAndDelete is not a valid middleware hook in Mongoose.
+
+// Only these are valid for findAndDelete type operations:
+// 'findOneAndDelete'
+// 'findOneAndRemove'
+

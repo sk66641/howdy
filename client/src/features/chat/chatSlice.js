@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { addMembers, createChannel, deleteChannelMessage, deleteChannelMessageByAdmin, deleteDirectMessage, downloadFile, getChannelMembers, getChannelMessages, getChannels, getDmContactList, getMessages, removeMember, searchContacts, uploadFile } from './chatAPI'
+import { addMembers, createChannel, deleteChannel, downloadFile, getChannelMembers, getChannelMessages, getChannels, getDmContactList, getMessages, leaveChannel, removeMember, searchContacts, uploadFile } from './chatAPI'
 import { deleteChannelProfileImage, updateChannelProfile, updateChannelProfileImage } from '../profile/profileAPI';
 
 const initialState = {
@@ -121,29 +121,42 @@ export const deleteChannelProfileImageAsync = createAsyncThunk(
     }
 )
 
-export const deleteDirectMessageAsync = createAsyncThunk(
-    'chat/deleteDirectMessage',
-    async (messageId) => {
-        const response = await deleteDirectMessage(messageId);
+export const deleteChannelAsync = createAsyncThunk(
+    'chat/deleteChannle', async (channelId) => {
+        const response = await deleteChannel(channelId);
         return response.data;
-    }
-)
+    })
 
-export const deleteChannelMessageAsync = createAsyncThunk(
-    'chat/deleteChannelMessage',
-    async (channelMessageId) => {
-        const response = await deleteChannelMessage(channelMessageId);
+export const leaveChannelAsync = createAsyncThunk(
+    'chat/leaveChannel', async ({ channelId, memberId }) => {
+        const response = await leaveChannel(channelId, memberId);
         return response.data;
-    }
-)
+    })
 
-export const deleteChannelMessageByAdminAsync = createAsyncThunk(
-    'chat/deleteChannelMessageByAdmin',
-    async (channelMessageId) => {
-        const response = await deleteChannelMessageByAdmin(channelMessageId);
-        return response.data;
-    }
-)
+
+// export const deleteDirectMessageAsync = createAsyncThunk(
+//     'chat/deleteDirectMessage',
+//     async (messageId) => {
+//         const response = await deleteDirectMessage(messageId);
+//         return response.data;
+//     }
+// )
+
+// export const deleteChannelMessageAsync = createAsyncThunk(
+//     'chat/deleteChannelMessage',
+//     async (channelMessageId) => {
+//         const response = await deleteChannelMessage(channelMessageId);
+//         return response.data;
+//     }
+// )
+
+// export const deleteChannelMessageByAdminAsync = createAsyncThunk(
+//     'chat/deleteChannelMessageByAdmin',
+//     async (channelMessageId) => {
+//         const response = await deleteChannelMessageByAdmin(channelMessageId);
+//         return response.data;
+//     }
+// )
 
 export const chatSlice = createSlice({
     name: 'chat',
@@ -193,6 +206,21 @@ export const chatSlice = createSlice({
         },
         setChannelMembersEmpty: (state, action) => {
             state.channelMembers = [];
+        },
+        setDeleteDirectMessage: (state, action) => {
+            const { messageId } = action.payload;
+            state.chatMessages = state.chatMessages.filter(message => message._id !== messageId);
+        },
+        setDeleteChannelMessage: (state, action) => {
+            const { channelMessageId } = action.payload;
+            state.chatMessages = state.chatMessages.filter(message => message._id !== channelMessageId);
+        },
+        setDeleteChannelMessageByAdmin: (state, action) => {
+            const channelMessageId = action.payload._id;
+            const index = state.chatMessages.findIndex(message => message._id === channelMessageId);
+            if (index !== -1) {
+                state.chatMessages[index] = action.payload;
+            }
         }
     },
     extraReducers: (builder) => {
@@ -316,21 +344,39 @@ export const chatSlice = createSlice({
                 }
                 state.currentChat.profileImage = null;
             })
-            .addCase(deleteDirectMessageAsync.fulfilled, (state, action) => {
-                const { messageId } = action.payload;
-                state.chatMessages = state.chatMessages.filter(message => message._id !== messageId);
-            })
-            .addCase(deleteChannelMessageAsync.fulfilled, (state, action) => {
-                const { channelMessageId } = action.payload;
-                state.chatMessages = state.chatMessages.filter(message => message._id !== channelMessageId);
-            })
-            .addCase(deleteChannelMessageByAdminAsync.fulfilled, (state, action) => {
-                const channelMessageId = action.payload._id;
-                const index = state.chatMessages.findIndex(message => message._id === channelMessageId);
+            .addCase(deleteChannelAsync.fulfilled, (state, action) => {
+                const { channelId } = action.payload;
+                const index = state.channelList.findIndex(channel => channel._id === channelId);
                 if (index !== -1) {
-                    state.chatMessages[index] = action.payload;
+                    state.channelList.splice(index, 1);
                 }
+                state.currentChat = null;
+                state.chatType = null;
             })
+            .addCase(leaveChannelAsync.fulfilled, (state, action) => {
+                const { channelId } = action.payload;
+                const index = state.channelList.findIndex(channel => channel._id === channelId);
+                if (index !== -1) {
+                    state.channelList.splice(index, 1);
+                }
+                state.currentChat = null;
+                state.chatType = null;
+            })
+        // .addCase(deleteDirectMessageAsync.fulfilled, (state, action) => {
+        //     const { messageId } = action.payload;
+        //     state.chatMessages = state.chatMessages.filter(message => message._id !== messageId);
+        // })
+        // .addCase(deleteChannelMessageAsync.fulfilled, (state, action) => {
+        //     const { channelMessageId } = action.payload;
+        //     state.chatMessages = state.chatMessages.filter(message => message._id !== channelMessageId);
+        // })
+        // .addCase(deleteChannelMessageByAdminAsync.fulfilled, (state, action) => {
+        //     const channelMessageId = action.payload._id;
+        //     const index = state.chatMessages.findIndex(message => message._id === channelMessageId);
+        //     if (index !== -1) {
+        //         state.chatMessages[index] = action.payload;
+        //     }
+        // })
     }
 })
 
@@ -350,5 +396,5 @@ export const selectIsSearchingContacts = (state) => state.chat.isSearchingContac
 export const selectChannelList = (state) => state.chat.channelList;
 export const selectChannelMembers = (state) => state.chat.channelMembers
 
-export const { setCurrentChat, setContactsEmpty, setChatMessages, setChatType, setChatMessagesEmpty, setFileDownloadProgress, setFileUploadProgress, updateDmContactList, updateChannelList, setChannelMembersEmpty } = chatSlice.actions;
+export const { setCurrentChat, setContactsEmpty, setChatMessages, setChatType, setChatMessagesEmpty, setFileDownloadProgress, setFileUploadProgress, updateDmContactList, updateChannelList, setChannelMembersEmpty, setDeleteDirectMessage, setDeleteChannelMessage, setDeleteChannelMessageByAdmin } = chatSlice.actions;
 export default chatSlice.reducer

@@ -2,6 +2,7 @@ const { Channel } = require("../models/Channel");
 const { User } = require("../models/User");
 const fs = require('fs')
 const { ChannelMessage } = require('../models/ChannelMessage');
+const { channel } = require("diagnostics_channel");
 
 exports.createChannel = async (req, res) => {
     try {
@@ -40,7 +41,19 @@ exports.createChannel = async (req, res) => {
 
         // newChannel = await newChannel.populate('admin', '-email -password'); // now this works
 
-        console.log(createdChannel);
+        const io = req.app.get('io');
+        members.forEach((memberId) => {
+            const memberSocketId = io.userSocketMap.get(memberId.toString());
+            if (memberSocketId) {
+                io.to(memberSocketId).emit('channel-created', createdChannel);
+            }
+        });
+        // const adminSocketId = io.userSocketMap.get(userId.toString());
+        // if (adminSocketId) {
+        //     io.to(adminSocketId).emit('channel-created', createdChannel);
+        // }
+
+        // console.log(createdChannel);
         return res.status(201).json({ channel: createdChannel });
     } catch (error) {
         console.log(error);
@@ -102,8 +115,47 @@ exports.removeMember = async (req, res) => {
     try {
         const { channelId, memberId } = req.body;
         if (!channelId || !memberId) return res.status(400).json({ message: "channelId or memberId not found" });
-        await Channel.findByIdAndUpdate(channelId, { $pull: { members: memberId } }, { new: true });
+        const updatedChannel = await Channel.findByIdAndUpdate(channelId, { $pull: { members: memberId } }, { new: true });
+
+        const io = req.app.get('io');
+        const memberSocketId = io.userSocketMap.get(memberId.toString());
+        if (memberSocketId) {
+            io.to(memberSocketId).emit('member-removed', channelId);
+        }
+        updatedChannel.members.forEach((memberId) => {
+            const memberSocketId = io.userSocketMap.get(memberId.toString());
+            if (memberSocketId) {
+                io.to(memberSocketId).emit('leave-channel', channelId);
+            }
+        });
+
+
         return res.status(200).json({ memberId });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+exports.leaveChannel = async (req, res) => {
+    try {
+        const { channelId, memberId } = req.body;
+        if (!channelId || !memberId) return res.status(400).json({ message: "channelId or memberId not found" });
+        const updatedChannel = await Channel.findByIdAndUpdate(channelId, { $pull: { members: memberId } }, { new: true });
+
+        const io = req.app.get('io');
+        updatedChannel.members.forEach((memberId) => {
+            const memberSocketId = io.userSocketMap.get(memberId.toString());
+            if (memberSocketId) {
+                io.to(memberSocketId).emit('leave-channel', channelId);
+            }
+        });
+        const adminSockedId = io.userSocketMap.get(updatedChannel.admin._id.toString());
+        if (adminSockedId) {
+            io.to(adminSockedId).emit('leave-channel', channelId);
+        }
+
+        return res.status(200).json({ channelId });
     } catch (error) {
         console.log(error);
         return res.status(500).send("Internal Server Error");
@@ -128,6 +180,15 @@ exports.addMembers = async (req, res) => {
         // console.log(channelId, members);
         if (!channelId || !members) return res.status(400).json({ message: "channelId or memberId not found" });
         const addedMembers = await Channel.findByIdAndUpdate(channelId, { $push: { members: { $each: members } } }, { new: true }).select('members').populate('members', '-email -password');
+
+        const io = req.app.get('io');
+        members.forEach((memberId) => {
+            const memberSocketId = io.userSocketMap.get(memberId.toString());
+            if (memberSocketId) {
+                io.to(memberSocketId).emit('member-added', channelId);
+            }
+        });
+
         return res.status(200).json(addedMembers);
     } catch (error) {
         console.log(error);
@@ -142,10 +203,21 @@ exports.updateChannelProfile = async (req, res) => {
         const updatedChannel = await Channel.findByIdAndUpdate(
             channelId,
             req.body,
-            { new: true, select: '-members -messages' },
+            { new: true, select: '-messages' },
         ).populate('admin', '-email -password');
 
-        res.status(200).json(updatedChannel);
+        const channel = updatedChannel.toObject();
+        delete channel.members;
+
+        const io = req.app.get('io');
+        updatedChannel.members.forEach((memberId) => {
+            const memberSocketId = io.userSocketMap.get(memberId.toString());
+            if (memberSocketId) {
+                io.to(memberSocketId).emit('channel-updated', channel);
+            }
+        });
+
+        res.status(200).json(channel);
 
     } catch (error) {
         console.error("Error updating profile:", error);
@@ -193,28 +265,51 @@ exports.deleteChannelProfileImage = async (req, res) => {
     }
 }
 
-exports.deleteChannelMessage = async (req, res) => {
+// exports.deleteChannelMessage = async (req, res) => {
+//     try {
+//         const { channelMessageId } = req.params;
+//         if (!channelMessageId) return res.status(400).json({ message: "channelMessageId not found" });
+
+//         await ChannelMessage.findByIdAndDelete(channelMessageId);
+//         return res.status(200).json({ channelMessageId });
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).send("Internal Server Error");
+//     }
+// }
+
+// exports.deleteChannelMessageByAdmin = async (req, res) => {
+//     try {
+//         const { channelMessageId } = req.params;
+//         if (!channelMessageId) return res.status(400).json({ message: "channelMessageId not found" });
+
+//         const deletedChannelMessage = await ChannelMessage.findByIdAndUpdate(channelMessageId, { isDeleted: true }, { new: true }).select('-content -fileURL -messageType').populate('sender');
+//         return res.status(200).json(deletedChannelMessage);
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).send("Internal Server Error");
+//     }
+// }
+
+exports.deleteChannel = async (req, res) => {
     try {
-        const { channelMessageId } = req.params;
-        if (!channelMessageId) return res.status(400).json({ message: "channelMessageId not found" });
+        const { channelId } = req.params;
+        if (!channelId) {
+            return res.status(400).json({ message: "channelId not found" });
+        }
+        const deletedChannel = await Channel.findByIdAndDelete(channelId);
+        ``
+        const io = req.app.get('io');
+        deletedChannel.members.forEach((memberId) => {
+            const memberSocketId = io.userSocketMap.get(memberId.toString());
+            if (memberSocketId) {
+                io.to(memberSocketId).emit('channel-deleted', channelId);
+            }
+        });
 
-        await ChannelMessage.findByIdAndDelete(channelMessageId);
-        return res.status(200).json({ channelMessageId });
+        res.status(200).json({ channelId });
     } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error");
-    }
-}
-
-exports.deleteChannelMessageByAdmin = async (req, res) => {
-    try {
-        const { channelMessageId } = req.params;
-        if (!channelMessageId) return res.status(400).json({ message: "channelMessageId not found" });
-
-        const deletedChannelMessage = await ChannelMessage.findByIdAndUpdate(channelMessageId, { isDeleted: true }, { new: true }).select('-content -fileURL -messageType').populate('sender');
-        return res.status(200).json(deletedChannelMessage);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error");
+        console.error("Error deleting profile image:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
