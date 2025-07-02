@@ -125,13 +125,17 @@ const MessageBar = () => {
                     className="flex-1 py-4 px-4 bg-transparent w-full rounded-xl focus:outline-none text-gray-200 placeholder-gray-400"
                     placeholder="Type your message..."
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={(e) => {
+                        if (e.target.value.trim() !== "" || message !== "") {
+                            setMessage(e.target.value);
+                        }
+                    }}
                 />
 
                 {/* Attachment Button */}
-                <button 
-                    onClick={handleAttachmentClick} 
-                    type='button' 
+                <button
+                    onClick={handleAttachmentClick}
+                    type='button'
                     className="p-2 text-gray-400 hover:text-purple-400 transition-colors duration-300 rounded-full hover:bg-gray-600/50"
                     title="Attach file"
                 >
@@ -141,8 +145,8 @@ const MessageBar = () => {
 
                 {/* Emoji Picker */}
                 <div className="relative">
-                    <button 
-                        type='button' 
+                    <button
+                        type='button'
                         className="p-2 text-gray-400 hover:text-yellow-400 transition-colors duration-300 rounded-full hover:bg-gray-600/50"
                         onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
                         title="Add emoji"
@@ -165,14 +169,13 @@ const MessageBar = () => {
             </div>
 
             {/* Send Button */}
-            <button 
-                type='submit' 
-                disabled={message.trim() === ""} 
-                className={`p-4 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                    message.trim() === "" 
-                        ? "bg-gray-600 cursor-not-allowed text-gray-500" 
-                        : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg transform hover:scale-105"
-                }`}
+            <button
+                type='submit'
+                disabled={message}
+                className={`p-4 rounded-xl flex items-center justify-center transition-all duration-300 ${message.trim() === ""
+                        ? "text-gray-500 bg-gray-600 cursor-not-allowed "
+                        : "bg-gradient-to-r  from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700  shadow-lg transform hover:scale-105"
+                    }`}
                 title="Send message"
             >
                 <IoSend className="text-xl" />
