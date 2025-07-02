@@ -3,8 +3,7 @@ import { useDispatch } from 'react-redux';
 import { checkUserAsync } from '../authSlice';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-
+const Login = ({setActiveTab}) => {
     const [inputValue, setInputValue] = useState({
         email: '',
         password: '',
@@ -25,28 +24,78 @@ const Login = () => {
     }
 
     return (
-        <>
-            <div className="bg-gray-50 p-4 rounded shadow">
-                <h3 className="text-lg font-semibold mb-2">Login</h3>
-                <form onSubmit={handleSubmit}>
-                    <input onChange={handleInputChange} value={inputValue.email} name='email' type="email" placeholder="Email" className="w-full p-2 mb-2 border rounded" required />
-                    <input onChange={handleInputChange} value={inputValue.password} name='password' type="password" placeholder="Password" className="w-full p-2 mb-4 border rounded" required />
-                    <button type="submit" className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Login</button>
+        <div className="flex items-center justify-center">
+            <div className="bg-gray-800/80 backdrop-blur-lg shadow-2xl rounded-2xl p-8 w-full max-w-md border border-gray-700 relative">
+                {/* Decorative elements */}
+                <div className="absolute -top-10 -left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-xl"></div>
+                <div className="absolute bottom-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-lg"></div>
+                
+                <h2 className="text-3xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 md:mb-6 tracking-tight drop-shadow-lg">
+                    Welcome Back
+                </h2>
+                        <p className="md:hidden text-center text-gray-300 mb-6">Join us and start your journey!</p>
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                        <label className="block text-gray-300 font-medium mb-1" htmlFor="email">
+                            Email Address
+                        </label>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            autoComplete="email"
+                            required
+                            value={inputValue.email}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:outline-none text-white placeholder-gray-400 transition"
+                            placeholder="you@example.com"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="block text-gray-300 font-medium mb-1" htmlFor="password">
+                            Password
+                        </label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            autoComplete="current-password"
+                            required
+                            value={inputValue.password}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:outline-none text-white placeholder-gray-400 transition"
+                            placeholder="••••••••"
+                        />
+                    </div>
+                    
+                    <button
+                        type="submit"
+                        className="w-full py-2 px-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:scale-105 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform duration-200"
+                    >
+                        Login
+                    </button>
                 </form>
+                
+                <div className="flex items-center my-6">
+                    <div className="flex-grow border-t border-gray-600"></div>
+                    <span className="mx-3 text-gray-400">or</span>
+                    <div className="flex-grow border-t border-gray-600"></div>
+                </div>
+                
+                <p className="text-center text-gray-300">
+                    Don't have an account?{' '}
+                    <span
+                        className="text-purple-400 font-semibold cursor-pointer hover:underline hover:text-purple-300 transition"
+                        onClick={() => setActiveTab('register')}
+                    >
+                        Register here
+                    </span>
+                </p>
             </div>
-
-
-            <p className="text-center text-gray-500 mt-4">
-                Don't have an account?
-                <span
-                    className="text-blue-500 cursor-pointer hover:underline"
-                >
-                    Register here
-                </span>
-            </p>
-        </>
+        </div>
     );
 };
 
-
-export default Login
+export default Login;

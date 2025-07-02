@@ -24,3 +24,6 @@
         display: none;
         /* Chrome, Safari, Opera */
     }
+    button:hover{
+        cursor: pointer;
+    }
