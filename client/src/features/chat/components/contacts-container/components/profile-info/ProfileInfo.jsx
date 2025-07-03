@@ -20,7 +20,7 @@ const ProfileInfo = () => {
     const dispatch = useDispatch();
 
     return (
-        <div className="absolute bottom-0 h-16 flex rounded-t-lg items-center justify-between px-10 w-full bg-[#272a3d]">
+        <div className="fixed bottom-0 h-16 flex rounded-t-lg items-center justify-between px-10 w-full bg-[#272a3d]">
             <div className='flex gap-5 items-center justify-center'>
                 <div >
                     <Avatar className="h-12 w-12 border-2 border-indigo-400 rounded-full overflow-hidden">
