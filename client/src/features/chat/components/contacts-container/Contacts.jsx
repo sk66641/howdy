@@ -30,7 +30,7 @@ const Contacts = () => {
     }, [chatMessages]);
 
     return (
-        <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">
+        <div className="relative min-w-[300px] md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">
             <div className="pt-5 px-6 flex items-center gap-3">
                 <FiMessageSquare className="text-yellow-400 text-xl" />
                 <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-amber-500">
@@ -43,7 +43,7 @@ const Contacts = () => {
                     <Title text="Direct Messages" />
                     <NewDm />
                 </div>
-                <div className="max-h-[38vw] overflow-y-auto scrollbar-hidden">
+                <div className="max-h-[38vh] overflow-y-auto scrollbar-hidden">
                     <DmList isChannel={false} />
                 </div>
             </div>
@@ -53,7 +53,7 @@ const Contacts = () => {
                     <Title text="Channels" />
                     <CreateChannel />
                 </div>
-                <div className="max-h-[38vw] overflow-y-auto scrollbar-hidden">
+                <div className="max-h-[38vh] overflow-y-auto scrollbar-hidden">
                     <DmList isChannel={true} />
                 </div>
             </div>

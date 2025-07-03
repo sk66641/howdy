@@ -9,7 +9,6 @@ import { IoCloseSharp } from 'react-icons/io5';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../../../../../lib/utils';
 import { useSocket } from '../../../../../../context/SocketContext';
-// import { getChannelMessages } from '../../../../../../../../server/controllers/ChannelController';
 
 const MessageContainer = () => {
   const socket = useSocket();
@@ -81,6 +80,7 @@ const MessageContainer = () => {
     });
   }
 
+  // ye hai ki message kaisa dikhega
   const renderMessages = () => {
     let lastDate = null;
     // console.log(chatMessages)
@@ -105,6 +105,7 @@ const MessageContainer = () => {
       }));
   };
 
+  // dm ke liye
   function renderDMMessages(message) {
     const isCurrentUser = message.sender === user._id;
 
@@ -198,6 +199,7 @@ const MessageContainer = () => {
     );
   }
 
+  // channel message ke liye
   function renderChannelMessages(message) {
     const isCurrentUser = user._id === message.sender._id;
     const isAdmin = user._id === currentChat.admin._id;
@@ -320,6 +322,7 @@ const MessageContainer = () => {
       </div>
     );
   }
+
   return (
     <div className="flex-1 scrollbar-hidden overflow-y-auto p-4 md:px-8 px-4 bg-gradient-to-b from-gray-900 to-gray-800 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
       {renderMessages()}

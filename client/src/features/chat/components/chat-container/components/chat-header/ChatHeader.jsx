@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { RiChatDeleteFill, RiCloseFill, RiEditLine } from 'react-icons/ri'
+import { RiCloseFill, RiDeleteBinFill, RiEditLine } from 'react-icons/ri'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteChannelAsync, leaveChannelAsync, removeMemberAsync, selectChannelMembers, selectChatType, selectContacts, selectCurrentChat, setChannelMembersEmpty, setChatType, setCurrentChat } from '../../../../chatSlice';
 import { FaSearch } from 'react-icons/fa'
@@ -12,8 +12,8 @@ import { selectLoggedInUser } from '../../../../../auth/authSlice';
 import InlineUserSelector from './MultipleSelect';
 import ChannelProfile from '../../../../../profile/ChannelProfile';
 import { FiDelete } from 'react-icons/fi';
-import { IoRemove } from 'react-icons/io5';
 import { GrView } from 'react-icons/gr';
+import { IoMdExit } from 'react-icons/io';
 
 const ChatHeader = () => {
     const dispatch = useDispatch();
@@ -24,7 +24,7 @@ const ChatHeader = () => {
     const user = useSelector(selectLoggedInUser);
     const channelMembers = useSelector(selectChannelMembers);
     const [addMembersMode, setAddMembersMode] = useState(false);
-    const contacts = useSelector(selectContacts);
+    // const contacts = useSelector(selectContacts);
 
     const handleOpenChange = () => {
         if (addMembersMode) {
@@ -45,6 +45,8 @@ const ChatHeader = () => {
     return (
         <div className="h-18 border-b border-[#2f303b] flex items-center justify-between md:px-8 px-4 bg-gradient-to-r from-[#1a1a2e] via-[#23234b] to-[#1a1a2e] shadow-lg">
             <div className="flex gap-6 items-center w-full">
+
+                {/* contact ke liey */}
                 {chatType === "contact" &&
                     <div className="flex gap-4 items-center  rounded-xl py-3">
                         <Avatar className="h-14 w-14 border-2 border-indigo-400 rounded-full shadow-lg">
@@ -65,6 +67,8 @@ const ChatHeader = () => {
                         </div>
                     </div>
                 }
+
+                {/* channel ke liye */}
                 {chatType === "channel" &&
                     <div className="flex gap-4 items-center rounded-xl w-full">
                         <Avatar className="h-14 w-14 rounded-full border-2 border-pink-400 shadow-lg">
@@ -84,6 +88,8 @@ const ChatHeader = () => {
                             <span className='text-xs text-[#bdbdbd] mt-1 italic'>{currentChat.bio}</span>
                         </div>
                         <div className="flex gap-3 items-center ml-auto">
+
+                            {/* view button */}
                             <Tooltip>
                                 <TooltipTrigger>
                                     <GrView
@@ -95,10 +101,13 @@ const ChatHeader = () => {
                                     View Channel
                                 </TooltipContent>
                             </Tooltip>
+
+                            {/* leave button */}
                             {currentChat.admin._id !== user._id &&
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <IoRemove
+                                        <IoMdExit
+
                                             className="text-[#bdbdbd] hover:text-[#ff4d4f] text-xl cursor-pointer transition-all duration-300"
                                             onClick={() => {
                                                 dispatch(leaveChannelAsync({ channelId: currentChat._id, memberId: user._id }));
@@ -196,7 +205,15 @@ const ChatHeader = () => {
                                                                 }
                                                             </div>
                                                             {currentChat.admin._id === user._id &&
-                                                                <FiDelete color='#ff4d4f' size='20' className='cursor-pointer ml-[24px] hover:scale-110 transition-all' onClick={() => handleRemoveMember(currentChat._id, contact._id)} />}
+                                                                <Tooltip>
+                                                                    <TooltipTrigger>
+                                                                        <FiDelete color='#ff4d4f' size='20' className='cursor-pointer ml-[24px] hover:scale-110 transition-all' onClick={() => handleRemoveMember(currentChat._id, contact._id)} />
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
+                                                                        Remove
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            }
                                                         </div>))}
                                                 </div>
                                             </ScrollArea>
@@ -204,6 +221,8 @@ const ChatHeader = () => {
                                     )}
                                 </DialogContent>
                             </Dialog>
+
+                            {/* edit button */}
                             {currentChat.admin._id === user._id &&
                                 <Tooltip>
                                     <TooltipTrigger>
@@ -218,10 +237,12 @@ const ChatHeader = () => {
                                 </Tooltip>
                             }
                             <ChannelProfile openChannelProfileModal={openChannelProfileModal} setOpenChannelProfileModal={setOpenChannelProfileModal} />
+
+                            {/* delete button */}
                             {currentChat.admin._id === user._id &&
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <RiChatDeleteFill
+                                        <RiDeleteBinFill
                                             className="text-[#bdbdbd] hover:text-[#ff4d4f] text-xl cursor-pointer transition-all duration-300"
                                             onClick={() => {
                                                 dispatch(deleteChannelAsync(currentChat._id));
@@ -236,6 +257,9 @@ const ChatHeader = () => {
                         </div>
                     </div>
                 }
+
+
+                {/* channel close button hai */}
                 <div className="flex items-center justify-center gap-5 ml-auto">
                     <button className="text-[#bdbdbd] hover:text-[#fff] bg-[#23234b] rounded-full p-2 shadow-md focus:outline-none transition-all" onClick={() => {
                         dispatch(setCurrentChat(null));
