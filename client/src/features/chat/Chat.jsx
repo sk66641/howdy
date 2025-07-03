@@ -9,7 +9,7 @@ const Chat = () => {
   const chatType = useSelector(selectChatType);
 
   return (
-    <div className="flex h-[100vh] overflow-hidden text-white">
+    <div className="flex h-[100svh] overflow-hidden text-white">
       <Contacts />
       {chatType ? <ChatContainer /> : <EmptyChat />}
     </div>

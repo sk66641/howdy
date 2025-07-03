@@ -5,6 +5,7 @@ import { deleteProfileImage, updateProfile, updateProfileImage } from '../profil
 const initialState = {
     status: {
         isCheckingUser: false,
+        isGettingLoggedInUser: false,
     },
     loggedInUser: null,
     error: null,
@@ -93,15 +94,15 @@ export const authSlice = createSlice({
 
             // getLoggedInUserAsync
             .addCase(getLoggedInUserAsync.pending, (state, action) => {
-                state.status.isCheckingUser = true;
+                state.status.isGettingLoggedInUser = true;
                 state.loggedInUser = action.payload;
             })
             .addCase(getLoggedInUserAsync.fulfilled, (state, action) => {
-                state.status.isCheckingUser = false;
+                state.status.isGettingLoggedInUser = false;
                 state.loggedInUser = action.payload;
             })
             .addCase(getLoggedInUserAsync.rejected, (state, action) => {
-                state.status.isCheckingUser = false;
+                state.status.isGettingLoggedInUser = false;
                 state.loggedInUser = action.payload;
             })
 
@@ -122,6 +123,7 @@ export const authSlice = createSlice({
 export const selectLoggedInUser = (state) => state.auth.loggedInUser;
 export const selectError = (state) => state.auth.error;
 export const selectIsCheckingUser = (state) => state.auth.status.isCheckingUser;
+export const selectIsGettingLoggedInUser = (state) => state.auth.status.isGettingLoggedInUser;
 export const selectStatus = (state) => state.auth.status;
 
 export default authSlice.reducer
