@@ -17,7 +17,7 @@ server.use(express.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 
 server.use(cors({
-    origin: process.env.CLIENT_URL_DEVELOPMENT,
+    origin: process.env.CLIENT_URL_DEVELOPMENT || process.env.CLIENT_URL,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true
 }));
