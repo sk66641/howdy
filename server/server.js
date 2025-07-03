@@ -17,7 +17,7 @@ server.use(express.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 
 server.use(cors({
-    origin: process.env.CLIENT_URL_DEVELOPMENT || process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true
 }));
@@ -43,7 +43,7 @@ server.use('/contacts', authMiddleware, require('./routes/ContactRoutes'));
 server.use('/messages', authMiddleware, require('./routes/MessageRoutes'));
 server.use('/channels', authMiddleware, require('./routes/ChannelRoutes'));
 
-const httpServer = server.listen(process.env.PORT || 5000, '0.0.0.0', () => {
+const httpServer = server.listen(process.env.PORT || 5000, () => {
     console.log(`Server is running on port ${process.env.PORT || 5000}`);
 }
 ); 
