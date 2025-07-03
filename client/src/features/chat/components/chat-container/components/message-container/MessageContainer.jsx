@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoggedInUser } from '../../../../../auth/authSlice'
-import { downloadFileAsync, getChannelMessagesAsync, getMessagesAsync, selectFileDownloadProgress, selectFileUploadProgress, selectIsDownloading, selectIsUploading, selectChatMessages, selectChatType, selectCurrentChat, setFileDownloadProgress } from '../../../../chatSlice';
+import { downloadFileAsync, getChannelMessagesAsync, getMessagesAsync, selectFileDownloadProgress, selectFileUploadProgress, selectIsDownloading, selectIsUploading, selectChatMessages, selectChatType, selectCurrentChat, setFileDownloadProgress, selectIsGettingMessages } from '../../../../chatSlice';
 import moment from 'moment';
 import { IoMdArrowRoundDown } from 'react-icons/io';
 import { GrDocumentZip, GrUpload } from 'react-icons/gr';
@@ -11,19 +11,22 @@ import { colors } from '../../../../../../lib/utils';
 import { useSocket } from '../../../../../../context/SocketContext';
 
 const MessageContainer = () => {
-  const socket = useSocket();
-  const scrollRef = useRef();
   const user = useSelector(selectLoggedInUser);
   const currentChat = useSelector(selectCurrentChat);
   const chatMessages = useSelector(selectChatMessages);
   const chatType = useSelector(selectChatType);
-  const dispatch = useDispatch();
-  const [showImage, setShowImage] = useState(false);
-  const [filePath, setFilePath] = useState(null);
   const isDownloading = useSelector(selectIsDownloading);
   const isUploading = useSelector(selectIsUploading);
   const FileUploadProgress = useSelector(selectFileUploadProgress);
   const FileDownloadProgress = useSelector(selectFileDownloadProgress);
+  console.log(isUploading, FileDownloadProgress)
+  const isGettingMessages = useSelector(selectIsGettingMessages);
+
+  const socket = useSocket();
+  const scrollRef = useRef();
+  const dispatch = useDispatch();
+  const [showImage, setShowImage] = useState(false);
+  const [filePath, setFilePath] = useState(null);
 
   useEffect(() => {
 
@@ -86,23 +89,26 @@ const MessageContainer = () => {
     // console.log(chatMessages)
 
     return (
-      chatMessages.map((message, index) => {
-        const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
-        const showDate = messageDate !== lastDate;
-        lastDate = messageDate;
+      <>
+        {chatMessages.map((message, index) => {
+          const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
+          const showDate = messageDate !== lastDate;
+          lastDate = messageDate;
 
-        return (
-          <div key={index}>
-            {showDate && (
-              <div className="text-center text-gray-500 my-2">
-                {moment(message.timestamp).format("LL")}
-              </div>
-            )}
-            {chatType === "contact" && renderDMMessages(message)}
-            {chatType === "channel" && renderChannelMessages(message)}
-          </div>
-        );
-      }));
+          return (
+            <div key={index}>
+              {showDate && (
+                <div className="text-center text-gray-500 my-2">
+                  {moment(message.timestamp).format("LL")}
+                </div>
+              )}
+              {chatType === "contact" && renderDMMessages(message)}
+              {chatType === "channel" && renderChannelMessages(message)}
+            </div>
+          );
+        })}
+      </>
+    );
   };
 
   // dm ke liye
@@ -120,7 +126,7 @@ const MessageContainer = () => {
                 : "bg-gray-700 text-white rounded-bl-none"
                 }`}
             >
-              {/* Delete Button */}
+              {/* Delete Button for text*/}
               {message.sender === user._id && (
                 <button
                   onClick={() => handleDirectMessageDelete(message._id)}
@@ -138,12 +144,12 @@ const MessageContainer = () => {
           {/* File Messages */}
           {message.messageType === "file" && (
             <div
-              className={`relative group inline-block rounded-xl my-1 overflow-hidden border ${isCurrentUser
+              className={`relative group inline-block rounded-xl my-1 border ${isCurrentUser
                 ? "border-purple-500/30 bg-gray-800 rounded-br-none"
                 : "border-gray-600 bg-gray-800 rounded-bl-none"
                 }`}
             >
-              {/* Delete Button */}
+              {/* Delete Button for files */}
               {message.sender === user._id && (
                 <button
                   onClick={() => handleDirectMessageDelete(message._id)}
@@ -157,8 +163,8 @@ const MessageContainer = () => {
 
               {checkIfImage(message.fileURL) ? (
                 <div onClick={() => handleImageClick(message.fileURL)} className='cursor-pointer'>
-                  <img
-                    className="max-h-80 w-auto rounded-md object-cover transition-transform duration-300 hover:scale-105"
+                  <img  
+                    className="max-h-80 w-auto rounded-md object-cover transition-transform duration-300"
                     src={`${import.meta.env.VITE_HOST}/${message.fileURL}`}
                     alt="img"
                   />
@@ -205,6 +211,8 @@ const MessageContainer = () => {
     const isAdmin = user._id === currentChat.admin._id;
 
     return (
+
+
       <div className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} mb-4`}>
         {!isCurrentUser && (
           <div className="flex-shrink-0 mr-3">
@@ -267,7 +275,7 @@ const MessageContainer = () => {
             </div>
           ) : (
             <div
-              className={`relative group inline-block rounded-xl my-1 overflow-hidden border ${isCurrentUser
+              className={`relative group inline-block rounded-xl my-1 border ${isCurrentUser
                 ? "border-purple-500/30 bg-gray-800 rounded-br-none"
                 : "border-gray-600 bg-gray-800 rounded-bl-none"
                 }`}
@@ -286,7 +294,7 @@ const MessageContainer = () => {
               {checkIfImage(message.fileURL) ? (
                 <div onClick={() => handleImageClick(message.fileURL)} className='cursor-pointer'>
                   <img
-                    className="max-h-80 w-auto rounded-md object-cover transition-transform duration-300 hover:scale-105"
+                    className="max-h-80 w-auto rounded-md object-cover transition-transform duration-300"
                     src={`${import.meta.env.VITE_HOST}/${message.fileURL}`}
                     alt="img"
                   />
@@ -324,8 +332,16 @@ const MessageContainer = () => {
   }
 
   return (
-    <div className="flex-1 scrollbar-hidden overflow-y-auto p-4 md:px-8 px-4 bg-gradient-to-b from-gray-900 to-gray-800 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
-      {renderMessages()}
+    <div className="flex-1 overflow-y-auto scrollbar-hidden p-4 md:px-8 px-4 bg-gradient-to-b from-gray-900 to-gray-800 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent relative">
+      {isGettingMessages ? (
+        <div className="flex flex-col items-center justify-center h-[60vh] select-none">
+          <svg className="animate-spin h-10 w-10 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          <span className="text-lg text-indigo-300 font-semibold tracking-wide animate-pulse">Fetching messages...</span>
+        </div>
+      ) : renderMessages()}
 
       {/* Image Preview Modal */}
       {showImage && (
@@ -359,21 +375,15 @@ const MessageContainer = () => {
 
       {/* Upload Progress Indicator */}
       {isUploading && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-xl border border-gray-700 flex items-center gap-2">
+        <div className="bg-gray-800/90 float-right backdrop-blur-sm px-4 py-2 rounded-full shadow-xl border border-gray-700 flex items-center gap-2">
           <GrUpload className="text-blue-400 animate-pulse" />
           <span className="text-sm text-gray-200">
-            Uploading... <span className="font-medium text-blue-400">{FileUploadProgress}%</span>
+            Uploading <span className="font-medium text-blue-400">{FileUploadProgress}%</span>
           </span>
-          <div className="w-24 h-1 bg-gray-700 rounded-full ml-2 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
-              style={{ width: `${FileUploadProgress}%` }}
-            ></div>
-          </div>
         </div>
       )}
 
-      <div ref={scrollRef} />
+      <div className='absolute bottom-0' ref={scrollRef} />
     </div>
   )
 }

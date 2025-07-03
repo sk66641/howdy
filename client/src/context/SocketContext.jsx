@@ -52,6 +52,7 @@ export const SocketProvider = ({ children }) => {
 
 
             socket.current.on('receiveMessage', (message) => {
+                // console.log("Received message:", message);
                 if (currentChatRef.current && (currentChatRef.current._id === message.sender._id || currentChatRef.current._id === message.receiver._id)) {
                     console.log("Received message for selected contact:", message);
                     { chatTypeRef.current === "contact" && dispatch(setChatMessages(message)); }

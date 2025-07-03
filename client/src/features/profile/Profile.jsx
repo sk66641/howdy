@@ -157,7 +157,7 @@ const Profile = ({ openProfileModal, setOpenProfileModal }) => {
             </div>
 
             <button type='submit'
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
+              className="w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
               Save Changes
             </button>
           </form>

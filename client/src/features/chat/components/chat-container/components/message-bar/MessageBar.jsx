@@ -6,22 +6,26 @@ import EmojiPicker from 'emoji-picker-react'
 import { useState } from 'react'
 import { useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectFilePath, selectChatType, selectCurrentChat, uploadFileAsync, selectDmContactList, updateDmContactList, selectChannelList, updateChannelList } from '../../../../chatSlice'
+import { selectFilePath, selectChatType, selectCurrentChat, uploadFileAsync, selectDmContactList, updateDmContactList, selectChannelList, updateChannelList, selectIsUploading } from '../../../../chatSlice'
 import { useSocket } from '../../../../../../context/SocketContext'
 import { selectLoggedInUser } from '../../../../../auth/authSlice'
 
 const MessageBar = () => {
-    const socket = useSocket();
-    const fileInputRef = useRef();
-    const dispatch = useDispatch();
-    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-    const [message, setMessage] = useState('');
+
     const currentChat = useSelector(selectCurrentChat);
     const chatType = useSelector(selectChatType);
     const filePath = useSelector(selectFilePath);
     const DmContactList = useSelector(selectDmContactList);
     const channelList = useSelector(selectChannelList);
     const user = useSelector(selectLoggedInUser);
+    const isUploading = useSelector(selectIsUploading);
+
+    const socket = useSocket();
+    const fileInputRef = useRef();
+    const dispatch = useDispatch();
+    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+    const [message, setMessage] = useState('');
+
     const handleEmojiClick = (emojiObject) => {
         setMessage(message + emojiObject.emoji);
     };
@@ -136,7 +140,8 @@ const MessageBar = () => {
                 <button
                     onClick={handleAttachmentClick}
                     type='button'
-                    className="p-2 text-gray-400 hover:text-purple-400 transition-colors duration-300 rounded-full hover:bg-gray-600/50"
+                    disabled={isUploading}
+                    className={`p-2 text-gray-400 ${isUploading ? "cursor-not-allowed" : "cursor-pointer"} hover:text-purple-400 transition-colors duration-300 rounded-full hover:bg-gray-600/50`}
                     title="Attach file"
                 >
                     <GrAttachment className="text-xl" />
@@ -147,7 +152,7 @@ const MessageBar = () => {
                 <div className="relative">
                     <button
                         type='button'
-                        className="p-2 text-gray-400 hover:text-yellow-400 transition-colors duration-300 rounded-full hover:bg-gray-600/50"
+                        className="p-2 text-gray-400 cursor-pointer hover:text-yellow-400 transition-colors duration-300 rounded-full hover:bg-gray-600/50"
                         onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
                         title="Add emoji"
                     >
@@ -171,10 +176,11 @@ const MessageBar = () => {
             {/* Send Button */}
             <button
                 type='submit'
-                disabled={message}
-                className={`p-4 rounded-xl flex items-center justify-center transition-all duration-300 ${message.trim() === ""
+                disabled={message === ""}
+                className={`p-4 rounded-xl flex items-center justify-center transition-all duration-300 
+                    ${message === ""
                         ? "text-gray-500 bg-gray-600 cursor-not-allowed "
-                        : "bg-gradient-to-r  from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700  shadow-lg transform hover:scale-105"
+                        : "bg-green-600 shadow-lg transform hover:scale-105 cursor-pointer"
                     }`}
                 title="Send message"
             >

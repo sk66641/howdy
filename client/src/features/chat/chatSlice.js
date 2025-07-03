@@ -3,21 +3,26 @@ import { addMembers, createChannel, deleteChannel, downloadFile, getChannelMembe
 import { deleteChannelProfileImage, updateChannelProfile, updateChannelProfileImage } from '../profile/profileAPI';
 
 const initialState = {
-    status: 'idle',
-    error: null,
+    status: {
+        isGetDmContactList: false,
+        isGettingMessages: false,
+        isGetChannelMessages: false,
+        isSearchingContacts: false,
+        isDownloading: false,
+        isUploading: false,
+    },
     contacts: [],
     chatType: null,
-    isSearchingContacts: false,
     currentChat: null,
     chatMessages: [],
     DmContactList: [],
     filePath: null,
-    isDownloading: false,
-    isUploading: false,
     fileUploadProgress: 0,
     fileDownloadProgress: 0,
     channelList: [],
     channelMembers: [],
+    error: null,
+
 }
 
 export const searchContactsAsync = createAsyncThunk(
@@ -133,31 +138,6 @@ export const leaveChannelAsync = createAsyncThunk(
         return response.data;
     })
 
-
-// export const deleteDirectMessageAsync = createAsyncThunk(
-//     'chat/deleteDirectMessage',
-//     async (messageId) => {
-//         const response = await deleteDirectMessage(messageId);
-//         return response.data;
-//     }
-// )
-
-// export const deleteChannelMessageAsync = createAsyncThunk(
-//     'chat/deleteChannelMessage',
-//     async (channelMessageId) => {
-//         const response = await deleteChannelMessage(channelMessageId);
-//         return response.data;
-//     }
-// )
-
-// export const deleteChannelMessageByAdminAsync = createAsyncThunk(
-//     'chat/deleteChannelMessageByAdmin',
-//     async (channelMessageId) => {
-//         const response = await deleteChannelMessageByAdmin(channelMessageId);
-//         return response.data;
-//     }
-// )
-
 export const chatSlice = createSlice({
     name: 'chat',
     initialState,
@@ -225,60 +205,70 @@ export const chatSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            // searchContactsAsync
             .addCase(searchContactsAsync.pending, (state) => {
-                state.isSearchingContacts = true;
+                state.status.isSearchingContacts = true;
             })
             .addCase(searchContactsAsync.fulfilled, (state, action) => {
-                state.isSearchingContacts = false;
+                state.status.isSearchingContacts = false;
                 state.contacts = action.payload;
             })
             .addCase(searchContactsAsync.rejected, (state, action) => {
-                state.isSearchingContacts = false;
+                state.status.isSearchingContacts = false;
                 state.error = action.error.message;
             })
+
+            // getMessagesAsync
             .addCase(getMessagesAsync.pending, (state) => {
-                state.status = 'loading';
+                state.status.isGettingMessages = true;
             })
             .addCase(getMessagesAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
+                state.status.isGettingMessages = false;
                 state.chatMessages = action.payload;
             })
             .addCase(getMessagesAsync.rejected, (state, action) => {
-                state.status = 'error';
+                state.status.isGettingMessages = false;
                 state.error = action.error.message;
             })
+
+            // getDmContactListAsync
             .addCase(getDmContactListAsync.pending, (state) => {
-                state.status = 'loading';
+                state.status.isGetDmContactList = true;
             })
             .addCase(getDmContactListAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
+                state.status.isGetDmContactList = false;
                 state.DmContactList = action.payload;
             })
             .addCase(getDmContactListAsync.rejected, (state, action) => {
-                state.status = 'error';
-                state.error = action.error.message;
+                state.status.isGetDmContactList = false;
             })
+
+            // uploadFileAsync
             .addCase(uploadFileAsync.pending, (state) => {
-                state.isUploading = true;
+                state.status.isUploading = true;
             })
             .addCase(uploadFileAsync.fulfilled, (state, action) => {
-                state.isUploading = false;
+                state.status.isUploading = false;
                 state.filePath = action.payload;
             })
             .addCase(uploadFileAsync.rejected, (state, action) => {
-                state.isUploading = false;
+                state.status.isUploading = false;
                 state.error = action.error.message;
             })
+
+            // downloadFileAsync
             .addCase(downloadFileAsync.pending, (state) => {
-                state.isDownloading = true;
+                state.status.isDownloading = true;
             })
             .addCase(downloadFileAsync.fulfilled, (state, action) => {
-                state.isDownloading = false;
+                state.status.isDownloading = false;
             })
             .addCase(downloadFileAsync.rejected, (state, action) => {
-                state.isDownloading = false;
+                state.status.isDownloading = false;
                 state.error = action.error.message;
             })
+
+            // createChannelAsync
             .addCase(createChannelAsync.pending, (state) => {
                 state.status = 'loading';
             })
@@ -290,36 +280,48 @@ export const chatSlice = createSlice({
                 state.status = 'error';
                 state.error = action.error.message;
             })
+
+            // getChannelsAsync
             .addCase(getChannelsAsync.pending, (state) => {
-                state.status = 'loading';
+                state.status.isGetChannels = true;
             })
             .addCase(getChannelsAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
+                state.status.isGetChannels = false;
                 state.channelList = action.payload;
             })
             .addCase(getChannelsAsync.rejected, (state, action) => {
-                state.status = 'error';
+                state.status.isGetChannels = false;
                 state.error = action.error.message;
             })
+
+            // getChannelMessagesAsync
             .addCase(getChannelMessagesAsync.pending, (state) => {
-                state.status = 'loading';
+                state.status.isGettingMessages = true;
             })
             .addCase(getChannelMessagesAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
+                state.status.isGettingMessages = false;
                 state.chatMessages = action.payload;
             })
             .addCase(getChannelMessagesAsync.rejected, (state) => {
-                state.status = 'error';
+                state.status.isGettingMessages = false;
             })
+
+            // getChannelMembersAsync
             .addCase(getChannelMembersAsync.fulfilled, (state, action) => {
                 state.channelMembers = action.payload;
             })
+
+            // removeMemberAsync
             .addCase(removeMemberAsync.fulfilled, (state, action) => {
                 state.channelMembers = state.channelMembers.filter(member => member._id !== action.payload.memberId);
             })
+
+            // addMembersAsync
             .addCase(addMembersAsync.fulfilled, (state, action) => {
                 state.channelMembers = action.payload.members;
             })
+
+            // updateChannelProfileAsync
             .addCase(updateChannelProfileAsync.fulfilled, (state, action) => {
                 const updatedChannel = action.payload;
                 const index = state.channelList.findIndex(channel => channel._id === updatedChannel._id);
@@ -328,6 +330,8 @@ export const chatSlice = createSlice({
                 }
                 state.currentChat = updatedChannel;
             })
+
+            // updateChannelProfileImageAsync
             .addCase(updateChannelProfileImageAsync.fulfilled, (state, action) => {
                 const updatedChannel = action.payload;
                 const index = state.channelList.findIndex(channel => channel._id === updatedChannel._id);
@@ -336,6 +340,8 @@ export const chatSlice = createSlice({
                 }
                 state.currentChat = updatedChannel;
             })
+
+            // deleteChannelProfileImageAsync
             .addCase(deleteChannelProfileImageAsync.fulfilled, (state, action) => {
                 const { channelId } = action.payload;
                 const index = state.channelList.findIndex(channel => channel._id === channelId);
@@ -344,6 +350,8 @@ export const chatSlice = createSlice({
                 }
                 state.currentChat.profileImage = null;
             })
+
+            // deleteChannelAsync
             .addCase(deleteChannelAsync.fulfilled, (state, action) => {
                 const { channelId } = action.payload;
                 const index = state.channelList.findIndex(channel => channel._id === channelId);
@@ -353,6 +361,8 @@ export const chatSlice = createSlice({
                 state.currentChat = null;
                 state.chatType = null;
             })
+
+            // leaveChannelAsync
             .addCase(leaveChannelAsync.fulfilled, (state, action) => {
                 const { channelId } = action.payload;
                 const index = state.channelList.findIndex(channel => channel._id === channelId);
@@ -362,21 +372,6 @@ export const chatSlice = createSlice({
                 state.currentChat = null;
                 state.chatType = null;
             })
-        // .addCase(deleteDirectMessageAsync.fulfilled, (state, action) => {
-        //     const { messageId } = action.payload;
-        //     state.chatMessages = state.chatMessages.filter(message => message._id !== messageId);
-        // })
-        // .addCase(deleteChannelMessageAsync.fulfilled, (state, action) => {
-        //     const { channelMessageId } = action.payload;
-        //     state.chatMessages = state.chatMessages.filter(message => message._id !== channelMessageId);
-        // })
-        // .addCase(deleteChannelMessageByAdminAsync.fulfilled, (state, action) => {
-        //     const channelMessageId = action.payload._id;
-        //     const index = state.chatMessages.findIndex(message => message._id === channelMessageId);
-        //     if (index !== -1) {
-        //         state.chatMessages[index] = action.payload;
-        //     }
-        // })
     }
 })
 
@@ -388,13 +383,16 @@ export const selectCurrentChat = (state) => state.chat.currentChat;
 export const selectChatMessages = (state) => state.chat.chatMessages;
 export const selectDmContactList = (state) => state.chat.DmContactList;
 export const selectFilePath = (state) => state.chat.filePath;
-export const selectIsDownloading = (state) => state.chat.isDownloading;
-export const selectIsUploading = (state) => state.chat.isUploading;
+export const selectIsDownloading = (state) => state.chat.status.isDownloading;
+export const selectIsUploading = (state) => state.chat.status.isUploading;
 export const selectFileUploadProgress = (state) => state.chat.fileUploadProgress;
 export const selectFileDownloadProgress = (state) => state.chat.fileDownloadProgress;
-export const selectIsSearchingContacts = (state) => state.chat.isSearchingContacts;
+export const selectIsSearchingContacts = (state) => state.chat.status.isSearchingContacts;
 export const selectChannelList = (state) => state.chat.channelList;
 export const selectChannelMembers = (state) => state.chat.channelMembers
+export const selectIsGetChannels = (state) => state.chat.status.isGetChannels;
+export const selectIsGetDmContactList = (state) => state.chat.status.isGetDmContactList;
+export const selectIsGettingMessages = (state) => state.chat.status.isGettingMessages;
 
 export const { setCurrentChat, setContactsEmpty, setChatMessages, setChatType, setChatMessagesEmpty, setFileDownloadProgress, setFileUploadProgress, updateDmContactList, updateChannelList, setChannelMembersEmpty, setDeleteDirectMessage, setDeleteChannelMessage, setDeleteChannelMessageByAdmin } = chatSlice.actions;
 export default chatSlice.reducer

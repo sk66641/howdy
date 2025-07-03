@@ -1,18 +1,27 @@
 export function createUser(userData) {
-    return new Promise(async (resolve) => {
-        const response = await fetch(`${import.meta.env.VITE_HOST}/auth/register`,
-            {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify(userData)
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_HOST}/auth/register`,
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                }
+            )
+            if (!response.ok) {
+                const err = await response.json();
+                // console.log("from createuser", err);
+                throw err;
             }
-        )
-        const data = await response.json();
-        // console.log("createUser", data)
-        resolve({ data });
+            const data = await response.json();
+            // console.log("createUser", data)
+            resolve({ data });
+        } catch (error) {
+            reject(error);
+        }
     })
 }
 

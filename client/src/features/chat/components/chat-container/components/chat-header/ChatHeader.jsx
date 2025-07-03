@@ -142,7 +142,7 @@ const ChatHeader = () => {
                                                     <FaSearch className="text-[#bdbdbd]" />
                                                 </div>
                                                 {currentChat.admin._id === user._id &&
-                                                    <button type='button' className="min-w-1/4 bg-gradient-to-r from-[#8417ff] to-[#5f17ff] rounded-lg flex items-center justify-center px-5 py-2 font-semibold text-white shadow hover:from-[#741bda] hover:to-[#4e13b3] transition-all" onClick={handleAddMembers} >+ Add</button>}
+                                                    <button type='button' className="min-w-1/4 bg-gradient-to-r from-[#8417ff] to-[#5f17ff] rounded-lg flex items-center justify-center px-5 py-2 font-semibold text-white shadow hover:from-[#741bda] hover:to-[#4e13b3] cursor-pointer transition-all" onClick={handleAddMembers} >Add</button>}
                                             </div>
                                             <ScrollArea className="mt-4 h-[220px]">
                                                 <div className='flex flex-col justify-center gap-2'>

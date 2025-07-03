@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux';
-import { checkUserAsync } from '../authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { checkUserAsync, selectIsCheckingUser } from '../authSlice';
 import { useNavigate } from 'react-router-dom';
 
 const Login = ({setActiveTab}) => {
+    const IsCheckingUser = useSelector(selectIsCheckingUser);
+
     const [inputValue, setInputValue] = useState({
         email: '',
         password: '',
@@ -74,7 +76,7 @@ const Login = ({setActiveTab}) => {
                         type="submit"
                         className="w-full py-2 px-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:scale-105 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform duration-200"
                     >
-                        Login
+                        {IsCheckingUser ? "Logging in..." : "Login"}
                     </button>
                 </form>
                 

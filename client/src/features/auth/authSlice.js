@@ -3,7 +3,9 @@ import { checkUser, createUser, signOut, getLoggedInUser } from './authAPI'
 import { deleteProfileImage, updateProfile, updateProfileImage } from '../profile/profileAPI'
 
 const initialState = {
-    status: 'idle',
+    status: {
+        isCheckingUser: false,
+    },
     loggedInUser: null,
     error: null,
 }
@@ -66,29 +68,40 @@ export const authSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
+            .addCase(createUserAsync.pending, (state, action) => {
+                state.status.isCheckingUser = true;
+            })
             .addCase(createUserAsync.fulfilled, (state, action) => {
+                state.status.isCheckingUser = false;
                 state.loggedInUser = action.payload;
+            })
+            .addCase(createUserAsync.rejected, (state, action) => {
+                state.status.isCheckingUser = false;
+            })
+
+            .addCase(checkUserAsync.pending, (state, action) => {
+                state.status.isCheckingUser = true;
             })
             .addCase(checkUserAsync.fulfilled, (state, action) => {
+                state.status.isCheckingUser = false;
                 state.loggedInUser = action.payload;
             })
-            .addCase(getLoggedInUserAsync.pending, (state) => {
-                state.status = 'loading';
+            .addCase(checkUserAsync.rejected, (state, action) => {
+                state.status.isCheckingUser = false;
             })
+
             .addCase(getLoggedInUserAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
                 state.loggedInUser = action.payload;
             })
-            .addCase(getLoggedInUserAsync.rejected, (state, action) => {
-                state.status = 'error';
-                state.error = action.error;
-            })
+
             .addCase(updateProfileAsync.fulfilled, (state, action) => {
                 state.loggedInUser = action.payload;
             })
+
             .addCase(updateProfileImageAsync.fulfilled, (state, action) => {
                 state.loggedInUser = action.payload;
             })
+            
             .addCase(signOutAsync.fulfilled, (state, action) => {
                 state.loggedInUser = null;
             })
@@ -97,6 +110,7 @@ export const authSlice = createSlice({
 
 export const selectLoggedInUser = (state) => state.auth.loggedInUser;
 export const selectError = (state) => state.auth.error;
+export const selectIsCheckingUser = (state) => state.auth.status.isCheckingUser;
 export const selectStatus = (state) => state.auth.status;
 
 export default authSlice.reducer

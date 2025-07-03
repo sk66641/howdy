@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { setFileUploadProgress } from './chatSlice';
+import { setFileDownloadProgress, setFileUploadProgress } from './chatSlice';
 
 export function searchContacts(searchQuery) {
     return new Promise(async (resolve) => {
@@ -89,7 +89,7 @@ export function downloadFile(filePath, dispatch) {
                     const { loaded, total } = progressEvent;
                     if (total) {
                         const percentCompleted = Math.round((loaded * 100) / total);
-                        dispatch(setFileUploadProgress(percentCompleted));
+                        dispatch(setFileDownloadProgress(percentCompleted));
                     }
                 }
             });

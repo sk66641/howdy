@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux';
-import { createUserAsync } from '../authSlice';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { createUserAsync, selectIsCheckingUser } from '../authSlice';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const Register = ({setActiveTab}) => {
+  const IsCheckingUser = useSelector(selectIsCheckingUser);
+
   const [inputValue, setInputValue] = useState({
     fullName: '',
     username: '',
@@ -96,7 +98,7 @@ const Register = ({setActiveTab}) => {
             type="submit"
             className="w-full py-3 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-semibold rounded-lg shadow-lg hover:scale-105 hover:shadow-xl transition transform duration-200"
           >
-            Register
+            {IsCheckingUser ? "Registering..." : "Register"}
           </button>
         </form>
         

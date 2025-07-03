@@ -10,7 +10,9 @@ import {
     setChatMessagesEmpty,
     setCurrentChat,
     setChannelMembersEmpty,
-    getChannelMembersAsync
+    getChannelMembersAsync,
+    selectIsGetDmContactList,
+    selectIsGetChannels
 } from '../../../../chatSlice'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../../../../../lib/utils'
@@ -18,6 +20,8 @@ import { colors } from '../../../../../../lib/utils'
 const DmList = ({ isChannel }) => {
     const dispatch = useDispatch();
 
+    const isGetDmContactList = useSelector(selectIsGetDmContactList);
+    const isGetChannels = useSelector(selectIsGetChannels);
     const contacts = useSelector(selectDmContactList);
     const currentChat = useSelector(selectCurrentChat);
     const chatType = useSelector(selectChatType);
@@ -40,6 +44,15 @@ const DmList = ({ isChannel }) => {
 
     return (
         <div className="mt-5 space-y-3">
+            {!isChannel && isGetDmContactList && (
+                <div className="flex items-center gap-2 px-4 py-2">
+                    <svg className="animate-spin h-5 w-5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                    <span className="text-indigo-300 font-medium">Loading contacts...</span>
+                </div>
+            )}
             {!isChannel && contacts.length > 0 && contacts.map((contact) => (
                 <div
                     key={contact._id}
@@ -80,6 +93,16 @@ const DmList = ({ isChannel }) => {
                     </div>
                 </div>
             ))}
+            
+            {isChannel && isGetChannels && (
+                <div className="flex items-center gap-2 px-4 py-2">
+                    <svg className="animate-spin h-5 w-5 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                    <span className="text-pink-300 font-medium">Loading channels...</span>
+                </div>
+            )}
             {isChannel && channelsList.length > 0 && channelsList.map((channel) => (
                 <div
                     key={channel._id}
@@ -123,7 +146,7 @@ const DmList = ({ isChannel }) => {
                             <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </div>
-                </div>
+                </div> 
             ))}
         </div>
     );
