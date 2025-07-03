@@ -79,6 +79,7 @@ export const authSlice = createSlice({
                 state.status.isCheckingUser = false;
             })
 
+            // checkUserAsync
             .addCase(checkUserAsync.pending, (state, action) => {
                 state.status.isCheckingUser = true;
             })
@@ -90,7 +91,17 @@ export const authSlice = createSlice({
                 state.status.isCheckingUser = false;
             })
 
+            // getLoggedInUserAsync
+            .addCase(getLoggedInUserAsync.pending, (state, action) => {
+                state.status.isCheckingUser = true;
+                state.loggedInUser = action.payload;
+            })
             .addCase(getLoggedInUserAsync.fulfilled, (state, action) => {
+                state.status.isCheckingUser = false;
+                state.loggedInUser = action.payload;
+            })
+            .addCase(getLoggedInUserAsync.rejected, (state, action) => {
+                state.status.isCheckingUser = false;
                 state.loggedInUser = action.payload;
             })
 
@@ -101,7 +112,7 @@ export const authSlice = createSlice({
             .addCase(updateProfileImageAsync.fulfilled, (state, action) => {
                 state.loggedInUser = action.payload;
             })
-            
+
             .addCase(signOutAsync.fulfilled, (state, action) => {
                 state.loggedInUser = null;
             })

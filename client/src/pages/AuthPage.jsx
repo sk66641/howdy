@@ -3,21 +3,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Victory from '../assets/howdy.png';
 import Login from '../features/auth/components/Login';
 import Register from '../features/auth/components/Register';
-import { selectLoggedInUser, selectStatus } from '../features/auth/authSlice';
+import { selectIsCheckingUser, selectLoggedInUser, selectStatus } from '../features/auth/authSlice';
 import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
 import { FaTwitter, FaInstagram, FaLinkedin, FaGithub } from 'react-icons/fa';
 
 const AuthPage = () => {
   const user = useSelector(selectLoggedInUser);
-  const status = useSelector(selectStatus);
+  const isCheckingUser = useSelector(selectIsCheckingUser);
   const [activeTab, setActiveTab] = useState('login');
   const location = useLocation();
   const from = location.state?.from?.pathname || null;
 
   if (user) return <Navigate to={from || '/'} replace />;
 
-  if (status === 'loading') {
+  if (isCheckingUser) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-900 to-gray-800">
         <motion.div
