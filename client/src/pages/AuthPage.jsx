@@ -30,7 +30,7 @@ const AuthPage = () => {
   }
 
   return (
-    <div className="relative min-h-[100svh] min-w-[300px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 overflow-hidden">
+    <div className="relative min-h-[100svh] overflow-hidden min-w-[300px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 overflow-hidden">
       {/* Animated Gradient Background */}
       <motion.div
         initial={{ opacity: 0 }}
