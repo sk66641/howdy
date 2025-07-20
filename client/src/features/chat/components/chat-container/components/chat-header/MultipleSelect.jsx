@@ -6,6 +6,7 @@ import '../../../../../../App.css'
 import { colors } from '../../../../../../lib/utils';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useSearchContactsQuery } from '../../../../chatApi2';
 
 
 const InlineUserSelector = ({ setAddMembersMode }) => {
@@ -17,6 +18,7 @@ const InlineUserSelector = ({ setAddMembersMode }) => {
     const inputRef = useRef();
     const currentChat = useSelector(selectCurrentChat);
     const channelMembers = useSelector(selectChannelMembers);
+    const{}=useSearchContactsQuery();
 
     const handleInputChange = (e) => {
         if (searchQuery === '' && e.target.value.trim() === '') return;

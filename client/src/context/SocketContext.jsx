@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
-import { selectContacts, selectCurrentChat, setChatMessages, selectChatType, setDeleteDirectMessage, setDeleteChannelMessageByAdmin, setDeleteChannelMessage, getDmContactListAsync, getChannelsAsync, setChatType, setCurrentChat, getChannelMembersAsync } from "../features/chat/chatSlice";
 import { useGetLoggedInUserQuery } from "../features/auth/authApi2";
+import { chatApi } from "../features/chat/chatApi2"; // 👈 Import the chatApi object
+import { selectCurrentChat, selectChatType, setCurrentChat, setChatType } from "../features/chat/chatSlice2"; // 👈 Keep only the UI state actions
 
 const SocketContext = createContext();
 
@@ -14,113 +15,93 @@ export const SocketProvider = ({ children }) => {
     const socket = useRef();
     const dispatch = useDispatch();
 
-    // Why use useRef()?
-    // -> useRef() doesn't cause a re-render when updated. 
-    // -> You want to persist the socket connection across renders without triggering re-renders.
-    // -> It acts like a box where you store a value (socket.current = io(...)) and reuse it anywhere.
-
-    const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+    const { data: user } = useGetLoggedInUserQuery();
     const currentChat = useSelector(selectCurrentChat);
     const chatType = useSelector(selectChatType);
 
-    const currentChatRef = useRef();
-    const chatTypeRef = useRef();
-    // Why This Happens (stale state issue)?
-    // -> The useEffect hook runs after the component mounts, and it sets up the Socket.IO connection and event listeners.
-    // -> If the currentChat state is updated in the Redux store after the useEffect runs, the event listener for receiveMessage captures the initial value of currentChat (likely null or undefined).
-    // -> Since event listeners are set up only once in the useEffect, they won't automatically update to reflect changes to currentChat unless you explicitly handle this.
+    // This logic for avoiding stale closures remains correct and necessary
+    const currentChatRef = useRef(currentChat);
     useEffect(() => {
         currentChatRef.current = currentChat;
-        chatTypeRef.current = chatType;
     }, [currentChat]);
-
-
 
     useEffect(() => {
         if (user) {
             socket.current = io(import.meta.env.VITE_HOST, {
                 withCredentials: true,
-                query: {
-                    userId: user._id,
-                }
-            })
-
-            socket.current.on("connect", () => {
-                console.log("connected to socket server", socket.current.id);
+                query: { userId: user._id },
             });
 
+            socket.current.on("connect", () => console.log("Connected to socket server:", socket.current.id));
 
-
+            // --- Real-time Message Updates ---
             socket.current.on('receiveMessage', (message) => {
-                // console.log("Received message:", message);
-                if (currentChatRef.current && (currentChatRef.current._id === message.sender._id || currentChatRef.current._id === message.receiver._id)) {
-                    console.log("Received message for selected contact:", message);
-                    { chatTypeRef.current === "contact" && dispatch(setChatMessages(message)); }
-                    // dispatch(setChatMessages(message));
-                }
-                if (chatTypeRef.current === null) {
-                    dispatch(getDmContactListAsync());
-                }
+                // Manually update the message cache for the relevant chat
+                dispatch(
+                    chatApi.util.updateQueryData('getMessages', { receiverId: message.sender._id }, (draft) => {
+                        draft.push(message);
+                    })
+                );
             });
 
             socket.current.on("receive-channel-message", (message) => {
-                if (currentChatRef.current && currentChatRef.current._id === message.channelId) {
-                    console.log("receiving channel message: ", message);
-                    { chatTypeRef.current === "channel" && dispatch(setChatMessages(message)); }
-                }
-            })
-
-            socket.current.on('direct-message-deleted', ({ messageId }) => {
-                dispatch(setDeleteDirectMessage({ messageId }));
+                dispatch(
+                    chatApi.util.updateQueryData('getChannelMessages', message.channelId, (draft) => {
+                        draft.push(message);
+                    })
+                );
             });
 
-            socket.current.on('channel-message-deleted', ({ channelMessageId }) => {
-                dispatch(setDeleteChannelMessage({ channelMessageId }));
+            // --- Real-time Deletion Updates ---
+            socket.current.on('direct-message-deleted', ({ messageId, chatId }) => {
+                dispatch(
+                    chatApi.util.updateQueryData('getMessages', { receiverId: chatId }, (draft) => {
+                        return draft.filter((msg) => msg._id !== messageId);
+                    })
+                );
             });
-
-            socket.current.on('channel-message-deleted-by-admin', (deletedChannelMessageByAdmin) => {
-                dispatch(setDeleteChannelMessageByAdmin(deletedChannelMessageByAdmin));
-            });
-
-            socket.current.on('channel-created', (channel) => {
-                console.log("Channel created:", channel);
-                dispatch(getChannelsAsync());
-            });
-
-            socket.current.on('member-removed', (channelId) => {
-                dispatch(getChannelsAsync());
-                if (chatTypeRef.current === "channel" && currentChatRef.current?._id === channelId) {
-                    dispatch(setCurrentChat(null));
-                    dispatch(setChatType(null));
-                }
-            })
-
-            socket.current.on('member-added', (channelId) => {
-                dispatch(getChannelsAsync());
+            
+            socket.current.on('channel-message-deleted-by-admin', (updatedMessage) => {
+                dispatch(
+                    chatApi.util.updateQueryData('getChannelMessages', updatedMessage.channelId, (draft) => {
+                         const index = draft.findIndex(msg => msg._id === updatedMessage._id);
+                         if (index !== -1) draft[index] = updatedMessage;
+                    })
+                );
             });
 
 
-            socket.current.on('channel-updated', (channel) => {
-                dispatch(getChannelsAsync());
-                if (chatTypeRef.current === "channel" && currentChatRef.current?._id === channel._id) {
-                    dispatch(setCurrentChat(channel));
-                }
-            })
+            // --- Real-time Channel List Updates ---
+            const invalidateChannelsList = () => dispatch(chatApi.util.invalidateTags([{ type: 'Channels', id: 'LIST' }]));
 
+            socket.current.on('channel-created', invalidateChannelsList);
+            socket.current.on('member-added', invalidateChannelsList);
             socket.current.on('channel-deleted', (channelId) => {
-                dispatch(getChannelsAsync());
-                if (chatTypeRef.current === "channel" && currentChatRef.current?._id === channelId) {
+                invalidateChannelsList();
+                if (currentChatRef.current?._id === channelId) {
+                    dispatch(setCurrentChat(null));
+                    dispatch(setChatType(null));
+                }
+            });
+             socket.current.on('member-removed', ({channelId}) => {
+                invalidateChannelsList();
+                 // Also invalidate the specific channel's member list
+                dispatch(chatApi.util.invalidateTags([{ type: 'ChannelMembers', id: channelId }]));
+
+                if (currentChatRef.current?._id === channelId) {
                     dispatch(setCurrentChat(null));
                     dispatch(setChatType(null));
                 }
             })
 
-            socket.current.on('leave-channel', (channelId) => {
-                console.log("we are here lave-channel")
-                if (chatTypeRef.current === "channel" && currentChatRef.current?._id === channelId) {
-                    dispatch(getChannelMembersAsync({ channelId }));
+            // --- Real-time Updates for a Specific Channel ---
+            socket.current.on('channel-updated', (channel) => {
+                // Invalidate both the list and the specific channel to force refetches
+                dispatch(chatApi.util.invalidateTags([{ type: 'Channels', id: 'LIST' }, { type: 'Channels', id: channel._id }]));
+                if (currentChatRef.current?._id === channel._id) {
+                    dispatch(setCurrentChat(channel)); // Update the UI state
                 }
-            })
+            });
         }
         return () => {
             if (socket.current) {
@@ -128,7 +109,7 @@ export const SocketProvider = ({ children }) => {
                 console.log("Socket disconnected");
             }
         };
-    }, [user]);
+    }, [user, dispatch]);
 
     return (
         <SocketContext.Provider value={socket.current}>
