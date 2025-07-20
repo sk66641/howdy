@@ -8,7 +8,7 @@ import { useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectFilePath, selectChatType, selectCurrentChat, uploadFileAsync, selectDmContactList, updateDmContactList, selectChannelList, updateChannelList, selectIsUploading } from '../../../../chatSlice'
 import { useSocket } from '../../../../../../context/SocketContext'
-import { selectLoggedInUser } from '../../../../../auth/authSlice'
+import { useGetLoggedInUserQuery } from '../../../../../auth/authApi2'
 
 const MessageBar = () => {
 
@@ -17,7 +17,8 @@ const MessageBar = () => {
     const filePath = useSelector(selectFilePath);
     const DmContactList = useSelector(selectDmContactList);
     const channelList = useSelector(selectChannelList);
-    const user = useSelector(selectLoggedInUser);
+    const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+
     const isUploading = useSelector(selectIsUploading);
 
     const socket = useSocket();

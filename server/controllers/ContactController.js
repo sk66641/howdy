@@ -32,11 +32,9 @@ exports.searchContacts = async (req, res) => {
         }).select("-password -email");
 
         res.status(200).json({ contacts });
-
-        // return res.status(200).send("Logout successfull.");
     } catch (error) {
-        console.log({ error });
-        res.status(500).send("Internal Server Error");
+        console.error("Error searching contacts:", error);
+        res.status(500).json({ message: "Error searching contacts" });
     }
 
 }
@@ -111,7 +109,7 @@ exports.getDmContactList = async (req, res) => {
 
         res.status(200).json({ contacts });
     } catch (error) {
-        console.log({ error });
-        res.status(500).send("Internal Server Error");
+        console.error("Error fetching DM contact list:", error);
+        res.status(500).json({ message: "Error fetching DM contact list" });
     }
 }

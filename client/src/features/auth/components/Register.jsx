@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
-import { createUserAsync, selectIsCheckingUser } from '../authSlice';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-const Register = ({setActiveTab}) => {
-  const IsCheckingUser = useSelector(selectIsCheckingUser);
+const Register = ({ setActiveTab }) => {
+  const [createUser, { isLoading: isCreatingUserLoading, isError: isCreatingUserError, error: creatingUserError }] = useCreateUserMutation();
 
   const [inputValue, setInputValue] = useState({
     fullName: '',
@@ -21,9 +20,6 @@ const Register = ({setActiveTab}) => {
     });
   }
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -31,7 +27,7 @@ const Register = ({setActiveTab}) => {
       alert("Passwords do not match");
       return;
     }
-    dispatch(createUserAsync(inputValue));
+    createUser(inputValue);
   }
 
   return (
@@ -41,7 +37,7 @@ const Register = ({setActiveTab}) => {
           Create your account
         </h3>
         <p className="md:hidden text-center text-gray-300 mb-6">Join us and start your journey!</p>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex space-x-2">
             <input
@@ -63,7 +59,7 @@ const Register = ({setActiveTab}) => {
               required
             />
           </div>
-          
+
           <input
             onChange={handleInputChange}
             value={inputValue.email}
@@ -73,7 +69,7 @@ const Register = ({setActiveTab}) => {
             className="w-full p-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 transition"
             required
           />
-          
+
           <input
             onChange={handleInputChange}
             value={inputValue.password}
@@ -83,7 +79,7 @@ const Register = ({setActiveTab}) => {
             className="w-full p-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 transition"
             required
           />
-          
+
           <input
             onChange={handleInputChange}
             value={inputValue.confirmPassword}
@@ -93,21 +89,21 @@ const Register = ({setActiveTab}) => {
             className="w-full p-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 transition"
             required
           />
-          
+
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-semibold rounded-lg shadow-lg hover:scale-105 hover:shadow-xl transition transform duration-200"
-          >
-            {IsCheckingUser ? "Registering..." : "Register"}
+            disabled={isCreatingUserLoading}
+            className={`w-full py-3 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-semibold rounded-lg shadow-lg hover:scale-105 hover:shadow-xl transition transform duration-200 ${isCreatingUserLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+            {isCreatingUserLoading ? "Registering..." : "Register"}
           </button>
         </form>
-        
+
         <div className="flex items-center mt-6 mb-3">
           <div className="flex-grow border-t border-gray-600"></div>
           <span className="mx-4 text-gray-400">or</span>
           <div className="flex-grow border-t border-gray-600"></div>
         </div>
-        
+
         <p className="text-center text-gray-300">
           Already have an account?{' '}
           <span
@@ -117,7 +113,7 @@ const Register = ({setActiveTab}) => {
             Login here
           </span>
         </p>
-        
+
         {/* Decorative elements */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full blur-lg"></div>

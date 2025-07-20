@@ -8,7 +8,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSocket } from '../../../../../../../context/SocketContext';
 import { useRoutes } from 'react-router-dom';
-import { selectLoggedInUser } from '../../../../../../auth/authSlice';
+import { useGetLoggedInUserQuery } from '../../../../../../auth/authApi2';
 
 
 const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, ref) => {
@@ -19,7 +19,8 @@ const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, 
     const dispatch = useDispatch();
     const inputRef = useRef();
     const socket = useSocket();
-    const user = useSelector(selectLoggedInUser);
+    const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+
 
 
     useImperativeHandle(ref, () => ({
@@ -139,28 +140,28 @@ const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, 
                                     }
                                 </Avatar>
                                 <div className='flex flex-col'>
-                                        <span className="font-semibold text-white">{contact.fullName}</span>
-                                        <span className='text-xs text-[#bdbdbd]'>@{contact.username}</span>
-                                    </div>
+                                    <span className="font-semibold text-white">{contact.fullName}</span>
+                                    <span className='text-xs text-[#bdbdbd]'>@{contact.username}</span>
+                                </div>
                             </div>
 
 
-// 
+                            // 
 
-// {/* <div className='flex border-b gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-[#2d2d4d] p-2 transition-all' key={contact._id} onClick={() => handleSelectContact(contact)}>
-//                                     <Avatar className="h-10 w-10 rounded-full">
-//                                         {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
-//                                             :
-//                                             <div className={`uppercase h-10 w-10 text-lg border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
-//                                                 {contact.fullName.split('')[0]}
-//                                             </div>
-//                                         }
-//                                     </Avatar>
-//                                     <div className='flex flex-col'>
-//                                         <span className="font-semibold text-white">{contact.fullName}</span>
-//                                         <span className='text-xs text-[#bdbdbd]'>@{contact.username}</span>
-//                                     </div>
-//                                 </div> */}
+                            // {/* <div className='flex border-b gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-[#2d2d4d] p-2 transition-all' key={contact._id} onClick={() => handleSelectContact(contact)}>
+                            //                                     <Avatar className="h-10 w-10 rounded-full">
+                            //                                         {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
+                            //                                             :
+                            //                                             <div className={`uppercase h-10 w-10 text-lg border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
+                            //                                                 {contact.fullName.split('')[0]}
+                            //                                             </div>
+                            //                                         }
+                            //                                     </Avatar>
+                            //                                     <div className='flex flex-col'>
+                            //                                         <span className="font-semibold text-white">{contact.fullName}</span>
+                            //                                         <span className='text-xs text-[#bdbdbd]'>@{contact.username}</span>
+                            //                                     </div>
+                            //                                 </div> */}
 
                             // 
                         ))}

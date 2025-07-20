@@ -3,14 +3,15 @@ import ProfileInfo from './components/profile-info/ProfileInfo'
 import NewDm from './components/new-dm/NewDm'
 import { FiMessageSquare } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectLoggedInUser } from '../../../auth/authSlice'
 import { getChannelsAsync, getDmContactListAsync, selectChannelList, selectChatMessages, selectChatType, selectCurrentChat, selectDmContactList, updateChannelList, updateDmContactList } from '../../chatSlice'
 import DmList from './components/dm-list/DmList'
 import CreateChannel from './components/create-channel/CreateChannel'
+import { useGetLoggedInUserQuery } from '../../../auth/authApi2'
 
 const Contacts = () => {
 
-    const user = useSelector(selectLoggedInUser);
+    const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+
     const dispatch = useDispatch();
     const chatMessages = useSelector(selectChatMessages);
     const chatType = useSelector(selectChatType);

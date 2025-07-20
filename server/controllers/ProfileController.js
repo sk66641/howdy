@@ -15,7 +15,7 @@ exports.updateProfile = async (req, res) => {
 
     } catch (error) {
         console.error("Error updating profile:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Error updating profile" });
     }
 }
 
@@ -28,7 +28,7 @@ exports.updateProfileImage = async (req, res) => {
 
         const fileName = "uploads/profileImages/" + Date.now() + '_' + req.file.originalname;
         fs.renameSync(req.file.path, fileName);
-        // console.log(req.file)
+        
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             { profileImage: fileName },
@@ -38,7 +38,7 @@ exports.updateProfileImage = async (req, res) => {
         res.status(200).json(updatedUser);
     } catch (error) {
         console.error("Error updating profile image:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Error updating profile image" });
     }
 }
 
@@ -55,6 +55,6 @@ exports.deleteProfileImage = async (req, res) => {
         res.status(200).json({ message: "Profile image deleted successfully" });
     } catch (error) {
         console.error("Error deleting profile image:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Error deleting profile image" });
     }
 }

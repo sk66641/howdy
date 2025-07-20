@@ -8,4 +8,4 @@ const { fetchLoggedInUser } = require('../controllers/UserControllers');
 
 router.post('/register', register).post('/login', login).get('/logout', logout).get('/', authMiddleware, fetchLoggedInUser);
 
-module.exports = router;
+module.exports = router; 

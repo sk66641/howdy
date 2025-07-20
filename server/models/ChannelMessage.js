@@ -35,5 +35,3 @@ const channelMessageSchema = new mongoose.Schema({
 });
 
 exports.ChannelMessage = mongoose.model('channelMessages', channelMessageSchema);
-
-// to do: try replacing the function with an arrow function

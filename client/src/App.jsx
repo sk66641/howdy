@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { useEffect } from "react"
 import { useDispatch } from "react-redux"
-import { getLoggedInUserAsync } from "./features/auth/authSlice"
 import Protected from "./features/auth/components/Protected"
 import ChatPage from "./pages/ChatPage"
 import ProfilePage from "./pages/ProfilePage"
@@ -36,13 +35,7 @@ function App() {
     },
   ]
 
-  const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(getLoggedInUserAsync());
-  }, [dispatch])
-
-  // const user = useSelector(selectLoggedInUser);
 
   return (
 

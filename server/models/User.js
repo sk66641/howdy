@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 
 const UserSchema = new mongoose.Schema({
-    // Without sparse: true, mongoose would not allow multiple null or missing values for a unique field.
+    // NOTE: Without sparse: true, mongoose would not allow multiple null or missing values for a unique field.
     username: { type: String, unique: true, required: true },
     fullName: { type: String, required: [true, "Full Name is required"] },
     email: { type: String, required: [true, "Email is required"], unique: true },

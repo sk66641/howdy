@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectLoggedInUser } from '../../../../../auth/authSlice'
 import { downloadFileAsync, getChannelMessagesAsync, getMessagesAsync, selectFileDownloadProgress, selectFileUploadProgress, selectIsDownloading, selectIsUploading, selectChatMessages, selectChatType, selectCurrentChat, setFileDownloadProgress, selectIsGettingMessages } from '../../../../chatSlice';
 import moment from 'moment';
 import { IoMdArrowRoundDown } from 'react-icons/io';
@@ -9,9 +8,11 @@ import { IoCloseSharp } from 'react-icons/io5';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../../../../../lib/utils';
 import { useSocket } from '../../../../../../context/SocketContext';
+import { useGetLoggedInUserQuery } from '../../../../../auth/authApi2';
 
 const MessageContainer = () => {
-  const user = useSelector(selectLoggedInUser);
+  const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+
   const currentChat = useSelector(selectCurrentChat);
   const chatMessages = useSelector(selectChatMessages);
   const chatType = useSelector(selectChatType);
@@ -163,7 +164,7 @@ const MessageContainer = () => {
 
               {checkIfImage(message.fileURL) ? (
                 <div onClick={() => handleImageClick(message.fileURL)} className='cursor-pointer'>
-                  <img  
+                  <img
                     className="max-h-80 w-auto rounded-md object-cover transition-transform duration-300"
                     src={`${import.meta.env.VITE_HOST}/${message.fileURL}`}
                     alt="img"

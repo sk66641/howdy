@@ -10,7 +10,6 @@ import { deleteChannelProfileImageAsync, selectCurrentChat, updateChannelProfile
 
 const ChannelProfile = ({ openChannelProfileModal, setOpenChannelProfileModal }) => {
 
-    //   const user = useSelector(selectLoggedInUser);
     const currenChat = useSelector(selectCurrentChat);
     const [selectedColor, setSelectedColor] = useState(currenChat.color);
     const [hovered, setHovered] = useState(false);

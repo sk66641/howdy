@@ -6,12 +6,14 @@ const mongoose = require('mongoose');
 const { User } = require('./models/User')
 const cookieParser = require('cookie-parser');
 const { setUpSocket } = require('./socket');
+const morgan = require('morgan');
 const { authMiddleware } = require('./middlewares/AuthMiddleware');
 const path = require('path')
 
 const server = express();
 dotEnv.config();
 
+server.use(morgan('dev'));
 server.use(cookieParser());
 server.use(express.json());
 server.use(bodyParser.urlencoded({ extended: true }));
@@ -46,12 +48,7 @@ server.use('/channels', authMiddleware, require('./routes/ChannelRoutes'));
 const httpServer = server.listen(process.env.PORT || 5000, () => {
     console.log(`Server is running on port ${process.env.PORT || 5000}`);
 }
-); 
+);
 
 const io = setUpSocket(httpServer);
 server.set('io', io);
-
-
-// TODO: Add verify token middleware to protect routes
-// scrollbar hidden in client
-// two messages issue if the currentChat is the user itself

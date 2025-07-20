@@ -1,17 +1,20 @@
 import React, { useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteProfileImageAsync, selectLoggedInUser, updateProfileImageAsync } from '../auth/authSlice';
 import { IoMdArrowBack } from 'react-icons/io'
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FaTrash, FaPlus } from 'react-icons/fa';
-import { updateProfileAsync } from '../auth/authSlice';
+import { useDeleteProfileImageMutation, useGetLoggedInUserQuery, useUpdateProfileImageMutation, useUpdateProfileMutation } from '../auth/authApi2';
 
 const Profile = ({ openProfileModal, setOpenProfileModal }) => {
 
-  const user = useSelector(selectLoggedInUser);
+  const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+  const [updateProfile, { isLoading: isUpdatingProfileLoading }] = useUpdateProfileMutation();
+  const [updateProfileImage, { isLoading: isUpdatingProfileImageLoading }] = useUpdateProfileImageMutation();
+  const [deleteProfileImage, { isLoading: isDeletingProfileImageLoading }] = useDeleteProfileImageMutation();
+
   const [selectedColor, setSelectedColor] = useState(user.color);
   const [hovered, setHovered] = useState(false);
   // console.log(user.username);
@@ -37,7 +40,7 @@ const Profile = ({ openProfileModal, setOpenProfileModal }) => {
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(updateProfileAsync({ username: userInfo.username, fullName: userInfo.fullName, color: selectedColor, bio: userInfo.bio }));
+    updateProfile({ username: userInfo.username, fullName: userInfo.fullName, color: selectedColor, bio: userInfo.bio });
     setOpenProfileModal(false);
     // navigate('/');
   }
@@ -75,7 +78,7 @@ const Profile = ({ openProfileModal, setOpenProfileModal }) => {
         previewImage: preview,
       });
 
-      dispatch(updateProfileImageAsync(formData));
+      updateProfileImage(formData);
     }
 
   };
@@ -87,7 +90,7 @@ const Profile = ({ openProfileModal, setOpenProfileModal }) => {
       profileImage: '',
       previewImage: '',
     });
-    dispatch(deleteProfileImageAsync());
+    deleteProfileImage();
 
   };
 

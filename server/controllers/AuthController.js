@@ -7,6 +7,10 @@ exports.register = async (req, res) => {
     try {
         const { fullName, username, email, password } = req.body;
 
+        if (!fullName || !username || !email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
@@ -14,7 +18,7 @@ exports.register = async (req, res) => {
 
         const existingUsername = await User.findOne({ username });
         if (existingUsername) {
-            return res.status(400).json({ message: "Username already exists" });
+            return res.status(400).json({ message: "Username not available" });
         }
 
         const user = new User({
@@ -23,7 +27,7 @@ exports.register = async (req, res) => {
             email,
             password
         });
-        // console.log(user);
+
         await user.save();
 
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '12h' });
@@ -44,8 +48,8 @@ exports.register = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error during registration:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Error creating user:", error);
+        return res.status(500).json({ message: "Error creating user" });
     }
 }
 
@@ -54,20 +58,21 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
+
         const user = await User.findOne({ email });
-        // console.log(user);
         if (!user) {
             return res.status(400).json({ message: "Invalid email or password" });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        // console.log(isPasswordValid);
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Invalid email or password" });
         }
-        // console.log("User logged in:", user);
+
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-        // console.log(token);
         res.cookie('token', token, {
             httpOnly: true,
             secure: true,
@@ -83,21 +88,18 @@ exports.login = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("Error during login:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Error login in:", error);
+        return res.status(500).json({ message: "Error logging in" });
     }
 }
 
 exports.logout = async (req, res) => {
-    try {
-        res.clearCookie('token', {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'None',
-        });
-        res.status(200).json({ message: "Logged out successfully" });
-    } catch (error) {
-        console.error("Error during logout:", error);
-        return res.status(500).json({ message: "Internal server error" });
-    }
+
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+    });
+    res.status(200).json({ message: "Logged out successfully" });
+
 }

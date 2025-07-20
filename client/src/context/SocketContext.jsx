@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectLoggedInUser } from "../features/auth/authSlice";
 import { io } from "socket.io-client";
 import { selectContacts, selectCurrentChat, setChatMessages, selectChatType, setDeleteDirectMessage, setDeleteChannelMessageByAdmin, setDeleteChannelMessage, getDmContactListAsync, getChannelsAsync, setChatType, setCurrentChat, getChannelMembersAsync } from "../features/chat/chatSlice";
+import { useGetLoggedInUserQuery } from "../features/auth/authApi2";
 
 const SocketContext = createContext();
 
@@ -19,7 +19,7 @@ export const SocketProvider = ({ children }) => {
     // -> You want to persist the socket connection across renders without triggering re-renders.
     // -> It acts like a box where you store a value (socket.current = io(...)) and reuse it anywhere.
 
-    const user = useSelector(selectLoggedInUser);
+    const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
     const currentChat = useSelector(selectCurrentChat);
     const chatType = useSelector(selectChatType);
 

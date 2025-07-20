@@ -8,12 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { colors } from '../../../../../../lib/utils';
-import { selectLoggedInUser } from '../../../../../auth/authSlice';
 import InlineUserSelector from './MultipleSelect';
 import ChannelProfile from '../../../../../profile/ChannelProfile';
 import { FiDelete } from 'react-icons/fi';
 import { GrView } from 'react-icons/gr';
 import { IoMdExit } from 'react-icons/io';
+import { useGetLoggedInUserQuery } from '../../../../../auth/authApi2';
 
 const ChatHeader = () => {
     const dispatch = useDispatch();
@@ -21,7 +21,8 @@ const ChatHeader = () => {
     const chatType = useSelector(selectChatType);
     const [openNewContactModal, setOpenNewContactModal] = useState(false);
     const [openChannelProfileModal, setOpenChannelProfileModal] = useState(false);
-    const user = useSelector(selectLoggedInUser);
+    const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+
     const channelMembers = useSelector(selectChannelMembers);
     const [addMembersMode, setAddMembersMode] = useState(false);
     // const contacts = useSelector(selectContacts);

@@ -39,5 +39,3 @@ const DirectMessageSchema = new mongoose.Schema({
 });
 
 exports.DirectMessage = mongoose.model('DirectMessages', DirectMessageSchema);
-
-// to do: try replacing the function with an arrow function

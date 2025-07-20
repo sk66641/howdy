@@ -8,18 +8,21 @@ exports.createChannel = async (req, res) => {
     try {
         const { userId } = req;
         const { name, members } = req.body;
-        // const userId = req.userId;
+
+        if (!name || !members || members.length === 0) {
+            return res.status(400).json({ message: "Name and members are required" });
+        }
 
         const admin = await User.findById(userId);
 
         if (!admin) {
-            return res.status(400).send("Admin user not found.");
+            return res.status(400).json({ message: "Admin user not found" });
         }
 
         const validMembers = await User.find({ _id: { $in: members } });
 
         if (validMembers.length !== members.length) {
-            return res.status(400).send("Some members are not valid users.");
+            return res.status(400).json({ message: "One or more members not found" });
         }
 
         // const newChannel = new Channel({
@@ -56,8 +59,8 @@ exports.createChannel = async (req, res) => {
         // console.log(createdChannel);
         return res.status(201).json({ channel: createdChannel });
     } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error");
+        console.error("Error creating channel:", error);
+        return res.status(500).json({ message: "Error creating channel" });
     }
 };
 
@@ -65,19 +68,22 @@ exports.createChannel = async (req, res) => {
 exports.getChannels = async (req, res) => {
     try {
         const { userId } = req;
+
         const channels = await Channel.find({ $or: [{ admin: userId }, { members: userId }] })
             .sort({ updatedAt: -1 }).select('-messages -members')
             .populate({ path: 'admin', select: '-email -password' });
+
         return res.status(200).json({ channels });
     } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error");
+        console.error("Error fetching channels:", error);
+        return res.status(500).json({ message: "Error fetching channels" });
     }
 };
 
 exports.getChannelMessages = async (req, res) => {
     try {
         const { channelId } = req.params;
+
         if (!channelId) return res.status(400).json({ message: "channelId not found" });
 
         const channelData = await Channel.findById(channelId)
@@ -105,8 +111,8 @@ exports.getChannelMessages = async (req, res) => {
 
         res.status(200).json({ channelMessages: sanitizedMessages });
     } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error");
+        console.error("Error fetching channel messages:", error);
+        return res.status(500).json({ message: "Error fetching channel messages" });
     }
 };
 
@@ -114,6 +120,7 @@ exports.getChannelMessages = async (req, res) => {
 exports.removeMember = async (req, res) => {
     try {
         const { channelId, memberId } = req.body;
+
         if (!channelId || !memberId) return res.status(400).json({ message: "channelId or memberId not found" });
         const updatedChannel = await Channel.findByIdAndUpdate(channelId, { $pull: { members: memberId } }, { new: true });
 
@@ -132,8 +139,8 @@ exports.removeMember = async (req, res) => {
 
         return res.status(200).json({ memberId });
     } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error");
+        console.error("Error removing member:", error);
+        return res.status(500).json({ message: "Error removing member" });
     }
 }
 
@@ -157,8 +164,8 @@ exports.leaveChannel = async (req, res) => {
 
         return res.status(200).json({ channelId });
     } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error");
+        console.error("Error leaving channel:", error);
+        return res.status(500).json({ message: "Error leaving channel" });
     }
 }
 
@@ -169,15 +176,15 @@ exports.getChannelMembers = async (req, res) => {
         const channelMembers = await Channel.findById(channelId).select('members').populate('members', '-email -password');
         return res.status(200).json(channelMembers);
     } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error");
+        console.error("Error fetching channel members:", error);
+        return res.status(500).json({ message: "Error fetching channel members" });
     }
 }
 
 exports.addMembers = async (req, res) => {
     try {
         const { channelId, members } = req.body;
-        // console.log(channelId, members);
+        
         if (!channelId || !members) return res.status(400).json({ message: "channelId or memberId not found" });
         const addedMembers = await Channel.findByIdAndUpdate(channelId, { $push: { members: { $each: members } } }, { new: true }).select('members').populate('members', '-email -password');
 
@@ -191,8 +198,8 @@ exports.addMembers = async (req, res) => {
 
         return res.status(200).json(addedMembers);
     } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error");
+        console.error("Error adding members:", error);
+        return res.status(500).json({ message: "Error adding members" });
 
     }
 }
@@ -221,7 +228,7 @@ exports.updateChannelProfile = async (req, res) => {
 
     } catch (error) {
         console.error("Error updating profile:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Error updating profile" });
     }
 }
 
@@ -234,7 +241,7 @@ exports.updateChannelProfileImage = async (req, res) => {
 
         const fileName = "uploads/channelProfileImages/" + Date.now() + '_' + req.file.originalname;
         fs.renameSync(req.file.path, fileName);
-        // console.log(req.file)
+
         const updatedChannel = await Channel.findByIdAndUpdate(
             channelId,
             { profileImage: fileName },
@@ -244,7 +251,7 @@ exports.updateChannelProfileImage = async (req, res) => {
         res.status(200).json(updatedChannel);
     } catch (error) {
         console.error("Error updating profile image:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Error updating profile image" });
     }
 }
 
@@ -261,7 +268,7 @@ exports.deleteChannelProfileImage = async (req, res) => {
         res.status(200).json({ channelId });
     } catch (error) {
         console.error("Error deleting profile image:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Error deleting profile image" });
     }
 }
 
@@ -298,7 +305,7 @@ exports.deleteChannel = async (req, res) => {
             return res.status(400).json({ message: "channelId not found" });
         }
         const deletedChannel = await Channel.findByIdAndDelete(channelId);
-        ``
+
         const io = req.app.get('io');
         deletedChannel.members.forEach((memberId) => {
             const memberSocketId = io.userSocketMap.get(memberId.toString());
@@ -309,7 +316,7 @@ exports.deleteChannel = async (req, res) => {
 
         res.status(200).json({ channelId });
     } catch (error) {
-        console.error("Error deleting profile image:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Error deleting channel:", error);
+        return res.status(500).json({ message: "Error deleting channel" });
     }
 }

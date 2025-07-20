@@ -16,7 +16,7 @@ const setUpSocket = (server) => {
 
     const userSocketMap = new Map();
     io.userSocketMap = userSocketMap;
-    // This map holds the relationship between user IDs and their corresponding socket IDs.
+    // NOTE: This map holds the relationship between user IDs and their corresponding socket IDs.
 
     const sendDirectMessage = async (message) => {
         // console.log('Received message:', message);
@@ -170,7 +170,7 @@ const setUpSocket = (server) => {
         if (userId) {
             userSocketMap.set(userId, socket.id);
             // console.log('Current userSocketMap:', Array.from(userSocketMap.entries()));
-            console.log(`User connected: ${userId}, Socket ID: ${socket.id}`);
+            // console.log(`User connected: ${userId}, Socket ID: ${socket.id}`);
         } else {
             console.log('User ID not provided in handshake query');
         }
@@ -186,7 +186,7 @@ const setUpSocket = (server) => {
             for (const [userId, socketId] of userSocketMap.entries()) {
                 if (socketId === socket.id) {
                     userSocketMap.delete(userId);
-                    console.log(`User disconnected: ${userId}, Socket ID: ${socket.id}`);
+                    // console.log(`User disconnected: ${userId}, Socket ID: ${socket.id}`);
                     break;
                 }
             }

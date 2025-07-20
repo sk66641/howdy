@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Victory from '../assets/howdy.png';
 import Login from '../features/auth/components/Login';
 import Register from '../features/auth/components/Register';
-import { selectIsGettingLoggedInUser, selectLoggedInUser } from '../features/auth/authSlice';
 import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
 import { FaTwitter, FaInstagram, FaLinkedin, FaGithub } from 'react-icons/fa';
+import { useGetLoggedInUserQuery } from '../features/auth/authApi2';
 
 const AuthPage = () => {
-  const user = useSelector(selectLoggedInUser);
-  const isGettingLoggedInUser = useSelector(selectIsGettingLoggedInUser);
+  const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+
   const [activeTab, setActiveTab] = useState('login');
   const location = useLocation();
   const from = location.state?.from?.pathname || null;
@@ -30,7 +30,7 @@ const AuthPage = () => {
   }
 
   return (
-    <div className="relative min-h-[100svh] overflow-hidden min-w-[300px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 overflow-hidden">
+    <div className="relative min-h-[100svh] overflow-hidden min-w-[300px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
       {/* Animated Gradient Background */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -116,9 +116,9 @@ const AuthPage = () => {
             <div className="inline-flex bg-gray-700/60 backdrop-blur rounded-full p-1 shadow-lg">
               <button
                 onClick={() => setActiveTab('login')}
-                className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${activeTab === 'login'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-gray-300 hover:text-blue-400'
+                className={`px-6 py-2 rounded-full font-semibold cursor-pointer transition-all duration-300 ${activeTab === 'login'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-300 hover:text-blue-400'
                   }`}
                 aria-selected={activeTab === 'login'}
               >
@@ -126,9 +126,9 @@ const AuthPage = () => {
               </button>
               <button
                 onClick={() => setActiveTab('register')}
-                className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${activeTab === 'register'
-                    ? 'bg-green-600 text-white shadow-md'
-                    : 'text-gray-300 hover:text-green-400'
+                className={`px-6 py-2 rounded-full font-semibold cursor-pointer transition-all duration-300 ${activeTab === 'register'
+                  ? 'bg-green-600 text-white shadow-md'
+                  : 'text-gray-300 hover:text-green-400'
                   }`}
                 aria-selected={activeTab === 'register'}
               >

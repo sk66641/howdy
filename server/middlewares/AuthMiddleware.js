@@ -7,11 +7,10 @@ exports.authMiddleware = async (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // console.log("Decoded token:", decoded);
         req.userId = decoded._id;
         next();
     } catch (error) {
-        // console.error("Error verifying token:", error);
-        res.status(401).json({ message: "Unauthorized" });
+        console.error("Authentication error:", error);
+        return res.status(401).json({ message: "Unauthorized" });
     }
 };

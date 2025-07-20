@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { useDispatch, useSelector } from 'react-redux'
-import { selectLoggedInUser, signOutAsync } from '../../../../../auth/authSlice'
 import { colors } from '../../../../../../lib/utils'
 import {
     Tooltip,
@@ -12,9 +11,12 @@ import { FiEdit2 } from 'react-icons/fi'
 import { IoPower } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom'
 import Profile from '../../../../../profile/Profile'
+import { useGetLoggedInUserQuery, useLogoutMutation } from '../../../../../auth/authApi2'
 
 const ProfileInfo = () => {
-    const user = useSelector(selectLoggedInUser);
+    const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+    const [logout] = useLogoutMutation();
+
     const navigate = useNavigate();
     const [openProfileModal, setOpenProfileModal] = useState(false);
     const dispatch = useDispatch();
@@ -50,7 +52,7 @@ const ProfileInfo = () => {
                     </Tooltip>
                     <Tooltip>
                         <TooltipTrigger className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all cursor-pointer hover:text-neutral-300">
-                            <IoPower onClick={() => dispatch(signOutAsync())} className="text-2xl" />
+                            <IoPower onClick={() => logout()} className="text-2xl" />
                         </TooltipTrigger>
                         <TooltipContent>
                             Logout
