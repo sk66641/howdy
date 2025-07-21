@@ -139,7 +139,7 @@ const MessageContainer = () => {
                 }`}
             >
               {/* Delete Button for text*/}
-              {message.sender === user._id && deletingDmMessageId === message._id ? (
+              {message.sender === user._id && deletingDmMessageId !== message._id ? (
                 <button
                   onClick={() => handleDirectMessageDelete(message._id)}
                   className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300
