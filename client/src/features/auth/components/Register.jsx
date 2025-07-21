@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { useCreateUserMutation } from '../authAPI';
 import toast, { Toaster } from 'react-hot-toast';
 

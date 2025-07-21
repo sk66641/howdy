@@ -45,7 +45,7 @@ const MessageBar = () => {
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        console.log("Sending message:", message);
+        // console.log("Sending message:", message);
 
         if (chatType === 'contact') {
             socket.emit('send-direct-message', {
@@ -97,7 +97,7 @@ const MessageBar = () => {
 
     useEffect(() => {
         if (filePath) {
-            console.log("File uploaded successfully:", filePath);
+            // console.log("File uploaded successfully:", filePath);
             if (chatType === 'contact') {
                 socket.emit('send-direct-message', {
                     sender: user._id,

@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { IoMdArrowBack } from 'react-icons/io'
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -13,7 +12,6 @@ const ChannelProfile = ({ openChannelProfileModal, setOpenChannelProfileModal })
     const currenChat = useSelector(selectCurrentChat);
     const [selectedColor, setSelectedColor] = useState(currenChat.color);
     const [hovered, setHovered] = useState(false);
-    // console.log(user.username);
     const [channelInfo, setChannelInfo] = useState({
         handle: currenChat.handle,
         name: currenChat.name,
@@ -90,8 +88,6 @@ const ChannelProfile = ({ openChannelProfileModal, setOpenChannelProfileModal })
     };
 
     return (
-        // <>
-
         <Dialog open={openChannelProfileModal} onOpenChange={() => setOpenChannelProfileModal(false)}>
             <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
                 <DialogHeader className="sr-only">
@@ -130,11 +126,6 @@ const ChannelProfile = ({ openChannelProfileModal, setOpenChannelProfileModal })
                         <input type="text" name='name' placeholder="Full Name" onChange={handleChange} value={channelInfo.name}
                             className="w-full px-4 py-2 bg-slate-700 text-white placeholder-slate-500 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200" required />
                     </div>
-                    {/* <div>
-                        <input type="email" name='email' value={user.email}
-                            className="w-full px-4 py-3 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200"
-                            disabled />
-                    </div> */}
                     <div>
                         <input type="textarea" name='bio' onChange={handleChange} value={channelInfo.bio} placeholder='Bio'
                             className="w-full px-4 py-2 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200" />
@@ -163,12 +154,6 @@ const ChannelProfile = ({ openChannelProfileModal, setOpenChannelProfileModal })
 
             </DialogContent>
         </Dialog>
-
-
-
-
-
-        // </>
     )
 }
 

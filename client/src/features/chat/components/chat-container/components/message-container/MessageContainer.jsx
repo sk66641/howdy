@@ -20,7 +20,7 @@ const MessageContainer = () => {
   const isUploading = useSelector(selectIsUploading);
   const FileUploadProgress = useSelector(selectFileUploadProgress);
   const FileDownloadProgress = useSelector(selectFileDownloadProgress);
-  console.log(isUploading, FileDownloadProgress)
+  // console.log(isUploading, FileDownloadProgress)
   const isGettingMessages = useSelector(selectIsGettingMessages);
 
   const socket = useSocket();
@@ -70,7 +70,7 @@ const MessageContainer = () => {
   }
 
   const handleChannelMessageDelete = (channelMessageId, byAdmin) => {
-    console.log("handleChannelMessageDelete", byAdmin)
+    // console.log("handleChannelMessageDelete", byAdmin)
     if (byAdmin) {
       socket.emit('delete-channel-message-by-admin', {
         channelId: currentChat._id,

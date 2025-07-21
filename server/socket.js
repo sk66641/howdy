@@ -144,7 +144,7 @@ const setUpSocket = (server) => {
             return;
         }
         const deletedChannelMessageByAdmin = await ChannelMessage.findByIdAndUpdate(channelMessageId, { isDeleted: true }, { new: true }).select('-content -fileURL -messageType').populate('sender');
-        console.log('Channel message deleted by admin:', deletedChannelMessageByAdmin);
+        // console.log('Channel message deleted by admin:', deletedChannelMessageByAdmin);
 
         // Notify all members of the channel about the deletion
         const channel = await Channel.findById(channelId).populate('members').exec();

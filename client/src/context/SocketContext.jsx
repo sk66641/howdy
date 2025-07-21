@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
-import { selectContacts, selectCurrentChat, setChatMessages, selectChatType, setDeleteDirectMessage, setDeleteChannelMessageByAdmin, setDeleteChannelMessage, getDmContactListAsync, getChannelsAsync, setChatType, setCurrentChat, getChannelMembersAsync } from "../features/chat/chatSlice";
+import { selectCurrentChat, setChatMessages, selectChatType, setDeleteDirectMessage, setDeleteChannelMessageByAdmin, setDeleteChannelMessage, getDmContactListAsync, getChannelsAsync, setChatType, setCurrentChat, getChannelMembersAsync } from "../features/chat/chatSlice";
 import { useGetLoggedInUserQuery } from "../features/auth/authAPI";
 
 const SocketContext = createContext();
@@ -46,7 +46,8 @@ export const SocketProvider = ({ children }) => {
             })
 
             socket.current.on("connect", () => {
-                console.log("connected to socket server", socket.current.id);
+                // console.log("connected to socket server", socket.current.id);
+                console.log("connected to socket server");
             });
 
 
@@ -54,7 +55,7 @@ export const SocketProvider = ({ children }) => {
             socket.current.on('receiveMessage', (message) => {
                 // console.log("Received message:", message);
                 if (currentChatRef.current && (currentChatRef.current._id === message.sender._id || currentChatRef.current._id === message.receiver._id)) {
-                    console.log("Received message for selected contact:", message);
+                    // console.log("Received message for selected contact:", message);
                     { chatTypeRef.current === "contact" && dispatch(setChatMessages(message)); }
                     // dispatch(setChatMessages(message));
                 }
@@ -65,7 +66,7 @@ export const SocketProvider = ({ children }) => {
 
             socket.current.on("receive-channel-message", (message) => {
                 if (currentChatRef.current && currentChatRef.current._id === message.channelId) {
-                    console.log("receiving channel message: ", message);
+                    // console.log("receiving channel message: ", message);
                     { chatTypeRef.current === "channel" && dispatch(setChatMessages(message)); }
                 }
             })
@@ -83,7 +84,7 @@ export const SocketProvider = ({ children }) => {
             });
 
             socket.current.on('channel-created', (channel) => {
-                console.log("Channel created:", channel);
+                // console.log("Channel created:", channel);
                 dispatch(getChannelsAsync());
             });
 
@@ -116,7 +117,6 @@ export const SocketProvider = ({ children }) => {
             })
 
             socket.current.on('leave-channel', (channelId) => {
-                console.log("we are here lave-channel")
                 if (chatTypeRef.current === "channel" && currentChatRef.current?._id === channelId) {
                     dispatch(getChannelMembersAsync({ channelId }));
                 }
