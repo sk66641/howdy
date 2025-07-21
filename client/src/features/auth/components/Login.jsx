@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { useLoginMutation } from '../authApi2';
+import React, { useEffect, useState } from 'react'
+import { useLoginMutation } from '../authAPI';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Login = ({ setActiveTab }) => {
     const [login, { isLoading: IsCheckingUser, isSuccess, isError, error }] = useLoginMutation();
@@ -20,6 +21,12 @@ const Login = ({ setActiveTab }) => {
         e.preventDefault();
         login(inputValue);
     }
+
+    useEffect(() => {
+        if (isError) {
+            toast.error(error?.data?.message || "Login failed.");
+        }
+    }, [isError])
 
     return (
         <div className="flex items-center justify-center">
@@ -91,6 +98,7 @@ const Login = ({ setActiveTab }) => {
                     </span>
                 </p>
             </div>
+            <Toaster />
         </div>
     );
 };

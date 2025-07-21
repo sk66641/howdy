@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getChannelsAsync, getDmContactListAsync, selectChannelList, selectChatMessages, selectChatType, selectCurrentChat, selectDmContactList, updateChannelList, updateDmContactList } from '../../chatSlice'
 import DmList from './components/dm-list/DmList'
 import CreateChannel from './components/create-channel/CreateChannel'
-import { useGetLoggedInUserQuery } from '../../../auth/authApi2'
+import { useGetLoggedInUserQuery } from '../../../auth/authAPI'
 
 const Contacts = () => {
 

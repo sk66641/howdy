@@ -6,7 +6,7 @@ import Register from '../features/auth/components/Register';
 import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
 import { FaTwitter, FaInstagram, FaLinkedin, FaGithub } from 'react-icons/fa';
-import { useGetLoggedInUserQuery } from '../features/auth/authApi2';
+import { useGetLoggedInUserQuery } from '../features/auth/authAPI';
 
 const AuthPage = () => {
   const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();

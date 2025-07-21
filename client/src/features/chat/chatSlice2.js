@@ -1,4 +1,4 @@
-// src/features/chat/chatSlice.js
+// TODO:
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {

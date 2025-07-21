@@ -1,27 +1,24 @@
 const mongoose = require("mongoose");
 
 // Define schema for a "Channel" collection
-const channelSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
+const channelSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    members: [{ type: mongoose.Schema.ObjectId, ref: "Users", required: true }],
+    admin: { type: mongoose.Schema.ObjectId, ref: "Users", required: true },
+    messages: [{ type: mongoose.Schema.ObjectId, ref: "channelMessages", required: false }],
+    bio: { type: String, default: "bio" },
+    handle: { type: String, default: "xtuv" },
+    profileImage: { type: String, default: null },
+    color: { type: Number, default: 0 },
   },
-  members: [{ type: mongoose.Schema.ObjectId, ref: "Users", required: true }],
-  admin: { type: mongoose.Schema.ObjectId, ref: "Users", required: true },
-  messages: [{ type: mongoose.Schema.ObjectId, ref: "channelMessages", required: false }],
-  bio: { type: String, default: "bio" },
-  handle: { type: String, default: "xtuv" },
-  profileImage: { type: String, default: null },
-  color: { type: Number, default: 0 },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Middleware to update `updatedAt` before saving a document
 channelSchema.pre("save", function (next) {

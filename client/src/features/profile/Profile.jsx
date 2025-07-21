@@ -6,7 +6,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FaTrash, FaPlus } from 'react-icons/fa';
-import { useDeleteProfileImageMutation, useGetLoggedInUserQuery, useUpdateProfileImageMutation, useUpdateProfileMutation } from '../auth/authApi2';
+import { useDeleteProfileImageMutation, useGetLoggedInUserQuery, useUpdateProfileImageMutation, useUpdateProfileMutation } from '../auth/authAPI';
 
 const Profile = ({ openProfileModal, setOpenProfileModal }) => {
 
@@ -128,19 +128,14 @@ const Profile = ({ openProfileModal, setOpenProfileModal }) => {
             </div>
             <div></div>
             <div className='flex gap-3'>
-              <input type="text" name='username' onChange={handleChange} value={`@${userInfo.username}`} placeholder='Username'
+              <input type="text" maxLength={10} name='username' onChange={handleChange} value={`@${userInfo.username}`} placeholder='Username'
                 className="w-full px-4 py-2 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200"
                 disabled />
-              <input type="text" name='name' placeholder="Full Name" onChange={handleChange} value={userInfo.fullName}
+              <input type="text" name='fullName' maxLength={10} placeholder="Full Name" onChange={handleChange} value={userInfo.fullName}
                 className="w-full px-4 py-2 bg-slate-700 text-white placeholder-slate-500 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200" required />
             </div>
-            {/* <div>
-                                                  <input type="email" name='email' value={user.email}
-                                                      className="w-full px-4 py-3 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200"
-                                                      disabled />
-                                              </div> */}
             <div>
-              <input type="textarea" name='bio' onChange={handleChange} value={userInfo.bio} placeholder='Bio'
+              <input type="textarea" maxLength={20} name='bio' onChange={handleChange} value={userInfo.bio} placeholder='Bio'
                 className="w-full px-4 py-2 bg-slate-700 text-slate-300 rounded-lg border border-slate-600 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-all duration-200" />
             </div>
 

@@ -8,7 +8,7 @@ import { IoCloseSharp } from 'react-icons/io5';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../../../../../lib/utils';
 import { useSocket } from '../../../../../../context/SocketContext';
-import { useGetLoggedInUserQuery } from '../../../../../auth/authApi2';
+import { useGetLoggedInUserQuery } from '../../../../../auth/authAPI';
 
 const MessageContainer = () => {
   const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
@@ -89,9 +89,11 @@ const MessageContainer = () => {
     let lastDate = null;
     // console.log(chatMessages)
 
+    // TODO: live typing, unread messages
+
     return (
       <>
-        {chatMessages.map((message, index) => {
+        {chatMessages.length > 0 ? chatMessages.map((message, index) => {
           const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
           const showDate = messageDate !== lastDate;
           lastDate = messageDate;
@@ -107,7 +109,11 @@ const MessageContainer = () => {
               {chatType === "channel" && renderChannelMessages(message)}
             </div>
           );
-        })}
+        }) :
+          <div className="text-gray-500 text-center mt-4">
+            No messages yet. Start the conversation!
+          </div>
+        }
       </>
     );
   };

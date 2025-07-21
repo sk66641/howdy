@@ -13,7 +13,7 @@ import ChannelProfile from '../../../../../profile/ChannelProfile';
 import { FiDelete } from 'react-icons/fi';
 import { GrView } from 'react-icons/gr';
 import { IoMdExit } from 'react-icons/io';
-import { useGetLoggedInUserQuery } from '../../../../../auth/authApi2';
+import { useGetLoggedInUserQuery } from '../../../../../auth/authAPI';
 
 const ChatHeader = () => {
     const dispatch = useDispatch();

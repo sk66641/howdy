@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 // 👇 1. Import the new authApi
-import { authApi } from '../features/auth/authApi2'; 
+import { authApi } from '../features/auth/authAPI'; 
 import chatReducer from '../features/chat/chatSlice';
 import { chatApi } from '../features/chat/chatApi2';
 

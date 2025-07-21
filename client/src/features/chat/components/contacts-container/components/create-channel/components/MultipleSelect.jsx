@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
-import { motion, AnimatePresence, useResetProjection } from 'framer-motion';
+import { motion, AnimatePresence, useResetProjection, convertOffsetToTimes } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { createChannelAsync, searchContactsAsync, selectContacts, selectIsSearchingContacts, setContactsEmpty, setChatType } from '../../../../../chatSlice';
 import '../../../../../../../App.css'
@@ -8,7 +8,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSocket } from '../../../../../../../context/SocketContext';
 import { useRoutes } from 'react-router-dom';
-import { useGetLoggedInUserQuery } from '../../../../../../auth/authApi2';
+import { useGetLoggedInUserQuery } from '../../../../../../auth/authAPI';
 
 
 const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, ref) => {
@@ -25,14 +25,16 @@ const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, 
 
     useImperativeHandle(ref, () => ({
         handleSubmit: () => {
-            // console.log("Selected Users:", selectedUsers);
-            // console.log("Search Query:", searchQuery);
-            // console.log("Channel Name:", channelName);
-            // socket.emit('createChannel', {
-            //     userId: user._id,
-            //     name: channelName,
-            //     members: selectedUsers.map(user => user._id),
-            // });
+
+            if (channelName.trim() === '') {
+                alert("Please enter a channel name.");
+                return;
+            }
+            if (selectedUsers.length === 0) {
+                alert("Please select at least one contact.");
+                return;
+            }
+
             dispatch(createChannelAsync({
                 name: channelName,
                 members: selectedUsers.map(user => user._id),
@@ -144,26 +146,6 @@ const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, 
                                     <span className='text-xs text-[#bdbdbd]'>@{contact.username}</span>
                                 </div>
                             </div>
-
-
-                            // 
-
-                            // {/* <div className='flex border-b gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-[#2d2d4d] p-2 transition-all' key={contact._id} onClick={() => handleSelectContact(contact)}>
-                            //                                     <Avatar className="h-10 w-10 rounded-full">
-                            //                                         {contact.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`} alt="profile" />
-                            //                                             :
-                            //                                             <div className={`uppercase h-10 w-10 text-lg border-[1px] flex items-center justify-center ${colors[contact.color]} rounded-full`}>
-                            //                                                 {contact.fullName.split('')[0]}
-                            //                                             </div>
-                            //                                         }
-                            //                                     </Avatar>
-                            //                                     <div className='flex flex-col'>
-                            //                                         <span className="font-semibold text-white">{contact.fullName}</span>
-                            //                                         <span className='text-xs text-[#bdbdbd]'>@{contact.username}</span>
-                            //                                     </div>
-                            //                                 </div> */}
-
-                            // 
                         ))}
                 </div>
             </ScrollArea>

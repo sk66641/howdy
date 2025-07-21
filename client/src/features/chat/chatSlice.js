@@ -8,8 +8,10 @@ const initialState = {
         isGettingMessages: false,
         isGetChannelMessages: false,
         isSearchingContacts: false,
+        isCreatingChannel: false,
         isDownloading: false,
         isUploading: false,
+        isDeletingChannel: false,
     },
     contacts: [],
     chatType: null,
@@ -270,14 +272,14 @@ export const chatSlice = createSlice({
 
             // createChannelAsync
             .addCase(createChannelAsync.pending, (state) => {
-                state.status = 'loading';
+                state.status.isCreatingChannel = true;
             })
             .addCase(createChannelAsync.fulfilled, (state, action) => {
-                state.status = 'idle';
+                state.status.isCreatingChannel = false;
                 state.channelList.unshift(action.payload);
             })
             .addCase(createChannelAsync.rejected, (state, action) => {
-                state.status = 'error';
+                state.status.isCreatingChannel = false;
                 state.error = action.error.message;
             })
 
@@ -393,6 +395,7 @@ export const selectChannelMembers = (state) => state.chat.channelMembers
 export const selectIsGetChannels = (state) => state.chat.status.isGetChannels;
 export const selectIsGetDmContactList = (state) => state.chat.status.isGetDmContactList;
 export const selectIsGettingMessages = (state) => state.chat.status.isGettingMessages;
+export const selectIsCreatingChannel = (state) => state.chat.status.isCreatingChannel;
 
 export const { setCurrentChat, setContactsEmpty, setChatMessages, setChatType, setChatMessagesEmpty, setFileDownloadProgress, setFileUploadProgress, updateDmContactList, updateChannelList, setChannelMembersEmpty, setDeleteDirectMessage, setDeleteChannelMessage, setDeleteChannelMessageByAdmin } = chatSlice.actions;
 export default chatSlice.reducer

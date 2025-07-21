@@ -62,39 +62,6 @@ const NewDm = () => {
                         />
                     </div>
                     <ScrollArea className="mt-3 h-[200px]">
-
-                        {/*  */}
-                        {/* <div className='flex flex-col justify-center gap-2'>
-                            <div className={`flex gap-3 items-center justify-start ${currentChat.admin._id === user._id ? "cursor-not-allowed" : "cursor-pointer"} rounded-lg hover:bg-[#2d2d4d] p-2 transition-all`} onClick={() => {
-                                if (currentChat.admin._id === user._id) return;
-                                dispatch(setCurrentChat(currentChat.admin));
-                                dispatch(setChatType("contact"));
-                                dispatch(setChannelMembersEmpty());
-                                setOpenNewContactModal(false);
-                            }} >
-                                <Avatar className="h-10 w-10 rounded-full">
-                                    {currentChat.admin.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${currentChat.admin.profileImage}`} alt="profile" />
-                                        :
-                                        <div className={`uppercase h-10 w-10 text-lg border-[1px] flex items-center justify-center ${colors[currentChat.admin.color]} rounded-full`}>
-                                            {currentChat.admin.fullName.split('')[0]}
-                                        </div>
-                                    }
-                                </Avatar>
-                                <div className='flex flex-col'>
-                                    <span className="font-semibold text-white">{currentChat.admin.fullName}</span>
-                                    <span className='text-xs text-[#bdbdbd]'>@{currentChat.admin.username}</span>
-                                </div>
-                                <span className='text-white rounded-md bg-gradient-to-r from-green-600 to-green-700 px-2 ml-2 text-xs font-bold'>
-                                    admin
-                                </span>
-                                {currentChat.admin._id === user._id &&
-                                    <span className="ml-2 text-xs text-[#bdbdbd]">
-                                        you
-                                    </span>
-                                }
-                            </div> */}
-                        {/*  */}
-
                         <div className='flex flex-col justify-center'>
                             {contacts.length > 0 && contacts.map((contact) => (
                                 <div className='flex border-b gap-3 items-center justify-start cursor-pointer rounded-lg hover:bg-[#2d2d4d] p-2 transition-all' key={contact._id} onClick={() => handleSelectContact(contact)}>

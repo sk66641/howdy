@@ -1,4 +1,4 @@
-// src/features/chat/chatApi.js
+// TODO: 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import axios from 'axios';
 import { setFileDownloadProgress, setFileUploadProgress } from './chatSlice'; // We'll use this for progress
@@ -196,4 +196,5 @@ export const {
     useLeaveChannelMutation,
     useDeleteChannelMutation,
     useUploadFileMutation,
+    useLazyDownloadFileQuery,
 } = chatApi;

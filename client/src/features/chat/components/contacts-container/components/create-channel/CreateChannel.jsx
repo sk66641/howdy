@@ -46,6 +46,7 @@ const CreateChannel = () => {
                                 className="rounded-lg p-3 bg-[#2c2e3b] border-none w-3/4"
                                 value={channelName}
                                 onChange={(e) => setChannelName(e.target.value)}
+                                required
                             />
                             <button type='button' onClick={()=>componentRef.current?.handleSubmit()} className='w-1/4 bg-[#8417ff] hover:bg-[#741bda] cursor-pointer hover: rounded-xl'>Create</button>
                         </div>

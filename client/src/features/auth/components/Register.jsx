@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useCreateUserMutation } from '../authAPI';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Register = ({ setActiveTab }) => {
   const [createUser, { isLoading: isCreatingUserLoading, isError: isCreatingUserError, error: creatingUserError }] = useCreateUserMutation();
@@ -24,11 +26,17 @@ const Register = ({ setActiveTab }) => {
     e.preventDefault();
 
     if (inputValue.password !== inputValue.confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match.");
       return;
     }
     createUser(inputValue);
   }
+
+  useEffect(() => {
+    if (isCreatingUserError) {
+      toast.error(creatingUserError?.data?.message || "Registration failed.");
+    }
+  }, [isCreatingUserError]);
 
   return (
     <div className="flex items-center justify-center">
@@ -53,6 +61,7 @@ const Register = ({ setActiveTab }) => {
               onChange={handleInputChange}
               value={inputValue.username}
               name="username"
+              maxLength={10}
               type="text"
               placeholder="Username"
               className="w-1/2 p-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 transition"
@@ -118,6 +127,7 @@ const Register = ({ setActiveTab }) => {
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full blur-lg"></div>
       </div>
+      <Toaster />
     </div>
   );
 };
