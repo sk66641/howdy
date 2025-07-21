@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { selectCurrentChat, setChatMessages, selectChatType, setDeleteDirectMessage, setDeleteChannelMessageByAdmin, setDeleteChannelMessage, getDmContactListAsync, getChannelsAsync, setChatType, setCurrentChat, getChannelMembersAsync } from "../features/chat/chatSlice";
 import { useGetLoggedInUserQuery } from "../features/auth/authAPI";
+import { setDeletingDmMessageId, setIsSendingMessage } from "./socketSlice";
 
 const SocketContext = createContext();
 
@@ -57,7 +58,7 @@ export const SocketProvider = ({ children }) => {
                 if (currentChatRef.current && (currentChatRef.current._id === message.sender._id || currentChatRef.current._id === message.receiver._id)) {
                     // console.log("Received message for selected contact:", message);
                     { chatTypeRef.current === "contact" && dispatch(setChatMessages(message)); }
-                    // dispatch(setChatMessages(message));
+                    dispatch(setIsSendingMessage(false));
                 }
                 if (chatTypeRef.current === null) {
                     dispatch(getDmContactListAsync());
@@ -73,6 +74,7 @@ export const SocketProvider = ({ children }) => {
 
             socket.current.on('direct-message-deleted', ({ messageId }) => {
                 dispatch(setDeleteDirectMessage({ messageId }));
+                dispatch(setDeletingDmMessageId(null));
             });
 
             socket.current.on('channel-message-deleted', ({ channelMessageId }) => {

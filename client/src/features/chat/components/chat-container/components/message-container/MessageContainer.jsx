@@ -9,6 +9,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../../../../../lib/utils';
 import { useSocket } from '../../../../../../context/SocketContext';
 import { useGetLoggedInUserQuery } from '../../../../../auth/authAPI';
+import { selectDeletingDmMessageId, selectIsSendingMessage, setDeletingDmMessageId, setIsDeletingDmMessage } from '../../../../../../context/socketSlice';
 
 const MessageContainer = () => {
   const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
@@ -20,8 +21,10 @@ const MessageContainer = () => {
   const isUploading = useSelector(selectIsUploading);
   const FileUploadProgress = useSelector(selectFileUploadProgress);
   const FileDownloadProgress = useSelector(selectFileDownloadProgress);
+  const isSendingMessage = useSelector(selectIsSendingMessage);
   // console.log(isUploading, FileDownloadProgress)
   const isGettingMessages = useSelector(selectIsGettingMessages);
+  const deletingDmMessageId = useSelector(selectDeletingDmMessageId);
 
   const socket = useSocket();
   const scrollRef = useRef();
@@ -62,6 +65,7 @@ const MessageContainer = () => {
   }
 
   const handleDirectMessageDelete = (messageId) => {
+    dispatch(setDeletingDmMessageId(messageId));
     socket.emit('delete-direct-message', {
       senderId: user._id,
       receiverId: currentChat._id,
@@ -114,6 +118,7 @@ const MessageContainer = () => {
             No messages yet. Start the conversation!
           </div>
         }
+        {isSendingMessage && <div className="text-blue-500 text-right">Sending message...</div>}
       </>
     );
   };
@@ -134,7 +139,7 @@ const MessageContainer = () => {
                 }`}
             >
               {/* Delete Button for text*/}
-              {message.sender === user._id && (
+              {message.sender === user._id && deletingDmMessageId === message._id ? (
                 <button
                   onClick={() => handleDirectMessageDelete(message._id)}
                   className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300
@@ -143,7 +148,9 @@ const MessageContainer = () => {
                 >
                   <IoCloseSharp className="h-3 w-3 text-white" />
                 </button>
-              )}
+              ) :
+                <IoCloseSharp className="h-5 w-5 text-white absolute -top-2 -right-2 opacity-100 transition-all duration-300  bg-red-500 rounded-full animate-pulse" />
+              }
               <p className="text-gray-100">{message.content}</p>
             </div>
           )}
@@ -191,11 +198,8 @@ const MessageContainer = () => {
                     >
                       <IoMdArrowRoundDown className={isCurrentUser ? "text-purple-400" : "text-gray-400"} />
                     </button>
-                  ) : (
-                    <span className={`text-sm ${isCurrentUser ? "text-purple-300" : "text-gray-400"}`}>
-                      {FileDownloadProgress}%
-                    </span>
-                  )}
+                  ) : <IoMdArrowRoundDown className={`animate-bounce ${isCurrentUser ? "text-purple-400" : "text-gray-400"} text-xl`} />
+                  }
                 </div>
               )}
             </div>
@@ -203,9 +207,10 @@ const MessageContainer = () => {
 
           <div className={`text-xs mt-1 px-1 ${isCurrentUser ? "text-gray-400" : "text-gray-500"}`}>
             {moment(message.timestamp).format("hh:mm A")}
-            {message.isRead && isCurrentUser && (
+            {/* TODO: blue-tick */}
+            {/* {message.isRead && isCurrentUser && (
               <span className="ml-1 text-blue-400">✓✓</span>
-            )}
+            )} */}
           </div>
         </div>
       </div>
@@ -319,9 +324,9 @@ const MessageContainer = () => {
                     >
                       <IoMdArrowRoundDown className={isCurrentUser ? "text-purple-400" : "text-gray-400"} />
                     </button>
-                  ) : (
-                    <span className="text-sm text-gray-400">{FileDownloadProgress}%</span>
-                  )}
+                  ) :
+                    <IoMdArrowRoundDown className={`animate-bounce ${isCurrentUser ? "text-purple-400" : "text-gray-400"} text-xl`} />
+                  }
                 </div>
               )}
             </div>

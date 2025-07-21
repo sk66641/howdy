@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectFilePath, selectChatType, selectCurrentChat, uploadFileAsync, selectDmContactList, updateDmContactList, selectChannelList, updateChannelList, selectIsUploading } from '../../../../chatSlice'
 import { useSocket } from '../../../../../../context/SocketContext'
 import { useGetLoggedInUserQuery } from '../../../../../auth/authAPI'
+import { setIsSendingMessage } from '../../../../../../context/socketSlice'
 
 const MessageBar = () => {
 
@@ -48,6 +49,7 @@ const MessageBar = () => {
         // console.log("Sending message:", message);
 
         if (chatType === 'contact') {
+            dispatch(setIsSendingMessage(true));
             socket.emit('send-direct-message', {
                 sender: user._id,
                 receiver: currentChat._id,

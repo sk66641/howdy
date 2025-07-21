@@ -1,3 +1,4 @@
+// TODO: replace it and chatAPI with rtk query (use chatSlice2 & chatApi2)
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { addMembers, createChannel, deleteChannel, downloadFile, getChannelMembers, getChannelMessages, getChannels, getDmContactList, getMessages, leaveChannel, removeMember, searchContacts, uploadFile } from './chatAPI'
 import { deleteChannelProfileImage, updateChannelProfile, updateChannelProfileImage } from '../profile/profileAPI';
@@ -314,6 +315,7 @@ export const chatSlice = createSlice({
             })
 
             // removeMemberAsync
+
             .addCase(removeMemberAsync.fulfilled, (state, action) => {
                 state.channelMembers = state.channelMembers.filter(member => member._id !== action.payload.memberId);
             })
@@ -354,6 +356,9 @@ export const chatSlice = createSlice({
             })
 
             // deleteChannelAsync
+            .addCase(deleteChannelAsync.pending, (state) => {
+                state.status.isDeletingChannel = true;
+            })
             .addCase(deleteChannelAsync.fulfilled, (state, action) => {
                 const { channelId } = action.payload;
                 const index = state.channelList.findIndex(channel => channel._id === channelId);
@@ -362,6 +367,9 @@ export const chatSlice = createSlice({
                 }
                 state.currentChat = null;
                 state.chatType = null;
+            })
+            .addCase(deleteChannelAsync.rejected, (state, action) => {
+                state.status.isDeletingChannel = false;
             })
 
             // leaveChannelAsync
@@ -378,24 +386,24 @@ export const chatSlice = createSlice({
 })
 
 export const selectContacts = (state) => state.chat.contacts;
-export const selectError = (state) => state.chat.error;
-export const selectStatus = (state) => state.chat.status;
 export const selectChatType = (state) => state.chat.chatType;
 export const selectCurrentChat = (state) => state.chat.currentChat;
 export const selectChatMessages = (state) => state.chat.chatMessages;
 export const selectDmContactList = (state) => state.chat.DmContactList;
 export const selectFilePath = (state) => state.chat.filePath;
-export const selectIsDownloading = (state) => state.chat.status.isDownloading;
-export const selectIsUploading = (state) => state.chat.status.isUploading;
 export const selectFileUploadProgress = (state) => state.chat.fileUploadProgress;
 export const selectFileDownloadProgress = (state) => state.chat.fileDownloadProgress;
-export const selectIsSearchingContacts = (state) => state.chat.status.isSearchingContacts;
 export const selectChannelList = (state) => state.chat.channelList;
 export const selectChannelMembers = (state) => state.chat.channelMembers
+
+export const selectIsDownloading = (state) => state.chat.status.isDownloading;
+export const selectIsUploading = (state) => state.chat.status.isUploading;
+export const selectIsSearchingContacts = (state) => state.chat.status.isSearchingContacts;
 export const selectIsGetChannels = (state) => state.chat.status.isGetChannels;
 export const selectIsGetDmContactList = (state) => state.chat.status.isGetDmContactList;
 export const selectIsGettingMessages = (state) => state.chat.status.isGettingMessages;
 export const selectIsCreatingChannel = (state) => state.chat.status.isCreatingChannel;
+export const selectIsDeletingChannel = (state) => state.chat.status.isDeletingChannel;
 
 export const { setCurrentChat, setContactsEmpty, setChatMessages, setChatType, setChatMessagesEmpty, setFileDownloadProgress, setFileUploadProgress, updateDmContactList, updateChannelList, setChannelMembersEmpty, setDeleteDirectMessage, setDeleteChannelMessage, setDeleteChannelMessageByAdmin } = chatSlice.actions;
 export default chatSlice.reducer

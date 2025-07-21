@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { RiCloseFill, RiDeleteBinFill, RiEditLine } from 'react-icons/ri'
 import { useDispatch, useSelector } from 'react-redux'
-import { deleteChannelAsync, leaveChannelAsync, removeMemberAsync, selectChannelMembers, selectChatType, selectContacts, selectCurrentChat, setChannelMembersEmpty, setChatType, setCurrentChat } from '../../../../chatSlice';
+import { deleteChannelAsync, leaveChannelAsync, removeMemberAsync, selectChannelMembers, selectChatType, selectCurrentChat, setChannelMembersEmpty, setChatType, setCurrentChat } from '../../../../chatSlice';
 import { FaSearch } from 'react-icons/fa'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
@@ -19,9 +19,11 @@ const ChatHeader = () => {
     const dispatch = useDispatch();
     const currentChat = useSelector(selectCurrentChat);
     const chatType = useSelector(selectChatType);
+    const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
     const [openNewContactModal, setOpenNewContactModal] = useState(false);
     const [openChannelProfileModal, setOpenChannelProfileModal] = useState(false);
-    const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
+    const [removeMemberSelected, setRemoveMemberSelected] = useState(null);
+    const [deletingChannelId, setDeletingChannelId] = useState(null);
 
     const channelMembers = useSelector(selectChannelMembers);
     const [addMembersMode, setAddMembersMode] = useState(false);
@@ -36,7 +38,10 @@ const ChatHeader = () => {
     }
 
     const handleRemoveMember = (channelId, memberId) => {
-        dispatch(removeMemberAsync({ channelId, memberId }));
+        setRemoveMemberSelected(memberId);
+        dispatch(removeMemberAsync({ channelId, memberId })).unwrap().then(() => {
+            setRemoveMemberSelected(null);
+        });
     }
 
     const handleAddMembers = () => {
@@ -205,7 +210,7 @@ const ChatHeader = () => {
                                                                     </span>
                                                                 }
                                                             </div>
-                                                            {currentChat.admin._id === user._id &&
+                                                            {currentChat.admin._id === user._id && removeMemberSelected !== contact._id ?
                                                                 <Tooltip>
                                                                     <TooltipTrigger>
                                                                         <FiDelete color='#ff4d4f' size='20' className='cursor-pointer ml-[24px] hover:scale-110 transition-all' onClick={() => handleRemoveMember(currentChat._id, contact._id)} />
@@ -214,6 +219,8 @@ const ChatHeader = () => {
                                                                         Remove
                                                                     </TooltipContent>
                                                                 </Tooltip>
+                                                                :
+                                                                <div className="h-5 w-5 border-2 border-red-400 border-t-red-500 rounded-full animate-spin" />
                                                             }
                                                         </div>))}
                                                 </div>
@@ -240,20 +247,24 @@ const ChatHeader = () => {
                             <ChannelProfile openChannelProfileModal={openChannelProfileModal} setOpenChannelProfileModal={setOpenChannelProfileModal} />
 
                             {/* delete button */}
-                            {currentChat.admin._id === user._id &&
+                            {currentChat.admin._id === user._id && deletingChannelId !== currentChat._id ?
                                 <Tooltip>
                                     <TooltipTrigger>
                                         <RiDeleteBinFill
                                             className="text-[#bdbdbd] hover:text-[#ff4d4f] text-xl cursor-pointer transition-all duration-300"
                                             onClick={() => {
-                                                dispatch(deleteChannelAsync(currentChat._id));
+                                                setDeletingChannelId(currentChat._id);
+                                                dispatch(deleteChannelAsync(currentChat._id)).unwrap().then(() => {
+                                                    setDeletingChannelId(null);
+                                                });
                                             }}
                                         />
                                     </TooltipTrigger>
                                     <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
                                         Delete Channel
                                     </TooltipContent>
-                                </Tooltip>
+                                </Tooltip> :
+                                <div className="h-5 w-5 border-2 border-red-400 border-t-red-500 rounded-full animate-spin" />
                             }
                         </div>
                     </div>

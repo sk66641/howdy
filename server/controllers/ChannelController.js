@@ -3,6 +3,7 @@ const { User } = require("../models/User");
 const fs = require('fs')
 const { ChannelMessage } = require('../models/ChannelMessage');
 const { channel } = require("diagnostics_channel");
+const crypto = require('crypto');
 
 exports.createChannel = async (req, res) => {
     try {
@@ -25,6 +26,17 @@ exports.createChannel = async (req, res) => {
             return res.status(400).json({ message: "One or more members not found" });
         }
 
+        // Generate a base handle from the name
+        let baseHandle = name.trim().toLowerCase().replace(/\s+/g, '').slice(0, 10);
+        let handle = baseHandle;
+
+        // Ensure the handle is unique
+        // Generate a unique, non-predictable handle
+        while (await Channel.findOne({ handle })) {
+            const randomSuffix = crypto.randomBytes(10).toString('hex');
+            handle = `${baseHandle}${randomSuffix}`;
+        }
+
         // const newChannel = new Channel({
         //     name,
         //     members,
@@ -33,7 +45,7 @@ exports.createChannel = async (req, res) => {
 
         // await newChannel.save();
 
-        const newChannel = await Channel.create({ name, members, admin: userId });
+        const newChannel = await Channel.create({ name, members, admin: userId, handle: handle });
 
         const createdChannel = await Channel.findById(newChannel._id)
             .select('-messages -members')
@@ -184,7 +196,7 @@ exports.getChannelMembers = async (req, res) => {
 exports.addMembers = async (req, res) => {
     try {
         const { channelId, members } = req.body;
-        
+
         if (!channelId || !members) return res.status(400).json({ message: "channelId or memberId not found" });
         const addedMembers = await Channel.findByIdAndUpdate(channelId, { $push: { members: { $each: members } } }, { new: true }).select('members').populate('members', '-email -password');
 

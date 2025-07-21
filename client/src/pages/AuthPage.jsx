@@ -60,7 +60,7 @@ const AuthPage = () => {
         className="relative z-10 w-full max-w-4xl bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden border border-gray-700"
       >
         {/* Left Side - Branding */}
-        <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-blue-900/90 to-purple-900/90 w-1/2 p-10 text-white relative overflow-hidden">
+        <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-blue-900/90 to-purple-900/90 w-1/2 p-10  text-white relative overflow-hidden">
           <div className="absolute -top-24 -left-24 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 right-0 w-56 h-56 bg-purple-600/20 rounded-full blur-2xl"></div>
           <motion.img

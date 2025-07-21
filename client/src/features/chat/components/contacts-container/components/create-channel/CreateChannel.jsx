@@ -45,6 +45,7 @@ const CreateChannel = () => {
                                 placeholder="Enter channel name..."
                                 className="rounded-lg p-3 bg-[#2c2e3b] border-none w-3/4"
                                 value={channelName}
+                                maxLength={20}
                                 onChange={(e) => setChannelName(e.target.value)}
                                 required
                             />
