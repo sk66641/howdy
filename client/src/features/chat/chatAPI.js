@@ -2,6 +2,7 @@ import axios from 'axios';
 import { setFileDownloadProgress, setFileUploadProgress } from './chatSlice';
 
 export function searchContacts(searchQuery) {
+    console.log("searchContacts", searchQuery);
     return new Promise(async (resolve) => {
 
         const response = await fetch(`${import.meta.env.VITE_HOST}/contacts/search`,
@@ -340,3 +341,4 @@ export function deleteChannel(channelId) {
 
     })
 }
+

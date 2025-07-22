@@ -1,30 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FaPlus } from 'react-icons/fa'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { useDispatch, useSelector } from 'react-redux'
-import { colors } from '../../../../../../lib/utils'
+import { colors, useDebounce } from '../../../../../../lib/utils'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { searchContactsAsync, selectContacts, setContactsEmpty, setCurrentChat, setChatType } from '../../../../chatSlice'
 
 const NewDm = () => {
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery);
     const [openNewContactModal, setOpenNewContactModal] = useState(false);
     const dispatch = useDispatch();
     const contacts = useSelector(selectContacts);
+
     const handleNewContact = () => {
         setOpenNewContactModal(false);
         setSearchQuery('');
         dispatch(setContactsEmpty());
     };
-    const handleInputChange = (e) => {
-        setSearchQuery(e.target.value)
-        dispatch(setContactsEmpty());
-        if (e.target.value.trim().length > 0) {
-            dispatch(searchContactsAsync({ searchTerm: e.target.value }));
-        }
-    }
+
     const handleSelectContact = (contact) => {
         dispatch(setChatType('contact'));
         setOpenNewContactModal(false);
@@ -32,6 +28,19 @@ const NewDm = () => {
         dispatch(setContactsEmpty());
         dispatch(setCurrentChat(contact));
     }
+
+    const handleInputChange = (e) => {
+        if (searchQuery === '' && e.target.value.trim() === '') return;
+        dispatch(setContactsEmpty());
+        setSearchQuery(e.target.value);
+    };
+
+    useEffect(() => {
+        if (debouncedSearchQuery) {
+            dispatch(searchContactsAsync({ searchTerm: debouncedSearchQuery }));
+        }
+    }, [debouncedSearchQuery, dispatch]);
+
     return (
         <>
             <Tooltip>

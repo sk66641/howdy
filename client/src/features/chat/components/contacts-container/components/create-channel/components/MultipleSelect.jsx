@@ -1,24 +1,21 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
-import { motion, AnimatePresence, useResetProjection, convertOffsetToTimes } from 'framer-motion';
+import React, { useState, useRef, forwardRef, useEffect, useImperativeHandle } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { createChannelAsync, searchContactsAsync, selectContacts, selectIsSearchingContacts, setContactsEmpty, setChatType } from '../../../../../chatSlice';
 import '../../../../../../../App.css'
-import { colors } from '../../../../../../../lib/utils';
+import { colors, useDebounce } from '../../../../../../../lib/utils';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useSocket } from '../../../../../../../context/SocketContext';
-import { useRoutes } from 'react-router-dom';
 import { useGetLoggedInUserQuery } from '../../../../../../auth/authAPI';
-
 
 const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, ref) => {
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery);
     const isSearchingContacts = useSelector(selectIsSearchingContacts);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const contacts = useSelector(selectContacts);
     const dispatch = useDispatch();
     const inputRef = useRef();
-    const socket = useSocket();
     const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
 
 
@@ -43,13 +40,6 @@ const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, 
         }
     }));
 
-    const handleInputChange = (e) => {
-        if (searchQuery === '' && e.target.value.trim() === '') return;
-        setSearchQuery(e.target.value);
-        dispatch(searchContactsAsync({ searchTerm: e.target.value }));
-    };
-
-
     const handleUserSelect = (user) => {
         if (!selectedUsers.some(u => u.username === user.username)) {
             setSelectedUsers(prev => [...prev, user]);
@@ -69,6 +59,18 @@ const InlineUserSelector = forwardRef(({ channelName, setOpenNewContactModal }, 
             setSelectedUsers(prev => prev.slice(0, -1));
         }
     };
+
+    const handleInputChange = (e) => {
+        if (searchQuery === '' && e.target.value.trim() === '') return;
+        dispatch(setContactsEmpty());
+        setSearchQuery(e.target.value);
+    };
+
+    useEffect(() => {
+        if (debouncedSearchQuery) {
+            dispatch(searchContactsAsync({ searchTerm: debouncedSearchQuery }));
+        }
+    }, [debouncedSearchQuery, dispatch]);
 
     return (
         <div className="max-w-xl mx-auto space-y-2">

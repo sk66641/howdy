@@ -17,10 +17,13 @@ import {
 } from '../../../../chatSlice'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { colors } from '../../../../../../lib/utils'
+import { selectOnlineUsers } from '../../../../../../context/socketSlice'
 
 const DmList = ({ isChannel }) => {
     const dispatch = useDispatch();
 
+    const onlineUsers = useSelector(selectOnlineUsers);
+    console.log("Online Users:", onlineUsers);
     const isGetDmContactList = useSelector(selectIsGetDmContactList);
     const isGetChannels = useSelector(selectIsGetChannels);
     const contacts = useSelector(selectDmContactList);
@@ -59,7 +62,7 @@ const DmList = ({ isChannel }) => {
             {!isChannel && contacts.length > 0 && contacts.map((contact) => (
                 <div
                     key={contact._id}
-                    className={`group relative pl-8 pr-4 py-3 m-2 rounded-xl shadow-lg bg-gradient-to-r transition-all duration-300 cursor-pointer border border-transparent
+                    className={`group relative px-4 py-2 m-2 rounded-xl shadow-lg bg-gradient-to-r transition-all duration-300 cursor-pointer border border-transparent
                         ${currentChat && currentChat._id === contact._id
                             ? "from-indigo-700 to-indigo-900 border-indigo-400"
                             : "from-gray-800 to-gray-900 hover:from-indigo-800 hover:to-indigo-900 hover:border-indigo-400"
@@ -67,19 +70,26 @@ const DmList = ({ isChannel }) => {
                     onClick={() => handleClick(contact)}
                 >
                     <div className="flex gap-4 items-center text-neutral-100">
-                        <Avatar className="h-12 w-12 rounded-full shadow-md border-2 border-indigo-400 group-hover:scale-110 transition-transform duration-200">
-                            {contact.profileImage ? (
-                                <AvatarImage
-                                    className="object-cover w-full h-full bg-black"
-                                    src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`}
-                                    alt="profile"
-                                />
-                            ) : (
-                                <div className={`uppercase h-12 w-12 text-2xl font-bold flex items-center justify-center ${colors[contact.color]} rounded-full`}>
-                                    {contact.fullName.split('')[0]}
-                                </div>
-                            )}
-                        </Avatar>
+                        <div className='relative w-fit'>
+                            <Avatar className="h-12 w-12 rounded-full shadow-md border-2 border-indigo-400 group-hover:scale-110 transition-transform duration-200">
+                                {contact.profileImage ? (
+                                    <AvatarImage
+                                        className="object-cover w-full h-full bg-black"
+                                        src={`${import.meta.env.VITE_HOST}/${contact.profileImage}`}
+                                        alt="profile"
+                                    />
+                                ) : (
+                                    <div className={`uppercase h-12 w-12 text-2xl font-bold flex items-center justify-center ${colors[contact.color]} rounded-full`}>
+                                        {contact.fullName.split('')[0]}
+                                    </div>
+                                )}
+                            </Avatar>
+                            <div
+                                className={`absolute bottom-0 right-0.5 h-3 w-3 rounded-full border-2 border-gray-900 ${onlineUsers.includes(contact._id) ? "bg-green-500" : "bg-gray-400"
+                                    }`}
+                                title={onlineUsers.includes(contact._id) ? "Online" : "Offline"}
+                            />
+                        </div>
                         <div className='flex flex-col'>
                             <span className="font-semibold text-lg tracking-wide group-hover:text-indigo-300 transition-colors duration-200">
                                 {contact.fullName}
@@ -124,7 +134,7 @@ const DmList = ({ isChannel }) => {
             {isChannel && channelsList.length > 0 && channelsList.map((channel) => (
                 <div
                     key={channel._id}
-                    className={`group relative pl-8 pr-4 py-3 m-2 rounded-xl shadow-lg bg-gradient-to-r transition-all duration-300 cursor-pointer border border-transparent
+                    className={`group relative px-4 py-2 m-2 rounded-xl shadow-lg bg-gradient-to-r transition-all duration-300 cursor-pointer border border-transparent
                         ${chatType === "channel" && currentChat && currentChat._id === channel._id
                             ? "from-pink-700 to-pink-900 border-pink-400"
                             : "from-gray-800 to-gray-900 hover:from-pink-800 hover:to-pink-900 hover:border-pink-400"

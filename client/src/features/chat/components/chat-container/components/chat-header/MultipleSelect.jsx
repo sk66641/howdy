@@ -1,9 +1,9 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
-import { createChannelAsync, searchContactsAsync, selectContacts, selectIsSearchingContacts, setContactsEmpty, setChatType, selectCurrentChat, addMembersAsync, selectChannelMembers } from '../../../../chatSlice';
+import { selectContacts, selectIsSearchingContacts, setContactsEmpty, setChatType, selectCurrentChat, addMembersAsync, selectChannelMembers } from '../../../../chatSlice';
 import '../../../../../../App.css'
-import { colors } from '../../../../../../lib/utils';
+import { colors, useDebounce } from '../../../../../../lib/utils';
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSearchContactsQuery } from '../../../../chatApi2';
@@ -11,6 +11,7 @@ import { useSearchContactsQuery } from '../../../../chatApi2';
 
 const InlineUserSelector = ({ setAddMembersMode }) => {
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
     const isSearchingContacts = useSelector(selectIsSearchingContacts);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const contacts = useSelector(selectContacts);
@@ -18,14 +19,7 @@ const InlineUserSelector = ({ setAddMembersMode }) => {
     const inputRef = useRef();
     const currentChat = useSelector(selectCurrentChat);
     const channelMembers = useSelector(selectChannelMembers);
-    const{}=useSearchContactsQuery();
-
-    const handleInputChange = (e) => {
-        if (searchQuery === '' && e.target.value.trim() === '') return;
-        setSearchQuery(e.target.value);
-        dispatch(searchContactsAsync({ searchTerm: e.target.value }));
-    };
-
+    const { } = useSearchContactsQuery();
 
     const handleUserSelect = (user) => {
         if (!selectedUsers.some(u => u.username === user.username)) {
@@ -51,6 +45,18 @@ const InlineUserSelector = ({ setAddMembersMode }) => {
         dispatch(addMembersAsync({ channelId: currentChat._id, members: selectedUsers.map(user => user._id) }))
         setAddMembersMode(false);
     }
+
+    const handleInputChange = (e) => {
+        if (searchQuery === '' && e.target.value.trim() === '') return;
+        dispatch(setContactsEmpty());
+        setSearchQuery(e.target.value);
+    };
+
+    useEffect(() => {
+        if (debouncedSearchQuery) {
+            dispatch(searchContactsAsync({ searchTerm: debouncedSearchQuery }));
+        }
+    }, [debouncedSearchQuery, dispatch]);
 
     return (
         <div className="w-full mx-auto space-y-2">

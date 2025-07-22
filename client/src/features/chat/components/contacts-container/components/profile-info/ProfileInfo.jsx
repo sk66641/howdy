@@ -12,10 +12,12 @@ import { IoPower } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom'
 import Profile from '../../../../../profile/Profile'
 import { useGetLoggedInUserQuery, useLogoutMutation } from '../../../../../auth/authAPI'
+import { selectOnlineUsers } from '../../../../../../context/socketSlice'
 
 const ProfileInfo = () => {
     const { data: user, isLoading: isGettingLoggedInUser } = useGetLoggedInUserQuery();
     const [logout, { isLoading, isSuccess }] = useLogoutMutation();
+    const onlineUsers = useSelector(selectOnlineUsers);
 
     const [openProfileModal, setOpenProfileModal] = useState(false);
 
@@ -28,7 +30,7 @@ const ProfileInfo = () => {
     return (
         <div className="absolute bottom-0 h-16 flex rounded-t-lg items-center justify-between px-3 w-full bg-[#272a3d]">
             <div className='flex gap-3 items-center justify-around w-full overflow-hidden'>
-                <div >
+                <div className='relative w-fit' >
                     <Avatar className="h-12 w-12 border-2 border-indigo-400 rounded-full overflow-hidden">
                         {user.profileImage ? <AvatarImage className="object-cover w-full h-full bg-black" src={`${import.meta.env.VITE_HOST}/${user.profileImage}`} alt="profile" />
                             :
@@ -37,6 +39,11 @@ const ProfileInfo = () => {
                             </div>
                         }
                     </Avatar>
+                    <div
+                        className={`absolute bottom-0 right-0.5  h-3 w-3 rounded-full border-2 border-gray-900 ${onlineUsers.includes(user._id) ? "bg-green-500" : "bg-gray-400"
+                            }`}
+                        title={onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                    />
                 </div>
                 <div className='flex flex-col'>
                     <div className='flex gap-2 items-center flex-wrap'>

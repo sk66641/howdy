@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { selectCurrentChat, setChatMessages, selectChatType, setDeleteDirectMessage, setDeleteChannelMessageByAdmin, setDeleteChannelMessage, getDmContactListAsync, getChannelsAsync, setChatType, setCurrentChat, getChannelMembersAsync } from "../features/chat/chatSlice";
 import { useGetLoggedInUserQuery } from "../features/auth/authAPI";
-import { setDeletingDmMessageId, setIsSendingMessage } from "./socketSlice";
+import { setDeletingDmMessageId, setIsSendingMessage, setOnlineUsers } from "./socketSlice";
 
 const SocketContext = createContext();
 
@@ -51,7 +51,9 @@ export const SocketProvider = ({ children }) => {
                 console.log("connected to socket server");
             });
 
-
+            socket.current.on('online-users', (onlineUserIds) => {
+                dispatch(setOnlineUsers(onlineUserIds));
+            });
 
             socket.current.on('receiveMessage', (message) => {
                 // console.log("Received message:", message);
@@ -74,7 +76,7 @@ export const SocketProvider = ({ children }) => {
 
             socket.current.on('direct-message-deleted', ({ messageId }) => {
                 dispatch(setDeleteDirectMessage({ messageId }));
-                dispatch(setDeletingDmMessageId(null));
+                dispatch(setDeletingDmMessageId({ messageId, deleted: true }));
             });
 
             socket.current.on('channel-message-deleted', ({ channelMessageId }) => {

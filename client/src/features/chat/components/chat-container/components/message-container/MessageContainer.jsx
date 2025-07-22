@@ -65,7 +65,7 @@ const MessageContainer = () => {
   }
 
   const handleDirectMessageDelete = (messageId) => {
-    dispatch(setDeletingDmMessageId(messageId));
+    dispatch(setDeletingDmMessageId({ messageId, deleted: false }));
     socket.emit('delete-direct-message', {
       senderId: user._id,
       receiverId: currentChat._id,
@@ -139,7 +139,9 @@ const MessageContainer = () => {
                 }`}
             >
               {/* Delete Button for text*/}
-              {message.sender === user._id && deletingDmMessageId !== message._id ? (
+              {message.sender !== user._id ? null : deletingDmMessageId.includes(message._id) ?
+                <div className="h-5 w-5 border-2 border-white border-t-red-500 rounded-full animate-spin absolute -top-2 -right-2 bg-red-500" />
+                :
                 <button
                   onClick={() => handleDirectMessageDelete(message._id)}
                   className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300
@@ -148,8 +150,6 @@ const MessageContainer = () => {
                 >
                   <IoCloseSharp className="h-3 w-3 text-white" />
                 </button>
-              ) :
-                <IoCloseSharp className="h-5 w-5 text-white absolute -top-2 -right-2 opacity-100 transition-all duration-300  bg-red-500 rounded-full animate-pulse" />
               }
               <p className="text-gray-100">{message.content}</p>
             </div>
@@ -164,16 +164,18 @@ const MessageContainer = () => {
                 }`}
             >
               {/* Delete Button for files */}
-              {message.sender === user._id && (
+              {message.sender !== user._id ? null : deletingDmMessageId.includes(message._id) ?
+                <div className="h-5 w-5 border-2 border-white border-t-red-500 rounded-full animate-spin absolute -top-2 -right-2 bg-red-500" />
+                :
                 <button
                   onClick={() => handleDirectMessageDelete(message._id)}
                   className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300
-                         bg-red-500 hover:bg-red-600 p-1.5 rounded-full shadow-lg transform hover:scale-110 z-10"
+                         bg-red-500 hover:bg-red-600 p-1.5 rounded-full shadow-lg transform hover:scale-110"
                   title="Delete message"
                 >
                   <IoCloseSharp className="h-3 w-3 text-white" />
                 </button>
-              )}
+              }
 
               {checkIfImage(message.fileURL) ? (
                 <div onClick={() => handleImageClick(message.fileURL)} className='cursor-pointer'>
@@ -207,6 +209,7 @@ const MessageContainer = () => {
 
           <div className={`text-xs mt-1 px-1 ${isCurrentUser ? "text-gray-400" : "text-gray-500"}`}>
             {moment(message.timestamp).format("hh:mm A")}
+            <span className="ml-1 text-blue-400">✓</span>
             {/* TODO: blue-tick */}
             {/* {message.isRead && isCurrentUser && (
               <span className="ml-1 text-blue-400">✓✓</span>
@@ -223,8 +226,6 @@ const MessageContainer = () => {
     const isAdmin = user._id === currentChat.admin._id;
 
     return (
-
-
       <div className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} mb-4`}>
         {!isCurrentUser && (
           <div className="flex-shrink-0 mr-3">

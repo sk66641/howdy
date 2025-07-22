@@ -163,6 +163,11 @@ const setUpSocket = (server) => {
         }
     }
 
+    const broadcastOnlineUsers = () => {
+        const onlineUserIds = Array.from(userSocketMap.keys());
+        io.emit('online-users', onlineUserIds);
+    };
+
     io.on('connection', (socket) => {
 
         const userId = socket.handshake.query.userId;
@@ -171,6 +176,7 @@ const setUpSocket = (server) => {
             userSocketMap.set(userId, socket.id);
             // console.log('Current userSocketMap:', Array.from(userSocketMap.entries()));
             // console.log(`User connected: ${userId}, Socket ID: ${socket.id}`);
+            broadcastOnlineUsers();
         } else {
             console.log('User ID not provided in handshake query');
         }
@@ -187,6 +193,7 @@ const setUpSocket = (server) => {
                 if (socketId === socket.id) {
                     userSocketMap.delete(userId);
                     // console.log(`User disconnected: ${userId}, Socket ID: ${socket.id}`);
+                    broadcastOnlineUsers();
                     break;
                 }
             }

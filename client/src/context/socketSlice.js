@@ -4,8 +4,10 @@ const initialState = {
     isSendingMessage: false,
     isDeletingDmMessage: false,
     isDeletingChannelMessage: false,
-    deletingDmMessageId: null, 
-    deletingChannelMessageId: null,
+    deletingDmMessageId: [],
+    deletingChannelMessageId: [],
+    onlineUsers: [],
+    isOnline: false,
 }
 
 export const socketSlice = createSlice({
@@ -22,14 +24,22 @@ export const socketSlice = createSlice({
             state.isDeletingChannelMessage = action.payload;
         },
         setDeletingDmMessageId: (state, action) => {
-            state.deletingDmMessageId = action.payload;
+            if (action.payload.deleted) {
+                state.deletingDmMessageId = state.deletingDmMessageId.filter(id => id !== action.payload.messageId);
+                return;
+            }
+            state.deletingDmMessageId.push(action.payload);
         },
         setDeletingChannelMessageId: (state, action) => {
-            state.deletingChannelMessageId = action.payload;
+            state.deletingChannelMessageId.push(action.payload);
+        },
+        setOnlineUsers: (state, action) => {
+            state.onlineUsers = action.payload;
         },
     },
 });
 
+export const selectOnlineUsers = (state) => state.socket.onlineUsers;
 
 export const selectIsSendingMessage = (state) => state.socket.isSendingMessage;
 export const selectIsDeletingDmMessage = (state) => state.socket.isDeletingDmMessage;
@@ -37,5 +47,5 @@ export const selectIsDeletingChannelMessage = (state) => state.socket.isDeleting
 export const selectDeletingDmMessageId = (state) => state.socket.deletingDmMessageId;
 export const selectDeletingChannelMessageId = (state) => state.socket.deletingChannelMessageId
 
-export const { setIsSendingMessage, setIsDeletingDmMessage, setIsDeletingChannelMessage, setDeletingDmMessageId, setDeletingChannelMessageId } = socketSlice.actions;
+export const { setIsSendingMessage, setIsDeletingDmMessage, setIsDeletingChannelMessage, setDeletingDmMessageId, setDeletingChannelMessageId, setOnlineUsers } = socketSlice.actions;
 export default socketSlice.reducer

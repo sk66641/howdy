@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge"
+import { useState, useEffect } from "react";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -15,3 +16,19 @@ export const colors = [
 export const getColor = (color) => {
   return colors[color];
 };
+
+export function useDebounce(value, delay = 300) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
