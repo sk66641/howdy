@@ -52,7 +52,6 @@ export const authApi = createApi({
         
         updateProfile: builder.mutation({
             query: (update) => ({
-                // Assuming your profile update endpoint is '/profile'
                 url: 'profile', 
                 method: 'PATCH', // PATCH is common for partial updates
                 body: update,
@@ -62,7 +61,6 @@ export const authApi = createApi({
         
         updateProfileImage: builder.mutation({
             query: (formData) => ({
-                // Assuming your image update endpoint is '/profile/image'
                 url: 'profile/image',
                 method: 'POST',
                 // RTK Query automatically handles FormData and sets the correct headers
@@ -73,7 +71,6 @@ export const authApi = createApi({
 
         deleteProfileImage: builder.mutation({
             query: () => ({
-                 // Assuming your image delete endpoint is '/profile/image'
                 url: 'profile/image',
                 method: 'DELETE',
             }),
