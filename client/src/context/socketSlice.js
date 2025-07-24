@@ -5,7 +5,6 @@ const initialState = {
     isDeletingDmMessage: false,
     isDeletingChannelMessage: false,
     deletingDmMessageId: [],
-    deletingChannelMessageId: [],
     onlineUsers: [],
     isOnline: false,
 }
@@ -28,10 +27,7 @@ export const socketSlice = createSlice({
                 state.deletingDmMessageId = state.deletingDmMessageId.filter(id => id !== action.payload.messageId);
                 return;
             }
-            state.deletingDmMessageId.push(action.payload);
-        },
-        setDeletingChannelMessageId: (state, action) => {
-            state.deletingChannelMessageId.push(action.payload);
+            state.deletingDmMessageId.push(action.payload.messageId);
         },
         setOnlineUsers: (state, action) => {
             state.onlineUsers = action.payload;
@@ -47,5 +43,5 @@ export const selectIsDeletingChannelMessage = (state) => state.socket.isDeleting
 export const selectDeletingDmMessageId = (state) => state.socket.deletingDmMessageId;
 export const selectDeletingChannelMessageId = (state) => state.socket.deletingChannelMessageId
 
-export const { setIsSendingMessage, setIsDeletingDmMessage, setIsDeletingChannelMessage, setDeletingDmMessageId, setDeletingChannelMessageId, setOnlineUsers } = socketSlice.actions;
+export const { setIsSendingMessage, setIsDeletingDmMessage, setIsDeletingChannelMessage, setDeletingDmMessageId, setOnlineUsers } = socketSlice.actions;
 export default socketSlice.reducer

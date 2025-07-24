@@ -23,7 +23,7 @@ const DmList = ({ isChannel }) => {
     const dispatch = useDispatch();
 
     const onlineUsers = useSelector(selectOnlineUsers);
-    console.log("Online Users:", onlineUsers);
+    // console.log("Online Users:", onlineUsers);
     const isGetDmContactList = useSelector(selectIsGetDmContactList);
     const isGetChannels = useSelector(selectIsGetChannels);
     const contacts = useSelector(selectDmContactList);

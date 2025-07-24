@@ -315,7 +315,6 @@ export const chatSlice = createSlice({
             })
 
             // removeMemberAsync
-
             .addCase(removeMemberAsync.fulfilled, (state, action) => {
                 state.channelMembers = state.channelMembers.filter(member => member._id !== action.payload.memberId);
             })
